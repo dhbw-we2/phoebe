@@ -15,7 +15,7 @@
     "quasar": "^1.0.0"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.6"
+    "@quasar/app": "^2.1.1"
   },
   "engines": {
     "node": ">= 10.18.1",

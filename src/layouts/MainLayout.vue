@@ -1,26 +1,21 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+
+
+
+  <q-layout view="lHh Lpr lFf ">
+
     <q-header
-      class="bg-white text-grey-10"
+      class="bg-blue-grey-6 text-grey-10"
       bordered
     >
-      <q-toolbar class="constrain">
-        <q-btn
-          to="/camera"
-          class="large-screen-only q-mr-sm"
-          icon="eva-camera-outline"
-          size="18px"
-          flat
-          round
-          dense
-        />
+      <q-toolbar class="constrain bg-blue-grey-6" >
         <q-separator
           class="large-screen-only"
           vertical
           spaced
         />
-        <q-toolbar-title class="text-grand-hotel text-bold">
-          Quasagram
+        <q-toolbar-title class="text-bold text-white">
+          garduino
         </q-toolbar-title>
         <q-btn
           to="/"
@@ -34,25 +29,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-footer
-      class="bg-white small-screen-only"
-      bordered
-    >
-      <q-tabs
-        class="text-grey-10"
-        active-color="primary"
-        indicator-color="transparent"
-      >
-        <q-route-tab
-          to="/"
-          icon="eva-home-outline"
-        />
-        <q-route-tab
-          to="/camera"
-          icon="eva-camera-outline"
-        />
-      </q-tabs>
-    </q-footer>
+
 
     <q-page-container>
       <router-view />
@@ -66,7 +43,7 @@ export default {
 
   data () {
     return {
-      
+
     }
   }
 }
