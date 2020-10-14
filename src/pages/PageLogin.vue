@@ -19,6 +19,7 @@
             <p class="text-grey-6">Not reigistered? Created an Account</p>
           </q-card-section>
         </q-card>
+        <q-btn class="bg-blue-grey" @click="" >Login</q-btn>
       </div>
     </div>
   </q-page>
