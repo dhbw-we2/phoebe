@@ -18,7 +18,7 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
     boot: [
-      
+
       'axios',
     ],
 
@@ -88,7 +88,9 @@ module.exports = function (/* ctx */) {
       directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [
+        'Dialog'
+      ]
     },
 
     // animations: 'all', // --- includes all animations
@@ -105,8 +107,8 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: 'Quasagram',
-        short_name: 'Quasagram',
+        name: '´listen2.me',
+        short_name: 'listen2me',
         description: 'A Quasar Framework app',
         display: 'standalone',
         orientation: 'portrait',

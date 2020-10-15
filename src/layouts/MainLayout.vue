@@ -12,14 +12,33 @@
       round
       dense
       />
+
       <q-separator
         class="large-screen-only"
         vertical
         spaced
         />
+
       <q-toolbar-title>
         listen2.me
       </q-toolbar-title>
+
+      <!-- Login and Register Button -->
+      <div class="q-pa-md">
+        <q-btn label="Log In" color="blue-6" @click="showLogin = true" />
+      </div>
+      <div class="q-pa-md">
+        <q-btn label="Register" outline color="blue-6" @click="showRegister = true" />
+      </div>
+
+
+      <q-dialog v-model="showLogin">
+        <login />
+      </q-dialog>
+      <q-dialog v-model="showRegister">
+        <register />
+      </q-dialog>
+
     </q-toolbar>
   </q-header>
   <q-page-container class="bg-grey-1">
@@ -37,3 +56,18 @@
     @media (min-width: $breakpoint-xs-min)
       height: 70px
 </style>
+
+<script>
+export default {
+  data () {
+    return {
+      showLogin: false,
+      showRegister: true
+      }
+    },
+      components : {
+        'login' : require('components/tasks/Login.vue').default,
+        'register': require('components/tasks/Register.vue').default
+      }
+}
+</script>

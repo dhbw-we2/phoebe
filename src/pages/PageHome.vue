@@ -36,7 +36,7 @@
         </q-card-section>
 
         <q-card-section class="col-5 flex flex-center">
-          <q-item-section> {{ post.link }}</q-item-section>
+          <a href="https:\\www.google.de" target="_blank" rel="noopener" class="doc-link">{{ post.link }}</a>
         </q-card-section>
       </q-card-section>
 
@@ -83,7 +83,7 @@ export default {
           id: 4,
           caption: 'Look at my new playlist on spotify',
           link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602672109947,
+          date: 1602757533135,
         }
       ]
     }
@@ -100,8 +100,9 @@ export default {
       if (result < 60000) unit = 'seconds';
       else if (result < 3600000) unit = 'minutes';
       else if (result < 86400000) unit = 'hours';
-      else if (result < 2592000000 ) unit = 'months';
-      else if (result < 31536000000 ) unit = 'years';
+      else if (result < 2592000000) unit = 'days';
+      else if (result < 31536000000 ) unit = 'months';
+      else if (result >= 31536000000 ) unit = 'years';
 
       return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
