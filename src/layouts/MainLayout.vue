@@ -62,7 +62,7 @@ export default {
   data () {
     return {
       showLogin: false,
-      showRegister: true
+      showRegister: false
       }
     },
       components : {

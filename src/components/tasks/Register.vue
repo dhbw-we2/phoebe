@@ -4,7 +4,6 @@
     <form @submit.prevent="submitRegistration" class="col">
       <q-card-section class="row">
         <div class="text-h5">Register</div>
-        <q-space/>
       </q-card-section>
 
       <q-card-section>
@@ -21,7 +20,6 @@
         />
         <q-input
           class="login-size"
-
           v-model="userCredentials.password"
           label="password"
           :type="isPwd ? 'password' : 'text'"
@@ -37,22 +35,22 @@
         </q-input>
       </q-card-section>
 
-      <q-card-actions align="left">
-        <q-btn class="login-size" outline label="Register" color="blue-6" type="submit"/>
-      </q-card-actions>
-
       <q-card-section align="left">
+        <q-btn class="login-size" outline label="Register" color="blue-6" type="submit"/>
+      </q-card-section>
+
+      <q-card-section>
         You already have an account?
       </q-card-section>
     </form>
-    <form class="col-2" align="right">
+    <div class="col-2 my-align-right">
       <q-btn
         flat
         round
         dense
         icon="close"
         v-close-popup/>
-    </form>
+    </div>
   </q-card>
 </template>
 
