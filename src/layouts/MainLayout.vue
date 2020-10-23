@@ -65,9 +65,9 @@ export default {
       showRegister: false
       }
     },
-      components : {
-        'login' : require('components/tasks/Login.vue').default,
-        'register': require('components/tasks/Register.vue').default
-      }
+  components : {
+    'login' : require('components/tasks/Login.vue').default,
+    'register': require('components/tasks/Register.vue').default
+  }
 }
 </script>

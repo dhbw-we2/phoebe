@@ -1,12 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <q-card
-      v-for="post in posts"
-      :key="post.id"
-      class="card-post-text q-mb-md"
-      flat
-      bordered
-    >
+    <template v-if="!loadingPosts && posts.length">
+    <q-card v-for="post in posts" :key="post.id" class="card-post-text q-mb-md" flat bordered>
       <q-card-section vertical>
         <q-card-section class="q-pt-xs">
           <q-item>
@@ -32,38 +27,59 @@
         </q-card-section>
 
         <q-card-section class="col-5 flex flex-center">
-          <a :href="post.link" target="_blank" rel="noopener" class="doc-link">{{ post.link }}</a>
+          {{ post.text }}
+          <a :href="post.link" target="_blank" rel="noopener" class="doc-link">Click here</a>
         </q-card-section>
       </q-card-section>
 
       <q-separator />
 
       <q-card-actions align="stretch">
+        <q-btn flat round icon="eva-heart-outline" />
         <q-btn flat round icon="eva-message-square-outline" />
-        <q-btn flat round icon="eva-paper-plane-outline" />
         <q-btn flat round icon="eva-save-outline" />
         <q-btn flat round icon="eva-more-horizontal-outline" />
       </q-card-actions>
     </q-card>
+    </template>
+    <template v-else-if="!loadingPosts && !posts.length">
+      <h5 class="text-center text-grey">Nothing to see here.</h5>
+    </template>
+    <template v-else>
+      <pageloading-posts/>
+    </template>
   </q-page>
 </template>
 
 <script>
 import { date } from 'quasar'
+import PageloadingPosts from "pages/PageloadingPosts";
 export default {
   name: 'PageHome',
+  components: {PageloadingPosts},
   data() {
     return {
-      posts: []
+      posts: [],
+      loadingPosts: false,
     }
+  },
+  component: {
+    'loadingScreen': require('pages/PageloadingPosts.vue').default
   },
   methods: {
     getPosts() {
+      this.loadingPosts = true
       this.$axios.get('http://localhost:3000/posts').then(response => {
         this.posts = response.data
+        this.loadingPosts = false
       }).catch(err => {
-        console.log("err: ", err)
+        this.$q.dialog({
+          title: 'Error',
+          message: "Oops. Can't find your data. Search somewhere else :)"
+        })
+        this.loadingPosts = false
       })
+
     }
   },
   filters: {
