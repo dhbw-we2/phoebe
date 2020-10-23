@@ -17,12 +17,8 @@
             </q-item-section>
 
             <q-item-section >
-              <q-item-label> r/{{ post.thread }} </q-item-label>
+              <q-item-label> r/{{ post.forum }} </q-item-label>
               <q-item-label class="text-overline">Posted by u/{{ post.user }} {{ post.date | timeSincePost }} ago</q-item-label>
-            </q-item-section>
-
-            <q-item-section>
-
             </q-item-section>
             <q-item-section side>
               <q-btn
@@ -58,34 +54,16 @@ export default {
   name: 'PageHome',
   data() {
     return {
-      posts: [
-        {
-          id: 1,
-          user: "idegaf",
-          thread: "funny",
-          caption: 'Look at my new playlist on spotify',
-          link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602674046530,
-        },
-        {
-          id: 2,
-          caption: 'Look at my new playlist on spotify',
-          link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602854486074,
-        },
-        {
-          id: 3,
-          caption: 'Look at my new playlist on spotify',
-          link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602672109947,
-        },
-        {
-          id: 4,
-          caption: 'Look at my new playlist on spotify',
-          link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602757533135,
-        }
-      ]
+      posts: []
+    }
+  },
+  methods: {
+    getPosts() {
+      this.$axios.get('http://localhost:3000/posts').then(response => {
+        this.posts = response.data
+      }).catch(err => {
+        console.log("err: ", err)
+      })
     }
   },
   filters: {
@@ -106,6 +84,8 @@ export default {
 
       return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
+  },created() {
+    this.getPosts()
   }
 }
 </script>
