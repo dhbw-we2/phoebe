@@ -1,9 +1,9 @@
 {
-  "name": "quasagram",
+  "name": "spreddit",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasagram",
-  "author": "Danny Connell",
+  "description": "A forum to share your favorite music",
+  "productName": "spreddit",
+  "author": "Team Phoebe",
   "private": true,
   "scripts": {
     "test": "echo \"No test specified\" && exit 0"
