@@ -107,9 +107,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: '´listen2.me',
-        short_name: 'listen2me',
-        description: 'A Quasar Framework app',
+        name: 'spreddit',
+        short_name: 'spreddit',
+        description: 'A forum to share your favorite music',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -175,7 +175,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'quasagram'
+        appId: 'spreddit'
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
