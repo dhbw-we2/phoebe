@@ -19,9 +19,7 @@
         spaced
         />
 
-      <q-toolbar-title>
-        listen2.me
-      </q-toolbar-title>
+      <q-toolbar-title>spreddit</q-toolbar-title>
 
       <!-- Login and Register Button -->
       <div class="q-pa-md">

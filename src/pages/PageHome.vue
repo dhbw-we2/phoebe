@@ -21,7 +21,7 @@
               <q-item-label class="text-overline">Posted by u/{{ post.user }} {{ post.date | timeSincePost }} ago</q-item-label>
             </q-item-section>
 
-            <q-item-section >
+            <q-item-section>
 
             </q-item-section>
             <q-item-section side>
@@ -36,7 +36,7 @@
         </q-card-section>
 
         <q-card-section class="col-5 flex flex-center">
-          <a href="https:\\www.google.de" target="_blank" rel="noopener" class="doc-link">{{ post.link }}</a>
+          <a :href="post.link" target="_blank" rel="noopener" class="doc-link">{{ post.link }}</a>
         </q-card-section>
       </q-card-section>
 
@@ -71,7 +71,7 @@ export default {
           id: 2,
           caption: 'Look at my new playlist on spotify',
           link: 'https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg',
-          date: 1602672109947,
+          date: 1602854486074,
         },
         {
           id: 3,
