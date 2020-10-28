@@ -34,12 +34,22 @@
           </q-item>
 
           <q-item clickable v-ripple
-                  to="/error">
+                  to="/addPost">
             <q-item-section avatar>
               <q-icon name="eva-plus-circle-outline" />
             </q-item-section>
             <q-item-section>
               Add Post
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple
+                  to="/myPosts">
+            <q-item-section avatar>
+              <q-icon name="eva-person-outline" />
+            </q-item-section>
+            <q-item-section>
+              My Post
             </q-item-section>
           </q-item>
 
