@@ -3,14 +3,12 @@
 
     <q-header elevated class="bg-dark">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="left = !left"/>
+        <q-btn dense flat round icon="menu" @click="left = !left" class="q-mr-sm"/>
 
-        <q-toolbar-title>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg" alt="Logo">
-          </q-avatar>
-          spreddit
-        </q-toolbar-title>
+        <q-avatar square size="55px">
+          <img src="~assets/spreddit-logo.svg" alt="Logo">
+        </q-avatar>
+        <q-toolbar-title class="logo-text">spreddit</q-toolbar-title>
 
         <q-btn flat round icon="login" @click="showLogin = true"/>
 
