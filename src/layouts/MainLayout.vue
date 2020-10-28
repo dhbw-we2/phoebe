@@ -3,7 +3,7 @@
 
     <q-header elevated class="bg-dark">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="left = !left" class="q-mr-sm"/>
+        <q-btn dense flat round icon="menu" @click="drawer = !drawer" class="q-mr-sm"/>
 
         <q-avatar square size="55px">
           <img src="~assets/spreddit-logo.svg" alt="Logo">
@@ -15,8 +15,53 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="left" side="left" bordered>
-      <!-- drawer content -->
+    <q-drawer show-if-above v-model="drawer" side="left"
+              :mini="miniState"
+              @mouseover="miniState = false"
+              @mouseout="miniState = true"
+              :width="200"
+              :breakpoint="500">
+      <q-scroll-area class="fit">
+        <q-list padding class="menu-list">
+          <q-item clickable v-ripple
+                  to="/home">
+            <q-item-section avatar>
+              <q-icon name="eva-message-circle-outline" />
+            </q-item-section>
+            <q-item-section>
+              Forum
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple
+                  to="/error">
+            <q-item-section avatar>
+              <q-icon name="eva-plus-circle-outline" />
+            </q-item-section>
+            <q-item-section>
+              Add Post
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="eva-music-outline" />
+            </q-item-section>
+            <q-item-section>
+              Playlists
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="eva-bell-outline" />
+            </q-item-section>
+            <q-item-section>
+              Notifications
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-scroll-area>
     </q-drawer>
 
     <q-dialog v-model="showLogin">
@@ -50,7 +95,8 @@ export default {
     return {
       showLogin: false,
       showRegister: false,
-      left: false
+      drawer: false,
+      miniState: true
     }
   },
   components: {
