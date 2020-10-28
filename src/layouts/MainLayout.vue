@@ -1,70 +1,62 @@
 <template>
-<q-layout>
-  <q-header
-  class="bg-white text-grey-10"
-  bordered>
-    <q-toolbar class="constrain">
-      <q-btn
-      to="/"
-      class="large-screen-only q-mr-sm"
-      icon="eva-home-outline"
-      flat
-      round
-      dense
-      />
+  <q-layout view="hHh LpR fFf">
 
-      <q-separator
-        class="large-screen-only"
-        vertical
-        spaced
-        />
+    <q-header elevated class="bg-dark">
+      <q-toolbar>
+        <q-btn dense flat round icon="menu" @click="left = !left"/>
 
-      <q-toolbar-title>spreddit</q-toolbar-title>
+        <q-toolbar-title>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg" alt="Logo">
+          </q-avatar>
+          spreddit
+        </q-toolbar-title>
 
-      <!-- Login and Register Button -->
-      <div class="q-pa-md">
-        <q-btn label="Log In" color="blue-6" @click="showLogin = true" />
-      </div>
-      <div class="q-pa-md">
-        <q-btn label="Register" outline color="blue-6" @click="showRegister = true" />
-      </div>
+        <q-btn flat round icon="login" @click="showLogin = true"/>
 
+      </q-toolbar>
+    </q-header>
 
-      <q-dialog v-model="showLogin">
-        <login />
-      </q-dialog>
-      <q-dialog v-model="showRegister">
-        <register />
-      </q-dialog>
+    <q-drawer show-if-above v-model="left" side="left" bordered>
+      <!-- drawer content -->
+    </q-drawer>
 
-    </q-toolbar>
-  </q-header>
-  <q-page-container class="bg-grey-1">
-    <router-view/>
-  </q-page-container>
-</q-layout>
+    <q-dialog v-model="showLogin">
+      <login/>
+    </q-dialog>
+    <q-dialog v-model="showRegister">
+      <register/>
+    </q-dialog>
+
+    <q-page-container>
+      <router-view/>
+    </q-page-container>
+
+  </q-layout>
 </template>
 
 <style lang="sass">
-  .q-toolbar__title
-    font-size: 30px
-    @media (max-width: $breakpoint-xs-max)
-      text-align: center
-  .q-toolbar
-    @media (min-width: $breakpoint-xs-min)
-      height: 70px
+.q-toolbar__title
+  font-size: 30px
+  @media (max-width: $breakpoint-xs-max)
+    text-align: center
+
+.q-toolbar
+  @media (min-width: $breakpoint-xs-min)
+    height: 70px
 </style>
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       showLogin: false,
-      showRegister: false
-      }
-    },
-  components : {
-    'login' : require('components/tasks/Login.vue').default,
+      showRegister: false,
+      left: false
+    }
+  },
+  components: {
+    'login': require('components/tasks/Login.vue').default,
     'register': require('components/tasks/Register.vue').default
   }
 }

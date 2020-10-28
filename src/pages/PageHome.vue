@@ -74,7 +74,9 @@ export default {
         this.loadingPosts = false
       }).catch(err => {
         this.$q.dialog({
-          title: 'Error',
+          seamless: true,
+          position: 'bottom',
+          ok: false,
           message: "Oops. Can't find your data. Search somewhere else :)"
         })
         this.loadingPosts = false
@@ -100,8 +102,16 @@ export default {
 
       return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
-  },created() {
+  }
+  ,created() {
     this.getPosts()
+    console.log(this.$q.dark.isActive) // true, false
+
+  // get configured status
+    console.log(this.$q.dark.mode) // "auto", true, false
+
+    // set status
+    // this.$q.dark.set(true) // or false or "auto"
   }
 }
 </script>
