@@ -34,3 +34,6 @@ yarn-error.log*
 
 # Firebase Service Account Key File
 serviceAccountKey.json
+
+# QENV
+.quasar.env.json
