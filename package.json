@@ -15,7 +15,8 @@
     "firebase": "^7.24.0",
     "link-prevue": "^1.2.0",
     "nodemon": "^2.0.6",
-    "quasar": "^1.0.0"
+    "quasar": "^1.0.0",
+    "vue": "^2.6.12"
   },
   "devDependencies": {
     "@quasar/app": "^2.1.1"

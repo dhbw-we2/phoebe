@@ -7,17 +7,21 @@
           <q-icon name="eva-arrow-right-outline" />
         </template>
       </q-input>
-
-      <q-input bottom-slots dark v-model="Tags" placeholder="#intrestingTages">
-        <template v-slot:prepend>
-          <q-icon name="eva-arrow-right-outline" />
-        </template>
-        <template v-slot:append>
-          <q-btn round flat label="Add Tag" icon="eva-plus-outline" />
-        </template>
-      </q-input>
-
-
+      <div ref="container">
+        <q-input bottom-slots dark v-model="Tag" placeholder="#intrestingTages">
+          <template v-slot:prepend>
+            <q-icon name="eva-arrow-right-outline" />
+          </template>
+          <template v-slot:append>
+            <q-btn
+                unelevated rounded
+                label="Add Tag"
+                icon="eva-plus-outline"
+                v-on:click="addTagFkt"
+            />
+          </template>
+        </q-input>
+      </div>
       <q-editor
         v-model="TextToPost"
         placeholder="This is a very interesting Text"
@@ -122,7 +126,7 @@
         icon-right="eva-checkmark-outline"
         color=positive
         label="submit"
-        @click="$SubmitPost()"
+        @click="SubmitPost"
       />
     </div>
     <h4 align="center">Preview</h4>
@@ -137,7 +141,9 @@
             </q-item-section>
 
             <q-item-section >
-              <q-item-label> r/{{ Tags }} </q-item-label>
+              <q-item-label>
+                <span v-for="i in this.indexOfTags"> r/{{ Tags[i-1] }}</span>
+              </q-item-label>
               <q-item-label class="text-overline">Posted by u/me now  </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -170,14 +176,51 @@
   </div>
 </template>
 <script>
+import TagButton from 'src/components/PostComponents/TagButton'
+import Vue from "vue";
+
+
+
 export default {
   data () {
     return {
       Caption: '',
-      Tags: '',
-      TextToPost: ''
+      Tag: '',
+      Tags: [''],
+      TextToPost: '',
+      indexOfTags: 0,
     }
+  },
+  components: { TagButton },
+  methods: {
+    addTagFkt() {
+      if(this.Tag != ''){
+        const ComponentClass = Vue.extend(TagButton)
+        const instance = new ComponentClass({
+          propsData: {
+            type: 'primary',
+            index: this.indexOfTags
+          }
+        })
+        instance.$slots.default = this.Tag
+        instance.$mount() // pass nothing
+        this.Tags[this.indexOfTags] = this.Tag
+        this.indexOfTags++
+        this.$refs.container.appendChild(instance.$el)
+        this.Tag =''
+      }
+    },
+    SubmitPost(){
+
+    },
+    deleteTag(index){
+      //this.$refs.container.removeChild(this.$refs.container.getChild())
+      console.log("index: " + index)
+      this.Tags.splice(index,1)
+      this.indexOfTags--
+    },
   }
 }
+
 
 </script>
