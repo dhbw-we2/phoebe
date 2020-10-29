@@ -79,11 +79,10 @@ export default {
           this.posts.push(doc.data())
         })
       }).catch(err => {
-        this.$q.dialog({
-          seamless: true,
-          position: 'bottom',
-          ok: false,
-          message: "Oops. Can't find your data. Search somewhere else :)"
+        this.$q.notify({
+          message: 'Firebase Connection failed!',
+          icon: 'eva-alert-circle-outline',
+          type: 'negative'
         })
       }).finally(() => {
         this.loadingPosts = false
