@@ -80,8 +80,7 @@ export default {
         })
       }).catch(err => {
         this.$q.notify({
-          message: 'Firebase Connection failed!',
-          icon: 'eva-alert-circle-outline',
+          message: 'Firebase Connection Failed!',
           type: 'negative'
         })
       }).finally(() => {
