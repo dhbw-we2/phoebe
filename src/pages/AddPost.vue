@@ -183,7 +183,7 @@ export default {
         date: new Date().getTime(),
         tags: this.tags,
         text: this.textInput,
-        user: this.currentUser.email,
+        user: this.$fb.auth().currentUser.email,
       });
     },
     removeFormElement(tag) {
