@@ -13,35 +13,57 @@
             <q-item-label>
               <span v-for="tag in tags"> #{{ tag }}</span>
             </q-item-label>
-            <q-item-label class="text-overline">Posted by u/me now  </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-btn
-              disable
-              color="blue-6"
-              label="Join +"
-            />
+            <q-item-label class="text-overline">Posted by u/{{user}}  {{ date | timeSincePost }} ago </q-item-label>
           </q-item-section>
         </q-item>
 
-        <div class="text-h5 q-mt-sm q-mb-xs">{{ captionInput }}</div>
+        <div class="text-h5 q-mt-sm q-mb-xs">{{ caption }}</div>
       </q-card-section>
-      <q-card-section v-html="textInput" class="col-5"/>
+      <q-card-section v-html="text" class="col-5"/>
     </q-card-section>
 
     <q-separator />
 
     <q-card-actions align="stretch">
-      <q-btn flat disable round icon="eva-heart-outline" />
-      <q-btn flat disable round icon="eva-message-square-outline" />
-      <q-btn flat disable round icon="eva-save-outline" />
-      <q-btn flat disable round icon="eva-more-horizontal-outline" />
+      <q-btn flat round icon="eva-heart-outline" />
+      <q-btn flat round icon="eva-message-square-outline" />
+      <q-btn flat round icon="eva-save-outline" />
+      <q-btn flat round icon="eva-more-horizontal-outline" />
     </q-card-actions>
   </q-card>
 </template>
 
 <script>
+import {date} from "quasar";
+
 export default {
-name: "PostView"
+  name: "PostView",
+  props: {
+      caption: String,
+      tags: Array,
+      text: String,
+      date: Number,
+      user: String,
+  },
+  filters: {
+
+    // Display the Time since this post was created
+    timeSincePost(value) {
+      let unit = "";
+      let dateNow = Date.now();
+      let result = dateNow - value;
+
+      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
+      if (result < 60000) unit = 'seconds';
+      else if (result < 3600000) unit = 'minutes';
+      else if (result < 86400000) unit = 'hours';
+      else if (result < 2592000000) unit = 'days';
+      else if (result < 31536000000) unit = 'months';
+      else if (result >= 31536000000) unit = 'years';
+
+      return date.getDateDiff(dateNow, value, unit) + " " + unit
+    }
+  },
+
 }
 </script>
