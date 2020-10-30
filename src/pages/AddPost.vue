@@ -144,7 +144,13 @@ export default {
       }
     },
     SubmitPost(){
-
+      this.$firestore.collection("posts").doc("3").set({
+        caption: this.captionInput,
+        date: new Date().getTime(),
+        tags: this.tags,
+        text: this.textInput,
+        user: this.$fb.auth().currentUser.email,
+      });
     },
     removeFormElement(tag) {
       console.log('removing form element', tag);
