@@ -1,34 +1,49 @@
 <template>
-  <div class="constrain">
-  <h3 align="center">Create a Post</h3>
-    <div class="q-pa-md q-gutter-sm">
-      <q-input dark v-model="Caption" placeholder="This is a catchy Caption">
-        <template v-slot:prepend>
-          <q-icon name="eva-arrow-right-outline" />
-        </template>
-      </q-input>
-      <div ref="container" v-on:remove="removeFormElement">
-        <q-input bottom-slots dark v-model="Tag" placeholder="#intrestingTages">
-          <template v-slot:prepend>
-            <q-icon name="eva-arrow-right-outline" />
-          </template>
-          <template v-slot:append>
-            <q-btn
+  <div class="constrain q-pa-md">
+    <q-card class="card-post-text q-mb-md" flat bordered>
+      <q-card-section align="middle">
+        <div class="text-h4">Create a Post</div>
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <div class="q-pa-md q-gutter-sm">
+          <q-input dark v-model="captionInput" placeholder="This is a catchy Caption">
+            <template v-slot:prepend>
+              <q-icon name="eva-arrow-right-outline" />
+            </template>
+          </q-input>
+          <q-input bottom-slots dark v-model="tagInput" placeholder="#interestingTags">
+            <template v-slot:prepend>
+              <q-icon name="eva-arrow-right-outline" />
+            </template>
+            <template v-slot:append>
+              <q-btn
                 unelevated rounded
                 label="Add Tag"
                 icon="eva-plus-outline"
                 v-on:click="addTagFkt"
-            />
-          </template>
-        </q-input>
-
-      </div>
-
-      <q-editor
-        v-model="TextToPost"
-        placeholder="This is a very interesting Text"
-        :dense="$q.screen.lt.md"
-        :toolbar="[
+              />
+            </template>
+          </q-input>
+          <q-btn
+            color='positive'
+            unelevated rounded
+            icon-right="eva-close-outline"
+            ref="container"
+            v-for="tag in tags"
+            :key="tag"
+            v-on:click="removeFormElement(tag)">
+            {{tag}}
+          </q-btn>
+        </div>
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <q-editor
+          v-model="textInput"
+          placeholder="This is a very interesting Text"
+          :dense="$q.screen.lt.md"
+          :toolbar="[
           [
             {
               label: $q.lang.editor.align,
@@ -37,48 +52,8 @@
               list: 'only-icons',
               options: ['left', 'center', 'right', 'justify']
             },
-            {
-              label: $q.lang.editor.align,
-              icon: $q.iconSet.editor.align,
-              fixedLabel: true,
-              options: ['left', 'center', 'right', 'justify']
-            }
           ],
-          ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
-          ['token', 'hr', 'link', 'custom_btn'],
-          ['print', 'fullscreen'],
           [
-            {
-              label: $q.lang.editor.formatting,
-              icon: $q.iconSet.editor.formatting,
-              list: 'no-icons',
-              options: [
-                'p',
-                'h1',
-                'h2',
-                'h3',
-                'h4',
-                'h5',
-                'h6',
-                'code'
-              ]
-            },
-            {
-              label: $q.lang.editor.fontSize,
-              icon: $q.iconSet.editor.fontSize,
-              fixedLabel: true,
-              fixedIcon: true,
-              list: 'no-icons',
-              options: [
-                'size-1',
-                'size-2',
-                'size-3',
-                'size-4',
-                'size-5',
-                'size-6',
-                'size-7'
-              ]
-            },
             {
               label: $q.lang.editor.defaultFont,
               icon: $q.iconSet.editor.font,
@@ -98,12 +73,14 @@
             },
             'removeFormat'
           ],
-          ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+          ['bold', 'italic', 'strike', 'underline'],
+          ['link'],
 
-          ['undo', 'redo'],
-          ['viewsource']
+          ['unordered', 'ordered'],
+
+          ['undo', 'redo']
         ]"
-        :fonts="{
+          :fonts="{
           arial: 'Arial',
           arial_black: 'Arial Black',
           comic_sans: 'Comic Sans MS',
@@ -113,26 +90,31 @@
           times_new_roman: 'Times New Roman',
           verdana: 'Verdana'
         }"
-      />
-    </div>
-    <div align="right" class="q-pa-md q-gutter-sm">
-      <q-btn
-        unelevated rounded
-        icon-right="eva-close-outline"
-        color=negative
-        label="close"
-        to="/"
-      />
-      <q-btn
-        unelevated rounded
-        icon-right="eva-checkmark-outline"
-        color=positive
-        label="submit"
-        @click="SubmitPost"
-      />
-    </div>
-    <h4 align="center">Preview</h4>
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn
+          unelevated rounded
+          icon-right="eva-close-outline"
+          color=negative
+          label="close"
+          to="/"
+        />
+        <q-btn
+          unelevated rounded
+          icon-right="eva-checkmark-outline"
+          color=positive
+          label="submit"
+          @click="SubmitPost"
+        />
+      </q-card-actions>
+    </q-card>
+
     <q-card class="card-post-text q-mb-md" flat bordered>
+      <q-card-section align="middle">
+        <div class="text-h4">Preview</div>
+      </q-card-section>
+      <q-separator />
       <q-card-section vertical>
         <q-card-section class="q-pt-xs">
           <q-item>
@@ -144,7 +126,7 @@
 
             <q-item-section >
               <q-item-label>
-                <span v-for="i in this.idCounter"> r/{{ Tags[i-1].contentLabel }}</span>
+                <span v-for="tag in tags"> #{{ tag }}</span>
               </q-item-label>
               <q-item-label class="text-overline">Posted by u/me now  </q-item-label>
             </q-item-section>
@@ -157,12 +139,9 @@
             </q-item-section>
           </q-item>
 
-          <div class="text-h5 q-mt-sm q-mb-xs">{{ Caption }}</div>
+          <div class="text-h5 q-mt-sm q-mb-xs">{{ captionInput }}</div>
         </q-card-section>
-        <q-card-section v-html="TextToPost" class="col-5 flex flex-center"/>
-        <q-card-section class="col-5 flex flex-center" disable>
-          <a href="https://open.spotify.com/playlist/52tpcZzLHOTbPelf1zuo78?si=Ob9CMproTrGaI9r5l-FRCg" target="_blank" rel="noopener" class="doc-link">Click here</a>
-        </q-card-section>
+        <q-card-section v-html="textInput" class="col-5"/>
       </q-card-section>
 
       <q-separator />
@@ -178,46 +157,33 @@
   </div>
 </template>
 <script>
-import TagButton from 'src/components/PostComponents/TagButton'
-import Vue from "vue";
 
 export default {
   data () {
     return {
-      Caption: '',
-      Tag: '',
-      Tags: [],
-      TextToPost: '',
+      captionInput: '',
+      tagInput: '',
+      tags: [],
+      textInput: '',
       idCounter: 0,
     }
   },
-  components: { TagButton },
   methods: {
     addTagFkt() {
-      if(this.Tag != ''){
-        const ComponentClass = Vue.extend(TagButton);
-        const instance = new ComponentClass({
-          propsData: {
-            id: this.idCounter++,
-            contentLabel: this.Tag
-          }
-        });
-        instance.$slots.default = this.Tag;
-        instance.$mount();
-        this.Tag ='';
-        const size = this.Tags.length;
+      if(this.tagInput != ''){
+        const size = this.tags.length;
         //console.log(size);
-        this.Tags[size] = instance;
-        this.$refs.container.appendChild(instance.$el);
+        this.tags[size] = this.tagInput;
+        this.tagInput ='';
       }
     },
     SubmitPost(){
 
     },
-    removeFormElement(id) {
-      console.log('removing form element', id);
-      const index = this.Tags.findIndex(f => f.id === id);
-      this.Tags.splice(index, 1);
+    removeFormElement(tag) {
+      console.log('removing form element', tag);
+      const index = this.tags.findIndex(f => f === tag);
+      this.tags.splice(index, 1);
     },
   }
 }
