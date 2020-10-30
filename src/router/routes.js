@@ -5,8 +5,8 @@ const routes = [
     children: [
       { path: '', redirect: 'home' },
       { path: 'home', component: () => import('pages/PageHome.vue') },
-      { path: 'addPost', component: () => import('pages/AddPost.vue') },
-      { path: 'myPosts', component: () => import('pages/MyPosts.vue') },
+      { path: 'addPost', component: () => import('pages/AddPost.vue'), meta: {requiresAuth: true} },
+      { path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true} },
       { path: 'error', component: () => import('pages/Error404') },
       {path: 'profile', component: () => import('pages/Profile'), meta: {requiresAuth: true}},
     ]
