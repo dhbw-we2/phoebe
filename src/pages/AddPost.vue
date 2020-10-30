@@ -7,7 +7,7 @@
           <q-icon name="eva-arrow-right-outline" />
         </template>
       </q-input>
-      <div ref="container">
+      <div ref="container" v-on:remove="removeFormElement">
         <q-input bottom-slots dark v-model="Tag" placeholder="#intrestingTages">
           <template v-slot:prepend>
             <q-icon name="eva-arrow-right-outline" />
@@ -21,7 +21,9 @@
             />
           </template>
         </q-input>
+
       </div>
+
       <q-editor
         v-model="TextToPost"
         placeholder="This is a very interesting Text"
@@ -142,7 +144,7 @@
 
             <q-item-section >
               <q-item-label>
-                <span v-for="i in this.indexOfTags"> r/{{ Tags[i-1] }}</span>
+                <span v-for="i in this.idCounter"> r/{{ Tags[i-1].contentLabel }}</span>
               </q-item-label>
               <q-item-label class="text-overline">Posted by u/me now  </q-item-label>
             </q-item-section>
@@ -179,48 +181,44 @@
 import TagButton from 'src/components/PostComponents/TagButton'
 import Vue from "vue";
 
-
-
 export default {
   data () {
     return {
       Caption: '',
       Tag: '',
-      Tags: [''],
+      Tags: [],
       TextToPost: '',
-      indexOfTags: 0,
+      idCounter: 0,
     }
   },
   components: { TagButton },
   methods: {
     addTagFkt() {
       if(this.Tag != ''){
-        const ComponentClass = Vue.extend(TagButton)
+        const ComponentClass = Vue.extend(TagButton);
         const instance = new ComponentClass({
           propsData: {
-            type: 'primary',
-            index: this.indexOfTags
+            id: this.idCounter++,
+            contentLabel: this.Tag
           }
-        })
-        instance.$slots.default = this.Tag
-        instance.$mount() // pass nothing
-        this.Tags[this.indexOfTags] = this.Tag
-        this.indexOfTags++
-        this.$refs.container.appendChild(instance.$el)
-        this.Tag =''
+        });
+        instance.$slots.default = this.Tag;
+        instance.$mount();
+        this.Tag ='';
+        const size = this.Tags.length;
+        //console.log(size);
+        this.Tags[size] = instance;
+        this.$refs.container.appendChild(instance.$el);
       }
     },
     SubmitPost(){
 
     },
-    deleteTag(index){
-      //this.$refs.container.removeChild(this.$refs.container.getChild())
-      console.log("index: " + index)
-      this.Tags.splice(index,1)
-      this.indexOfTags--
+    removeFormElement(id) {
+      console.log('removing form element', id);
+      const index = this.Tags.findIndex(f => f.id === id);
+      this.Tags.splice(index, 1);
     },
   }
 }
-
-
 </script>
