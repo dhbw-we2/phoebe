@@ -1,13 +1,18 @@
-import firebase from 'firebase/app'
-import firestore from 'firebase/firestore'
-import auth from 'firebase/auth'
+import firebaseService from '../services/firebase'
 
-const config = process.env.FIREBASE_CONFIG
-const FIREBASE = firebase.initializeApp(config)
-const AUTH = FIREBASE.auth();
-const FIRESTORE = FIREBASE.firestore();
+export default async ({ router, store, Vue }) => {
+  const config = process.env.FIREBASE_CONFIG
+  firebaseService.fBInit(config)
 
-export default ({ store, Vue }) => {
-  Vue.prototype.$auth = AUTH
-  Vue.prototype.$firestore = FIRESTORE
+  // Tell the application what to do when the
+  // authentication state has changed
+  firebaseService.auth().onAuthStateChanged((user) => {
+    firebaseService.handleOnAuthStateChanged(store, user)
+  }, (error) => {
+    console.error(error)
+  })
+
+  Vue.prototype.$fb = firebaseService
+  Vue.prototype.$firestore = firebaseService.firestore()
+  store.$fb = firebaseService
 }
