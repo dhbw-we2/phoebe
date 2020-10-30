@@ -29,6 +29,7 @@
       <q-btn flat round icon="eva-message-square-outline" />
       <q-btn flat round icon="eva-save-outline" />
       <q-btn flat round icon="eva-more-horizontal-outline" />
+      <q-btn flat round icon="eva-trash-2-outline" @click="deletePost"/>
     </q-card-actions>
   </q-card>
 </template>
@@ -39,6 +40,7 @@ import {date} from "quasar";
 export default {
   name: "PostView",
   props: {
+      id: String,
       caption: String,
       tags: Array,
       text: String,
@@ -46,7 +48,6 @@ export default {
       user: String,
   },
   filters: {
-
     // Display the Time since this post was created
     timeSincePost(value) {
       let unit = "";
@@ -64,6 +65,11 @@ export default {
       return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
   },
-
+  methods: {
+    deletePost () {
+      this.$firestore.collection("posts").doc(this.id).delete();
+      this.$emit('postDeleted')
+    }
+  }
 }
 </script>

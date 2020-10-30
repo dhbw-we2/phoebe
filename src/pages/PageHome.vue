@@ -3,11 +3,13 @@
     <template v-if="!loadingPosts && posts.length">
       <PostView v-for="post in posts"
                 :key="post.id"
+                :id="post.id"
                 :caption="post.caption"
                 :date="post.date"
                 :text="post.text"
                 :user="post.user"
-                :tags="post.tags">
+                :tags="post.tags"
+                @postDeleted="getPosts">
       </PostView>
     </template>
     <template v-else-if="!loadingPosts && !posts.length">
@@ -44,38 +46,28 @@ export default {
       }
       this.posts = []
       snapshot.forEach((doc) => {
-        this.posts.push(doc.data())
+        const post = doc.data()
+        post.id = doc.id
+        console.log(doc.id)
+        this.posts.push(post)
       })
       this.loadingPosts = false
     },
-    getPostsInitial() {
-      this.loadingPosts = true
+    getPosts() {
       this.$firestore.collection("posts").orderBy("date", "desc").get().then(snapshot => this.loadPosts(snapshot))
         .catch(err => {
-        this.$q.notify({
-          message: 'Firebase Connection Failed!',
-          type: 'negative'
-        })
-      }).finally(() => {
+          this.$q.notify({
+            message: 'Firebase Connection Failed!',
+            type: 'negative'
+          })
+        }).finally(() => {
         this.$firestore.collection('posts').orderBy("date", "desc").onSnapshot((snapshot) => {
           this.showNewPostsNotification(snapshot)
-
-          // snapshot.docChanges().forEach((change) => {
-          //   if (change.type === 'added') {
-          //     this.showNewPostsNotification(snapshot)
-          //   }
-          // });
         });
       })
     },
-    updatePosts(querySnapshot) {
-      this.posts = []
-      querySnapshot.forEach((doc) => {
-        this.posts.push(doc.data())
-      })
-    },
     showNewPostsNotification(snapshot) {
-      if(!this.initialUpdate) {
+      if (!this.initialUpdate) {
         this.$q.notify({
           color: "primary",
           message: "New Post",
@@ -93,7 +85,7 @@ export default {
     },
   },
   created() {
-    this.getPostsInitial()
+    this.getPosts()
   }
 }
 </script>
