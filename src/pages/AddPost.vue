@@ -106,6 +106,7 @@
           color=positive
           label="submit"
           @click="SubmitPost"
+          to="/"
         />
       </q-card-actions>
     </q-card>
@@ -144,7 +145,7 @@ export default {
       }
     },
     SubmitPost(){
-      this.$firestore.collection("posts").doc("3").set({
+      this.$firestore.collection("posts").add({
         caption: this.captionInput,
         date: new Date().getTime(),
         tags: this.tags,

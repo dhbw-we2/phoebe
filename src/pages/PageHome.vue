@@ -30,34 +30,70 @@ export default {
   data() {
     return {
       posts: [],
-      loadingPosts: false,
+      loadingPosts: true,
+      initialUpdate: true,
     }
   },
   component: {
     'loadingScreen': require('pages/PageloadingPosts.vue').default
   },
   methods: {
-    getPosts() {
+    loadPosts(snapshot) {
+      if (snapshot.empty && snapshot.metadata.fromCache) {
+        throw new Error('empty response');
+      }
+      this.posts = []
+      snapshot.forEach((doc) => {
+        this.posts.push(doc.data())
+      })
+      this.loadingPosts = false
+    },
+    getPostsInitial() {
       this.loadingPosts = true
-      this.$firestore.collection("posts").get().then(snapshot => {
-        if (snapshot.empty && snapshot.metadata.fromCache) {
-          throw new Error('empty response');
-        }
-        snapshot.forEach((doc) => {
-          this.posts.push(doc.data())
-        })
-      }).catch(err => {
+      this.$firestore.collection("posts").orderBy("date", "desc").get().then(snapshot => this.loadPosts(snapshot))
+        .catch(err => {
         this.$q.notify({
           message: 'Firebase Connection Failed!',
           type: 'negative'
         })
       }).finally(() => {
-        this.loadingPosts = false
+        this.$firestore.collection('posts').orderBy("date", "desc").onSnapshot((snapshot) => {
+          this.showNewPostsNotification(snapshot)
+
+          // snapshot.docChanges().forEach((change) => {
+          //   if (change.type === 'added') {
+          //     this.showNewPostsNotification(snapshot)
+          //   }
+          // });
+        });
       })
-    }
+    },
+    updatePosts(querySnapshot) {
+      this.posts = []
+      querySnapshot.forEach((doc) => {
+        this.posts.push(doc.data())
+      })
+    },
+    showNewPostsNotification(snapshot) {
+      if(!this.initialUpdate) {
+        this.$q.notify({
+          color: "primary",
+          message: "New Post",
+          position: "top",
+          timeout: 0,
+          actions: [
+            {
+              label: 'Update', color: 'white', handler: () => this.loadPosts(snapshot)
+            }
+          ]
+        })
+      } else {
+        this.initialUpdate = false;
+      }
+    },
   },
   created() {
-    this.getPosts()
+    this.getPostsInitial()
   }
 }
 </script>
