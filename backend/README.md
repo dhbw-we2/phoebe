@@ -1,6 +1,6 @@
 ## How to run the backend "server"
 
-If you don't want to run `node index.js` every single tine, install [Nodemon](https://www.npmjs.com/package/nodemon)
+If you don't want to run `node index.js` every single time, install [Nodemon](https://www.npmjs.com/package/nodemon)
 
 ```
 npm install nodemon --save

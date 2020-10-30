@@ -24,14 +24,9 @@
               </q-item-section>
             </q-item>
 
-            <div class="text-h5 q-mt-sm q-mb-xs">{{ post.caption }}</div>
-          </q-card-section>
-
-          <q-card-section class="col-5 flex flex-center">
-            {{ post.text }}
-            <a :href="post.link" target="_blank" rel="noopener" class="doc-link">Click here</a>
-          </q-card-section>
+          <div class="text-h5 q-mt-sm q-mb-xs">{{ post.caption }}</div>
         </q-card-section>
+      </q-card-section>
 
         <q-separator/>
 
