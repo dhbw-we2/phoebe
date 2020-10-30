@@ -6,19 +6,25 @@
   "author": "Team Phoebe",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "dev": "cross-env QENV=development quasar dev",
+    "test-dev": "cross-env QENV=test quasar dev",
+    "combined": "cross-env QENV=development+test quasar dev",
+    "build": "cross-env QENV=production quasar build"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.9.10",
     "axios": "^0.18.1",
     "core-js": "^3.6.5",
     "firebase": "^7.24.0",
     "link-prevue": "^1.2.0",
-    "nodemon": "^2.0.6",
-    "quasar": "^1.0.0"
+    "quasar": "^1.14.3",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@quasar/app": "^2.1.1"
+    "@quasar/app": "^2.1.6",
+    "@quasar/quasar-app-extension-qenv": "^1.0.3",
+    "cross-env": "^7.0.2"
   },
   "engines": {
     "node": ">= 10.18.1",

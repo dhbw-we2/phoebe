@@ -3,15 +3,33 @@
 
     <q-header elevated class="bg-dark">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="drawer = !drawer" class="q-mr-sm"/>
+        <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
 
         <q-avatar square size="55px">
           <img src="~assets/spreddit-logo.svg" alt="Logo">
         </q-avatar>
         <q-toolbar-title class="logo-text">spreddit</q-toolbar-title>
 
-        <q-btn flat round icon="login" @click="showLogin = true"/>
+        <q-btn flat round icon="eva-log-in-outline"
+               v-if="!this.$store.state.auth.isAuthenticated"
+               to="/auth/login">
+          <q-tooltip :delay="500">Login</q-tooltip>
+        </q-btn>
 
+        <q-btn flat round icon="eva-log-out-outline"
+               v-if="this.$store.state.auth.isAuthenticated"
+               @click="logout">
+          <q-tooltip :delay="500">Logout</q-tooltip>
+        </q-btn>
+
+        <q-btn round :ripple="false"
+               v-if="this.$store.state.auth.isAuthenticated"
+               to="/profile">
+          <q-avatar size="40px">
+            <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+          </q-avatar>
+          <q-tooltip :delay="500">Profile</q-tooltip>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -26,7 +44,7 @@
           <q-item clickable v-ripple
                   to="/home">
             <q-item-section avatar>
-              <q-icon name="eva-message-circle-outline" />
+              <q-icon name="eva-message-circle-outline"/>
             </q-item-section>
             <q-item-section>
               Forum
@@ -36,7 +54,7 @@
           <q-item clickable v-ripple
                   to="/error">
             <q-item-section avatar>
-              <q-icon name="eva-plus-circle-outline" />
+              <q-icon name="eva-plus-circle-outline"/>
             </q-item-section>
             <q-item-section>
               Add Post
@@ -45,7 +63,7 @@
 
           <q-item clickable v-ripple>
             <q-item-section avatar>
-              <q-icon name="eva-music-outline" />
+              <q-icon name="eva-music-outline"/>
             </q-item-section>
             <q-item-section>
               Playlists
@@ -54,7 +72,7 @@
 
           <q-item clickable v-ripple>
             <q-item-section avatar>
-              <q-icon name="eva-bell-outline" />
+              <q-icon name="eva-bell-outline"/>
             </q-item-section>
             <q-item-section>
               Notifications
@@ -90,6 +108,8 @@
 </style>
 
 <script>
+import {mapActions} from "vuex";
+
 export default {
   data() {
     return {
@@ -102,6 +122,23 @@ export default {
   components: {
     'login': require('components/tasks/Login.vue').default,
     'register': require('components/tasks/Register.vue').default
+  },
+  methods: {
+    ...mapActions('auth', ['logoutUser']),
+    async logout() {
+      try {
+        await this.logoutUser()
+        this.$q.notify({
+          type: 'info',
+          message: "You are now logged out!"
+        })
+      } catch (err) {
+        this.$q.notify({
+          type: 'negative',
+          message: `${err}`,
+        })
+      }
+    }
   }
 }
 </script>
