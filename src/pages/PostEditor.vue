@@ -4,17 +4,17 @@
       <q-card-section align="middle">
         <div class="text-h4">Create a Post</div>
       </q-card-section>
-      <q-separator />
+      <q-separator/>
       <q-card-section>
         <div class="q-pa-md q-gutter-sm">
           <q-input dark v-model="captionInput" placeholder="This is a catchy Caption">
             <template v-slot:prepend>
-              <q-icon name="eva-arrow-right-outline" />
+              <q-icon name="eva-arrow-right-outline"/>
             </template>
           </q-input>
           <q-input bottom-slots dark v-model="tagInput" placeholder="#interestingTags">
             <template v-slot:prepend>
-              <q-icon name="eva-arrow-right-outline" />
+              <q-icon name="eva-arrow-right-outline"/>
             </template>
             <template v-slot:append>
               <q-btn
@@ -33,11 +33,11 @@
             v-for="tag in tags"
             :key="tag"
             v-on:click="removeFormElement(tag)">
-            {{tag}}
+            {{ tag }}
           </q-btn>
         </div>
       </q-card-section>
-      <q-separator />
+      <q-separator/>
       <q-card-section>
         <q-editor
           v-model="textInput"
@@ -124,40 +124,76 @@
 <script>
 
 import PostView from "components/PostView";
+
 export default {
   components: {PostView},
-  data () {
+  data() {
     return {
       captionInput: '',
       tagInput: '',
       tags: [],
       textInput: '',
-      idCounter: 0,
+      id: 0,
+      dateTime: 0,
     }
   },
   methods: {
     addTagFkt() {
-      if(this.tagInput != ''){
+      if (this.tagInput != '') {
         const size = this.tags.length;
         //console.log(size);
         this.tags[size] = this.tagInput;
-        this.tagInput ='';
+        this.tagInput = '';
       }
     },
-    SubmitPost(){
-      this.$firestore.collection("posts").add({
-        caption: this.captionInput,
-        date: new Date().getTime(),
-        tags: this.tags,
-        text: this.textInput,
-        user: this.$fb.auth().currentUser.email,
-      });
+    SubmitPost() {
+      if (this.id) {
+        this.$firestore.collection("posts").doc(this.id).set({
+          caption: this.captionInput,
+          tags: this.tags,
+          text: this.textInput,
+          date: this.dateTime,
+          user: this.$fb.auth().currentUser.email,
+        });
+      } else {
+        this.$firestore.collection("posts").add({
+          caption: this.captionInput,
+          date: new Date().getTime(),
+          tags: this.tags,
+          text: this.textInput,
+          user: this.$fb.auth().currentUser.email,
+        });
+      }
     },
     removeFormElement(tag) {
       console.log('removing form element', tag);
       const index = this.tags.findIndex(f => f === tag);
       this.tags.splice(index, 1);
     },
+    restoreIsEdit() {
+      this.id = this.$route.params.id;
+      console.log(this.id)
+      if (this.id != undefined) {
+        console.log("id is set")
+        this.$firestore.collection("posts").doc(this.id).get().then(doc => {
+          const post = doc.data()
+          this.textInput = post.text;
+          this.tags = post.tags;
+          this.captionInput = post.caption;
+          this.dateTime = post.date;
+        })
+          .catch(err => {
+            this.$q.notify({
+              message: 'Firebase Connection Failed!',
+              type: 'negative'
+            })
+          })
+      }
+    },
+  },
+  created() {
+    if(this.$route.params.id)
+      this.restoreIsEdit();
   }
 }
 </script>
