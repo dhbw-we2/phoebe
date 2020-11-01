@@ -5,10 +5,17 @@ const routes = [
     children: [
       { path: '', redirect: 'home' },
       { path: 'home', component: () => import('pages/PageHome.vue') },
-      { path: 'addPost', component: () => import('pages/AddPost.vue'), meta: {requiresAuth: true} },
       { path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true} },
       { path: 'error', component: () => import('pages/Error404') },
       {path: 'profile', component: () => import('pages/Profile'), meta: {requiresAuth: true}},
+    ]
+  },
+  {
+    path: '/post', meta: {requiresAuth: true},
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {path: 'new', name: 'newPost', component: () => import('pages/PostEditor')},
+      {path: 'edit', name: 'editPost', component: () => import('pages/PostEditor')},
     ]
   },
   {

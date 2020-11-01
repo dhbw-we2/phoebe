@@ -8,8 +8,7 @@
                 :date="post.date"
                 :text="post.text"
                 :user="post.user"
-                :tags="post.tags"
-                @postDeleted="getPosts">
+                :tags="post.tags">
       </PostView>
     </template>
     <template v-else-if="!loadingPosts && !posts.length">
@@ -48,7 +47,6 @@ export default {
       snapshot.forEach((doc) => {
         const post = doc.data()
         post.id = doc.id
-        console.log(doc.id)
         this.posts.push(post)
       })
       this.loadingPosts = false
