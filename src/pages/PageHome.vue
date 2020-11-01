@@ -1,5 +1,12 @@
 <template>
   <q-page class="constrain q-pa-md">
+    <div class="card-post-text q-mb-md">
+      <tag-creator-bar>
+
+      </tag-creator-bar>
+
+    </div>
+    <q-separator/>
     <template v-if="!loadingPosts && posts.length">
       <PostView v-for="post in posts"
                 :key="post.id"
@@ -25,10 +32,11 @@
 import {date} from 'quasar'
 import PageloadingPosts from "pages/PageloadingPosts";
 import PostView from "components/PostView";
+import TagCreatorBar from "components/tagCreatorBar";
 
 export default {
   name: 'PageHome',
-  components: {PostView, PageloadingPosts},
+  components: {TagCreatorBar, PostView, PageloadingPosts},
   data() {
     return {
       posts: [],
