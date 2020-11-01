@@ -2,7 +2,7 @@
   <div class="constrain q-pa-md">
     <q-card class="card-post-text q-mb-md" flat bordered>
       <q-card-section align="middle">
-        <div class="text-h4">Create a Post</div>
+        <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
       <q-separator/>
       <q-card-section>
@@ -26,13 +26,13 @@
             </template>
           </q-input>
           <q-btn
-            color='positive'
+            color='primary'
             unelevated rounded
             icon-right="eva-close-outline"
             ref="container"
             v-for="tag in tags"
             :key="tag"
-            v-on:click="removeFormElement(tag)">
+            v-on:click="removeTag(tag)">
             {{ tag }}
           </q-btn>
         </div>
@@ -113,7 +113,7 @@
 
     <PostView disabled="true"
               :caption="captionInput"
-              :date="new Date().getTime()"
+              :date="date"
               :text="textInput"
               :user="this.$fb.auth().currentUser.email"
               :tags="tags">
@@ -127,60 +127,73 @@ import PostView from "components/PostView";
 
 export default {
   components: {PostView},
+
+  computed: {
+    getTitle(){
+      return this.isEdit ?  'Edit Post' : 'Create a Post'
+    },
+    isEdit(){
+      return this.$route.name === 'editPost'
+    },
+    postID(){
+      return this.$route.params.id
+    }
+  },
+  watch: {
+    '$route.name'(route){
+      if(route === 'newPost'){
+        this.clearInputs()
+      }
+    }
+  },
   data() {
     return {
+      title: 'Create a Post',
       captionInput: '',
       tagInput: '',
       tags: [],
       textInput: '',
-      id: 0,
-      dateTime: 0,
+      date: new Date().getTime(),
     }
   },
   methods: {
     addTagFkt() {
       if (this.tagInput != '') {
         const size = this.tags.length;
-        //console.log(size);
         this.tags[size] = this.tagInput;
         this.tagInput = '';
       }
     },
     SubmitPost() {
-      if (this.id) {
-        this.$firestore.collection("posts").doc(this.id).set({
+      if (this.isEdit) {
+        this.$firestore.collection("posts").doc(this.postID).set({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
-          date: this.dateTime,
+          date: this.date,
           user: this.$fb.auth().currentUser.email,
         });
       } else {
         this.$firestore.collection("posts").add({
           caption: this.captionInput,
-          date: new Date().getTime(),
           tags: this.tags,
           text: this.textInput,
+          date: new Date().getTime(),
           user: this.$fb.auth().currentUser.email,
         });
       }
     },
-    removeFormElement(tag) {
-      console.log('removing form element', tag);
+    removeTag(tag) {
       const index = this.tags.findIndex(f => f === tag);
       this.tags.splice(index, 1);
     },
-    restoreIsEdit() {
-      this.id = this.$route.params.id;
-      console.log(this.id)
-      if (this.id != undefined) {
-        console.log("id is set")
-        this.$firestore.collection("posts").doc(this.id).get().then(doc => {
+    restoreIfEdit() {
+      this.$firestore.collection("posts").doc(this.postID).get().then(doc => {
           const post = doc.data()
           this.textInput = post.text;
           this.tags = post.tags;
           this.captionInput = post.caption;
-          this.dateTime = post.date;
+          this.date = post.date;
         })
           .catch(err => {
             this.$q.notify({
@@ -188,12 +201,23 @@ export default {
               type: 'negative'
             })
           })
-      }
     },
+    clearInputs(){
+      this.captionInput = ''
+      this.tagInput = ''
+      this.tags = []
+      this.textInput = ''
+      this.date = new Date().getTime()
+    }
   },
   created() {
-    if(this.$route.params.id)
-      this.restoreIsEdit();
+    if(this.isEdit){
+      if(this.$route.params.id){
+        this.restoreIfEdit();
+      } else {
+        this.$router.push({ name: 'newPost'})
+      }
+    }
   }
 }
 </script>
