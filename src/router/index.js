@@ -45,7 +45,7 @@ export default function (/* { store, ssrContext } */) {
         if (isAuthenticated(store)) {
           next()
         } else {
-          next('/')
+          next('/auth/login')
           Notify.create({
             message: 'You must be logged in to access this page',
             type: 'warning'
