@@ -1,7 +1,7 @@
 <template>
   <div class="constrain q-pa-md">
     <q-card class="card-post-text q-mb-md" flat bordered>
-      <q-card-section align="middle">
+      <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
       <q-separator/>
@@ -129,19 +129,19 @@ export default {
   components: {PostView},
 
   computed: {
-    getTitle(){
-      return this.isEdit ?  'Edit Post' : 'Create a Post'
+    getTitle() {
+      return this.isEdit ? 'Edit Post' : 'Create a Post'
     },
-    isEdit(){
+    isEdit() {
       return this.$route.name === 'editPost'
     },
-    postID(){
+    postID() {
       return this.$route.params.id
     }
   },
   watch: {
-    '$route.name'(route){
-      if(route === 'newPost'){
+    '$route.name'(route) {
+      if (route === 'newPost') {
         this.clearInputs()
       }
     }
@@ -158,7 +158,7 @@ export default {
   },
   methods: {
     addTagFkt() {
-      if (this.tagInput != '') {
+      if (this.tagInput !== '') {
         const size = this.tags.length;
         this.tags[size] = this.tagInput;
         this.tagInput = '';
@@ -189,20 +189,23 @@ export default {
     },
     restoreIfEdit() {
       this.$firestore.collection("posts").doc(this.postID).get().then(doc => {
-          const post = doc.data()
-          this.textInput = post.text;
-          this.tags = post.tags;
-          this.captionInput = post.caption;
-          this.date = post.date;
-        })
-          .catch(err => {
-            this.$q.notify({
-              message: 'Firebase Connection Failed!',
-              type: 'negative'
-            })
+        const post = doc.data()
+        this.textInput = post.text;
+        this.tags = post.tags;
+        this.captionInput = post.caption;
+        this.date = post.date;
+      })
+        .catch(() => {
+          this.$q.notify({
+            message: 'Failed to read post!',
+            type: 'negative'
           })
+        })
+        .finally( () => {
+          this.$q.loading.hide()
+        })
     },
-    clearInputs(){
+    clearInputs() {
       this.captionInput = ''
       this.tagInput = ''
       this.tags = []
@@ -211,11 +214,12 @@ export default {
     }
   },
   created() {
-    if(this.isEdit){
-      if(this.$route.params.id){
+    if (this.isEdit) {
+      if (this.$route.params.id) {
+        this.$q.loading.show()
         this.restoreIfEdit();
       } else {
-        this.$router.push({ name: 'newPost'})
+        this.$router.push({name: 'newPost'})
       }
     }
   }
