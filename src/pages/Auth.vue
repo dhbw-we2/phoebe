@@ -14,6 +14,7 @@
         label="EMAIL"
         type="email"
         :rules="[val => !!val || '*Field is required', val => val.includes('@') && val.includes('.') || '*Please Provide a valid email']"
+        autofocus
       />
       <q-input
         v-model="password"
@@ -64,7 +65,7 @@
       </q-btn>
 
 
-      <p class="q-mt-md q-mb-none text-center">
+      <p class="q-mt-md q-mb-none text-center" @click="$refs.emailAuthenticationForm.focus()">
         <router-link class="text-primary" :to="routeAuthentication">
           <span v-if="isRegistration">Already have an account?</span>
           <span v-else>You need an account?</span>
@@ -79,7 +80,6 @@
 
 <script>
 import {mapActions} from 'vuex'
-import {QSpinnerGears} from 'quasar'
 
 export default {
   name: 'Auth',
@@ -147,6 +147,9 @@ export default {
             }
           }
         )
+    },
+    test(){
+      console.log("test")
     }
   }
 }
