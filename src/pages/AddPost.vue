@@ -5,15 +5,16 @@
         <div class="text-h4">Create a Post</div>
       </q-card-section>
       <q-separator />
-      <q-card-section>
+      <q-card-section >
         <div class="q-pa-md q-gutter-sm">
           <q-input dark v-model="captionInput" placeholder="This is a catchy Caption">
             <template v-slot:prepend>
               <q-icon name="eva-arrow-right-outline" />
             </template>
           </q-input>
-          <TagCreatorBar ref="tagBar">
-          </TagCreatorBar>
+          <tag-creator-bar @settagdata="setTagData">
+
+          </tag-creator-bar>
         </div>
       </q-card-section>
       <q-separator />
@@ -89,7 +90,6 @@
         />
       </q-card-actions>
     </q-card>
-
     <PostView disabled="true"
               :caption="captionInput"
               :date="new Date().getTime()"
@@ -103,7 +103,7 @@
 <script>
 
 import PostView from "components/PostView";
-import TagCreatorBar from "components/tagCreatorBar";
+import TagCreatorBar from "components/TagCreatorBar";
 export default {
   components: {TagCreatorBar, PostView},
   data () {
@@ -115,6 +115,10 @@ export default {
     }
   },
   methods: {
+    setTagData(tagsData){
+      console.log('setTagData')
+      this.tags = tagsData;
+    },
     addTagFkt() {
       if(this.tagInput != ''){
         const size = this.tags.length;
@@ -124,7 +128,6 @@ export default {
       }
     },
     SubmitPost(){
-      this.tags = this.$refs.tagbar.getTags();
       this.$firestore.collection("posts").add({
         caption: this.captionInput,
         date: new Date().getTime(),

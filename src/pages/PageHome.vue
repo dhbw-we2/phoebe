@@ -1,12 +1,18 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <div class="card-post-text q-mb-md">
-      <tag-creator-bar>
-
+    <div class="q-pb-md">
+      <tag-creator-bar @settagdata="setTagData">
       </tag-creator-bar>
-
+      <div class="row justify-end">
+        <q-btn color='positive'
+               class="col-2"
+               unelevated rounded
+               label = 'search'
+               icon-right="eva-search-outline"
+               v-on:click="search">
+        </q-btn>
+      </div>
     </div>
-    <q-separator/>
     <template v-if="!loadingPosts && posts.length">
       <PostView v-for="post in posts"
                 :key="post.id"
@@ -32,7 +38,7 @@
 import {date} from 'quasar'
 import PageloadingPosts from "pages/PageloadingPosts";
 import PostView from "components/PostView";
-import TagCreatorBar from "components/tagCreatorBar";
+import TagCreatorBar from "components/TagCreatorBar";
 
 export default {
   name: 'PageHome',
@@ -42,12 +48,25 @@ export default {
       posts: [],
       loadingPosts: true,
       initialUpdate: true,
+      tags: [],
     }
   },
   component: {
     'loadingScreen': require('pages/PageloadingPosts.vue').default
   },
   methods: {
+    search(){
+      if(this.tags.length > 0){
+        this.loadingPosts = true;
+        this.$firestore.collection("posts")
+          .where("tags","array-contains-any",this.tags)
+          .get().then(snapshot => this.loadPosts(snapshot))
+      }
+    },
+    setTagData(tagsData){
+      console.log('setTagData')
+      this.tags = tagsData;
+    },
     loadPosts(snapshot) {
       if (snapshot.empty && snapshot.metadata.fromCache) {
         throw new Error('empty response');
@@ -62,14 +81,18 @@ export default {
       this.loadingPosts = false
     },
     getPosts() {
-      this.$firestore.collection("posts").orderBy("date", "desc").get().then(snapshot => this.loadPosts(snapshot))
+      this.$firestore.collection("posts")
+        .orderBy("date", "desc").get()
+        .then(snapshot => this.loadPosts(snapshot))
         .catch(err => {
           this.$q.notify({
             message: 'Firebase Connection Failed!',
             type: 'negative'
           })
         }).finally(() => {
-        this.$firestore.collection('posts').orderBy("date", "desc").onSnapshot((snapshot) => {
+        this.$firestore.collection('posts')
+          .orderBy("date", "desc")
+          .onSnapshot((snapshot) => {
           this.showNewPostsNotification(snapshot)
         });
       })

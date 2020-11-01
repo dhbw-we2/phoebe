@@ -28,11 +28,12 @@
 
 <script>
 export default {
-name: "tagCreatorBar",
+name: "TagCreatorBar",
   data(){
     return{
       tags: [],
       tagInput: '',
+
     }
   },
   methods:{
@@ -46,11 +47,16 @@ name: "tagCreatorBar",
         this.tags[size] = this.tagInput;
         this.tagInput ='';
       }
+      console.log('addTagFkt')
+      //Emit doesnt Work
+      this.$emit('settagdata', this.tags);
     },
     removeFormElement(tag) {
-      console.log('removing form element', tag);
       const index = this.tags.findIndex(f => f === tag);
       this.tags.splice(index, 1);
+      console.log('removeFormElement')
+      //Emit doesnt Work
+      this.$emit('settagdata', this.tags);
     },
   }
 }
