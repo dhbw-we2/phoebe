@@ -43,16 +43,14 @@ export default {
       snapshot.forEach((doc) => {
         const post = doc.data();
         post.id = doc.id;
-        if(post.user == this.$fb.auth().currentUser.email){
-          this.myPosts.push(post);
-        }
+        this.myPosts.push(post);
       })
       this.loadingPosts = false;
     },
     getMyPosts() {
-      // .where("user", "==", this.$fb.auth().currentUser.email)
       this.$firestore.collection("posts")
         .orderBy("date", "desc")
+        .where("user", "==", this.$fb.auth().currentUser.email)
         .get().then(snapshot => this.loadPosts(snapshot));
     },
   },
