@@ -59,6 +59,7 @@ export default {
       if(this.tags.length > 0){
         this.loadingPosts = true;
         this.$firestore.collection("posts")
+          .orderBy("date", "desc")
           .where("tags","array-contains-any",this.tags)
           .get().then(snapshot => this.loadPosts(snapshot))
       }
