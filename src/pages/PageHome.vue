@@ -1,17 +1,11 @@
 <template>
   <q-page class="constrain q-pa-md">
     <div class="q-pb-md">
-      <tag-creator-bar @settagdata="setTagData">
+      <tag-creator-bar ref="tagCreator"
+                       @tags-changed="searchForTags"
+                       placeholder="Search for Tags"
+                       icon="eva-search-outline">
       </tag-creator-bar>
-      <div class="row justify-end">
-        <q-btn color='positive'
-               class="col-2"
-               unelevated rounded
-               label = 'search'
-               icon-right="eva-search-outline"
-               v-on:click="search">
-        </q-btn>
-      </div>
     </div>
     <template v-if="!loadingPosts && posts.length">
       <PostView v-for="post in posts"
@@ -22,7 +16,7 @@
                 :text="post.text"
                 :user="post.user"
                 :tags="post.tags"
-                @postDeleted="getPosts">
+                @postDeleted="getAllPosts">
       </PostView>
     </template>
     <template v-else-if="!loadingPosts && !posts.length">
@@ -55,17 +49,19 @@ export default {
     'loadingScreen': require('pages/PageloadingPosts.vue').default
   },
   methods: {
-    search(){
-      if(this.tags.length > 0){
+    searchForTags(tags) {
+      if (tags.length > 0) {
         this.loadingPosts = true;
+        this.$refs.tagCreator.$data.loading = true;
         this.$firestore.collection("posts")
           .orderBy("date", "desc")
-          .where("tags","array-contains-any",this.tags)
+          .where("tags", "array-contains-any", tags)
           .get().then(snapshot => this.loadPosts(snapshot))
+      } else {
+        this.getAllPosts()
       }
     },
-    setTagData(tagsData){
-      console.log('setTagData')
+    setTagData(tagsData) {
       this.tags = tagsData;
     },
     loadPosts(snapshot) {
@@ -76,12 +72,11 @@ export default {
       snapshot.forEach((doc) => {
         const post = doc.data()
         post.id = doc.id
-        console.log(doc.id)
         this.posts.push(post)
       })
       this.loadingPosts = false
     },
-    getPosts() {
+    getAllPosts() {
       this.$firestore.collection("posts")
         .orderBy("date", "desc").get()
         .then(snapshot => this.loadPosts(snapshot))
@@ -94,8 +89,8 @@ export default {
         this.$firestore.collection('posts')
           .orderBy("date", "desc")
           .onSnapshot((snapshot) => {
-          this.showNewPostsNotification(snapshot)
-        });
+            this.showNewPostsNotification(snapshot)
+          });
       })
     },
     showNewPostsNotification(snapshot) {
@@ -117,7 +112,7 @@ export default {
     },
   },
   created() {
-    this.getPosts()
+    this.getAllPosts()
   }
 }
 </script>

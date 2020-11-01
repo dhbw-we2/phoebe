@@ -6,14 +6,14 @@
       </q-card-section>
       <q-separator />
       <q-card-section >
-        <div class="q-pa-md q-gutter-sm">
-          <q-input dark v-model="captionInput" placeholder="This is a catchy Caption">
+        <div class="q-pa-md q-gutter-md">
+          <q-input rounded filled dark v-model="captionInput" placeholder="Catchy Caption">
             <template v-slot:prepend>
               <q-icon name="eva-arrow-right-outline" />
             </template>
           </q-input>
-          <tag-creator-bar @settagdata="setTagData">
-
+          <tag-creator-bar @tags-changed="setTagData"
+          placeholder="#tags">
           </tag-creator-bar>
         </div>
       </q-card-section>
@@ -21,7 +21,7 @@
       <q-card-section>
         <q-editor
           v-model="textInput"
-          placeholder="This is a very interesting Text"
+          placeholder="This is a very interesting Post"
           :dense="$q.screen.lt.md"
           :toolbar="[
           [
@@ -116,7 +116,6 @@ export default {
   },
   methods: {
     setTagData(tagsData){
-      console.log('setTagData')
       this.tags = tagsData;
     },
     addTagFkt() {
