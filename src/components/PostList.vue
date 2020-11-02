@@ -74,6 +74,9 @@ export default {
           } else {
             this.showNewPostsNotification(snapshot)
           }
+        } else {
+          this.posts = []
+          this.loadingSkeleton = false
         }
 
       }, () => {
