@@ -15,8 +15,7 @@
                 :date="post.date"
                 :text="post.text"
                 :user="post.user"
-                :tags="post.tags"
-                @postDeleted="getAllPosts">
+                :tags="post.tags">
       </PostView>
     </template>
     <template v-else-if="!loadingPosts && !posts.length">
@@ -33,6 +32,7 @@ import {date} from 'quasar'
 import PageloadingPosts from "pages/PageloadingPosts";
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
+import notify from "boot/notify";
 
 export default {
   name: 'PageHome',
@@ -43,6 +43,10 @@ export default {
       loadingPosts: true,
       initialUpdate: true,
       tags: [],
+      pendingPosts: [],
+      postListener: Function,
+      newPostsNotify: Function,
+      canShowNewPostsNotify: false,
     }
   },
   component: {
@@ -82,34 +86,40 @@ export default {
             message: 'Firebase Connection Failed!',
             type: 'negative'
           })
-        }).finally(() => {
-        this.$firestore.collection('posts')
-          .orderBy("date", "desc")
-          .onSnapshot((snapshot) => {
-            this.showNewPostsNotification(snapshot)
-          });
-      })
+        })
     },
     showNewPostsNotification(snapshot) {
-      if (!this.initialUpdate) {
-        this.$q.notify({
-          color: "primary",
-          message: "New Post",
-          position: "top",
-          timeout: 0,
-          actions: [
-            {
-              label: 'Update', color: 'white', handler: () => this.loadPosts(snapshot)
-            }
-          ]
-        })
-      } else {
-        this.initialUpdate = false;
-      }
+      this.newPostsNotify = this.$q.notify({
+        color: "primary",
+        message: "New Posts",
+        position: "top",
+        timeout: 0,
+        actions: [
+          {
+            label: 'Update', color: 'white', handler: () => this.loadPosts(snapshot)
+          }
+        ]
+      })
     },
   },
   created() {
     this.getAllPosts()
+    this.postListener = this.$firestore.collection('posts')
+      .orderBy("date", "desc")
+      .onSnapshot((snapshot) => {
+          if (this.canShowNewPostsNotify) {
+            this.showNewPostsNotification(snapshot)
+          }
+        }
+      )
+    setTimeout(() => {
+      this.canShowNewPostsNotify = true;
+    }, 500)
+  }
+  ,
+  beforeDestroy() {
+    this.postListener()
+    this.newPostsNotify()
   }
 }
 </script>

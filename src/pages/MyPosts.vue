@@ -1,6 +1,6 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <q-card class="card-post-text q-mb-md" flat bordered v-for="post in myPosts">
+    <q-card class="card-post-text q-mb-md" flat bordered v-for="post in myPosts" :key="post.id">
       <PostView
         :key="post.id"
         :id="post.id"
