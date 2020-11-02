@@ -53,7 +53,6 @@ export default {
     tags: {
       handler: function () {
         this.$emit('tags-changed', this.tags);
-        this.$emit('update:tags', this.tags)
       },
       deep: true
     },

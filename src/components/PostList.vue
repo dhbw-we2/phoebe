@@ -53,15 +53,8 @@ export default {
     updateQuery() {
       this.loadingSkeleton = true;
       this.initialUpdate = true;
-      this.postQuery()
-      this.newPostsNotify()
-      let query = this.$firestore.collection("posts").orderBy("date", "desc")
-      if (this.userFilter) {
-        query = query.where('user', '==', this.userFilter)
-      }
-      if (this.tags.length > 0) {
-        query = query.where("tags", "array-contains-any", this.tags)
-      }
+      this.clearQuery()
+      let query = this.buildQuery();
       this.postQuery = query.onSnapshot(snapshot => {
         if (this.initialUpdate) {
           this.loadPosts(snapshot)
@@ -88,17 +81,6 @@ export default {
       })
       this.loadingSkeleton = false
     },
-    getAllPosts() {
-      this.$firestore.collection("posts")
-        .orderBy("date", "desc").get()
-        .then(snapshot => this.loadPosts(snapshot))
-        .catch(() => {
-          this.$q.notify({
-            message: 'Firebase Connection Failed!',
-            type: 'negative'
-          })
-        })
-    },
     showNewPostsNotification(snapshot) {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -115,6 +97,16 @@ export default {
     clearQuery () {
       this.postQuery()
       this.newPostsNotify()
+    },
+    buildQuery() {
+      let query = this.$firestore.collection("posts").orderBy("date", "desc")
+      if (this.userFilter) {
+        query = query.where('user', '==', this.userFilter)
+      }
+      if (this.tags.length > 0) {
+        query = query.where("tags", "array-contains-any", this.tags)
+      }
+      return query
     }
   },
   created() {
