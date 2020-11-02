@@ -61,9 +61,6 @@ export default {
         this.getAllPosts()
       }
     },
-    setTagData(tagsData) {
-      this.tags = tagsData;
-    },
     loadPosts(snapshot) {
       if (snapshot.empty && snapshot.metadata.fromCache) {
         throw new Error('empty response');

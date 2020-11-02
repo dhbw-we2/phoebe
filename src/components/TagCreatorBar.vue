@@ -37,7 +37,6 @@ export default {
   name: "TagCreatorBar",
   data() {
     return {
-      tags: [],
       tagInput: '',
     }
   },
@@ -45,20 +44,22 @@ export default {
     placeholder: String,
     icon: {
       default: 'eva-arrow-right-outline',
+    },
+    tags: {
+      default: () => ([]),
+      type: Array
     }
   },
   watch: {
     tags: {
       handler: function () {
         this.$emit('tags-changed', this.tags);
+        this.$emit('update:tags', this.tags)
       },
       deep: true
     }
   },
   methods: {
-    getTags() {
-      return this.tags;
-    },
     addTag() {
       if (this.tagInput !== '') {
         if (this.tags.length < 10) {

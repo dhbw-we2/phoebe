@@ -12,7 +12,7 @@
               <q-icon name="eva-arrow-right-outline" />
             </template>
           </q-input>
-          <tag-creator-bar @tags-changed="setTagData"
+          <tag-creator-bar :tags.sync="tags"
           placeholder="#tags">
           </tag-creator-bar>
         </div>
@@ -85,7 +85,7 @@
           icon-right="eva-checkmark-outline"
           color=positive
           label="submit"
-          @click="SubmitPost"
+          @click="submitPost"
           to="/"
         />
       </q-card-actions>
@@ -140,12 +140,11 @@ export default {
     addTagFkt() {
       if (this.tagInput !== '') {
         const size = this.tags.length;
-        //console.log(size);
         this.tags[size] = this.tagInput;
         this.tagInput = '';
       }
     },
-    SubmitPost() {
+    submitPost() {
       if (this.isEdit) {
         this.$firestore.collection("posts").doc(this.postID).set({
           caption: this.captionInput,
@@ -192,7 +191,7 @@ export default {
       this.tags = []
       this.textInput = ''
       this.date = new Date().getTime()
-    }
+    },
   },
   created() {
     if (this.isEdit) {
