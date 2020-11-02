@@ -1,7 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
     <div class="q-pb-md">
-      <tag-creator-bar ref="tagCreator"
+      <tag-creator-bar ref="searchBar"
                        @tags-changed="searchForTags"
                        placeholder="Search for Tags"
                        icon="eva-search-outline">
@@ -15,28 +15,27 @@
                 :date="post.date"
                 :text="post.text"
                 :user="post.user"
-                :tags="post.tags">
+                :tags="post.tags"
+                @post-deleted="searchForTags($refs.searchBar.$props.tags)">
       </PostView>
     </template>
     <template v-else-if="!loadingPosts && !posts.length">
       <h5 class="text-center text-grey">Nothing to see here.</h5>
     </template>
     <template v-else>
-      <pageloading-posts/>
+      <PostSkeleton/>
     </template>
   </q-page>
 </template>
 
 <script>
-import {date} from 'quasar'
-import PageloadingPosts from "pages/PageloadingPosts";
+import PostSkeleton from "components/PostSkeleton";
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
-import notify from "boot/notify";
 
 export default {
   name: 'PageHome',
-  components: {TagCreatorBar, PostView, PageloadingPosts},
+  components: {TagCreatorBar, PostView, PostSkeleton},
   data() {
     return {
       posts: [],
@@ -50,13 +49,12 @@ export default {
     }
   },
   component: {
-    'loadingScreen': require('pages/PageloadingPosts.vue').default
+    'loadingScreen': require('components/PostSkeleton.vue').default
   },
   methods: {
     searchForTags(tags) {
       if (tags.length > 0) {
         this.loadingPosts = true;
-        this.$refs.tagCreator.$data.loading = true;
         this.$firestore.collection("posts")
           .orderBy("date", "desc")
           .where("tags", "array-contains-any", tags)

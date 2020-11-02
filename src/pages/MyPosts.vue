@@ -1,20 +1,15 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <q-card class="card-post-text q-mb-md" flat bordered v-for="post in myPosts" :key="post.id">
-      <PostView
-        :key="post.id"
-        :id="post.id"
-        :caption="post.caption"
-        :date="post.date"
-        :text="post.text"
-        :user="post.user"
-        :tags="post.tags">
-      </PostView>
-      <q-card-actions align="stretch">
-        <q-btn flat round icon="eva-trash-2-outline" v-on:click="deletePost(post.id)"/>
-        <q-btn flat round icon="eva-edit-2-outline" v-on:click="editPost(post.id)"/>
-      </q-card-actions>
-    </q-card>
+    <PostView
+      v-for="post in myPosts"
+      :key="post.id"
+      :id="post.id"
+      :caption="post.caption"
+      :date="post.date"
+      :text="post.text"
+      :user="post.user"
+      :tags="post.tags">
+    </PostView>
   </q-page>
 </template>
 <script>
@@ -29,11 +24,12 @@ export default {
   components: {PostView},
   methods: {
     editPost(id) {
-      this.$router.push({ name: 'editPost', params: {id: id}});
+      this.$router.push({name: 'editPost', params: {id: id}});
     },
     deletePost(id) {
-      this.$firestore.collection("posts").doc(id).delete();
-      this.getMyPosts();
+      this.$firestore.collection("posts").doc(id).delete().then(() => {
+        this.getMyPosts();
+      });
     },
     loadPosts(snapshot) {
       if (snapshot.empty && snapshot.metadata.fromCache) {

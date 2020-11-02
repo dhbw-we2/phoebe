@@ -9,11 +9,11 @@
             </q-avatar>
           </q-item-section>
 
-          <q-item-section >
+          <q-item-section>
             <q-item-label>
               <span v-for="tag in tags"> #{{ tag }}</span>
             </q-item-label>
-            <q-item-label class="text-overline">Posted by u/{{user}}  {{ date | timeSincePost }} ago </q-item-label>
+            <q-item-label class="text-overline">Posted by u/{{ user }} {{ date | timeSincePost }} ago</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -22,13 +22,16 @@
       <q-card-section v-html="text" class="col-5"/>
     </q-card-section>
 
-    <q-separator />
+    <q-separator/>
 
     <q-card-actions align="stretch">
-      <q-btn flat round icon="eva-heart-outline" />
-      <q-btn flat round icon="eva-message-square-outline" />
-      <q-btn flat round icon="eva-save-outline" />
-      <q-btn flat round icon="eva-more-horizontal-outline" />
+      <q-btn flat round icon="eva-heart-outline"/>
+      <q-btn flat round icon="eva-message-square-outline"/>
+      <q-btn flat round icon="eva-save-outline"/>
+      <q-btn flat round icon="eva-more-horizontal-outline"/>
+      <q-space/>
+      <q-btn flat round icon="eva-edit-2-outline" v-if="user === this.$fb.auth().currentUser.email" v-on:click="editPost"/>
+      <q-btn flat round icon="eva-trash-2-outline" v-if="user === this.$fb.auth().currentUser.email" v-on:click="deletePost"/>
     </q-card-actions>
   </q-card>
 </template>
@@ -39,12 +42,12 @@ import {date} from "quasar";
 export default {
   name: "PostView",
   props: {
-      id: String,
-      caption: String,
-      tags: Array,
-      text: String,
-      date: Number,
-      user: String,
+    id: String,
+    caption: String,
+    tags: Array,
+    text: String,
+    date: Number,
+    user: String,
   },
   filters: {
     // Display the Time since this post was created
@@ -64,5 +67,15 @@ export default {
       return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
   },
+  methods: {
+    editPost() {
+      this.$router.push({ name: 'editPost', params: {id: this.id}});
+    },
+    deletePost(id) {
+      this.$firestore.collection("posts").doc(this.id).delete().then(() => {
+        this.$emit('post-deleted')
+      });
+    },
+  }
 }
 </script>
