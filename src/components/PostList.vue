@@ -9,6 +9,7 @@
                  :text="post.text"
                  :user="post.user"
                  :tags="post.tags"
+                 :date-edited="post.dateEdited"
                  @post-deleted="updateQuery">
       </post-view>
     </template>

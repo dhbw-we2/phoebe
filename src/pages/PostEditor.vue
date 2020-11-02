@@ -150,14 +150,19 @@ export default {
     submitPost() {
       this.postSubmitted = true;
       if (this.isEdit) {
-        this.$firestore.collection("posts").doc(this.postID).set({
+        this.$firestore.collection("posts").doc(this.postID).update({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
-          user: this.$fb.auth().currentUser.email,
+          dateEdited: new Date().getTime()
         }).then(() => {
           this.$router.push('/')
-        });
+        }).catch((err) => {
+          this.$q.notify({
+            message: err,
+            type: 'negative'
+          })
+        })
       } else {
         this.$firestore.collection("posts").add({
           caption: this.captionInput,
@@ -167,7 +172,12 @@ export default {
           user: this.$fb.auth().currentUser.email,
         }).then(() => {
           this.$router.push('/')
-        });
+        }).catch((err) => {
+          this.$q.notify({
+            message: err,
+            type: 'negative'
+          })
+        })
       }
     },
     removeTag(tag) {

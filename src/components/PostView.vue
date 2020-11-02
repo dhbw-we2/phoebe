@@ -13,10 +13,11 @@
             <q-item-label>
               <span v-for="tag in tags"> #{{ tag }}</span>
             </q-item-label>
-            <q-item-label class="text-overline">Posted by u/{{ user }} {{ date | timeSincePost }} ago</q-item-label>
+            <q-item-label class="text-overline">
+              Posted by u/{{ user }} {{ date | timeSincePost }} ago
+            </q-item-label>
           </q-item-section>
         </q-item>
-
         <div class="text-h5 q-mt-sm q-mb-xs">{{ caption }}</div>
       </q-card-section>
       <q-card-section v-html="text" class="col-5"/>
@@ -30,8 +31,9 @@
       <q-btn flat round icon="eva-save-outline"/>
       <q-btn flat round icon="eva-more-horizontal-outline"/>
       <q-space/>
-      <q-btn flat round icon="eva-edit-2-outline" v-if="user === this.$fb.auth().currentUser.email" v-on:click="editPost"/>
-      <q-btn flat round icon="eva-trash-2-outline" v-if="user === this.$fb.auth().currentUser.email" v-on:click="deletePost"/>
+      <div v-if="dateEdited" class="text-overline"> (edited {{ dateEdited | timeSincePost }} ago)</div>
+      <q-btn flat round icon="eva-edit-2-outline" v-if="user === currentUser" v-on:click="editPost"/>
+      <q-btn flat round icon="eva-trash-2-outline" v-if="user === currentUser" v-on:click="deletePost"/>
     </q-card-actions>
   </q-card>
 </template>
@@ -47,7 +49,17 @@ export default {
     tags: Array,
     text: String,
     date: Number,
+    dateEdited: Number,
     user: String,
+  },
+  computed: {
+    currentUser() {
+      if (this.$store.state.auth.isAuthenticated) {
+        return this.$fb.auth().currentUser.email
+      } else {
+        return undefined;
+      }
+    }
   },
   filters: {
     // Display the Time since this post was created
@@ -69,7 +81,7 @@ export default {
   },
   methods: {
     editPost() {
-      this.$router.push({ name: 'editPost', params: {id: this.id}});
+      this.$router.push({name: 'editPost', params: {id: this.id}});
     },
     deletePost() {
       this.$firestore.collection("posts").doc(this.id).delete().then(() => {
