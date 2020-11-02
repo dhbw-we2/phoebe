@@ -151,7 +151,7 @@ export default {
       this.postSubmitted = true;
       if (this.isEdit) {
         this.$firestore.collection("posts").doc(this.postID).update({
-          caption: this.captionInput,
+          caption: this.captionInput.trim(),
           tags: this.tags,
           text: this.textInput,
           dateEdited: new Date().getTime()
