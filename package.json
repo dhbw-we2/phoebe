@@ -10,7 +10,8 @@
     "dev": "cross-env QENV=development quasar dev",
     "test-dev": "cross-env QENV=test quasar dev",
     "combined": "cross-env QENV=development+test quasar dev",
-    "build": "cross-env QENV=production quasar build"
+    "build": "cross-env QENV=production quasar build",
+    "deploy": "firebase use default && cross-env QENV=development quasar build && firebase deploy"
   },
   "dependencies": {
     "@quasar/extras": "^1.9.10",
@@ -24,7 +25,8 @@
   "devDependencies": {
     "@quasar/app": "^2.1.6",
     "@quasar/quasar-app-extension-qenv": "^1.0.3",
-    "cross-env": "^7.0.2"
+    "cross-env": "^7.0.2",
+    "firebase-tools": "^8.14.1"
   },
   "engines": {
     "node": ">= 10.18.1",
