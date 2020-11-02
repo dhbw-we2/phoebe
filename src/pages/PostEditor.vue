@@ -82,11 +82,12 @@
         />
         <q-btn
           unelevated rounded
+          ref="submitBtn"
           icon-right="eva-checkmark-outline"
           color=positive
           label="submit"
           @click="submitPost"
-          to="/"
+          :disable="submitBtnDisable"
         />
       </q-card-actions>
     </q-card>
@@ -134,6 +135,7 @@ export default {
       tags: [],
       textInput: '',
       date: new Date().getTime(),
+      submitBtnDisable: false,
     }
   },
   methods: {
@@ -145,6 +147,7 @@ export default {
       }
     },
     submitPost() {
+      this.submitBtnDisable = true;
       if (this.isEdit) {
         this.$firestore.collection("posts").doc(this.postID).set({
           caption: this.captionInput,
@@ -152,6 +155,8 @@ export default {
           text: this.textInput,
           date: this.date,
           user: this.$fb.auth().currentUser.email,
+        }).then(() => {
+          this.$router.push('/')
         });
       } else {
         this.$firestore.collection("posts").add({
@@ -160,6 +165,8 @@ export default {
           text: this.textInput,
           date: new Date().getTime(),
           user: this.$fb.auth().currentUser.email,
+        }).then(() => {
+          this.$router.push('/')
         });
       }
     },
