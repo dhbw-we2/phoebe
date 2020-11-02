@@ -100,10 +100,19 @@ export default {
       this.$router.push({name: 'editPost', params: {id: this.id}});
     },
     deletePost() {
-      this.visible = false;
-      this.$firestore.collection("posts").doc(this.id).delete().then(() => {
-        // this.$emit('post-deleted')
-      });
+      this.$q.dialog({
+        title: 'Delete Post',
+        message: 'Do you really want to delete this post?',
+        position: "top",
+        cancel: "No",
+        ok: 'Yes',
+        color: 'primary'
+      }).onOk(() => {
+        this.visible = false;
+        this.$firestore.collection("posts").doc(this.id).delete().then(() => {
+          // this.$emit('post-deleted')
+        });
+      })
     },
   }
 }
