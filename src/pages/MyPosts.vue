@@ -1,57 +1,27 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <PostView
-      v-for="post in myPosts"
-      :key="post.id"
-      :id="post.id"
-      :caption="post.caption"
-      :date="post.date"
-      :text="post.text"
-      :user="post.user"
-      :tags="post.tags">
-    </PostView>
+    <div class="q-pb-md">
+      <tag-creator-bar ref="searchBar"
+                       @tags-changed="$refs.postList.$data.tags = $event"
+                       placeholder="Search for Tags"
+                       icon="eva-search-outline">
+      </tag-creator-bar>
+    </div>
+    <PostList ref="postList"
+              :user-filter="this.$fb.auth().currentUser.email"/>
   </q-page>
 </template>
+
 <script>
-import PostView from "components/PostView";
+import TagCreatorBar from "components/TagCreatorBar";
+import PostList from "components/PostList";
 
 export default {
+  name: 'MyPosts',
+  components: {PostList, TagCreatorBar},
+
   data() {
-    return {
-      myPosts: [],
-    }
+    return {}
   },
-  components: {PostView},
-  methods: {
-    editPost(id) {
-      this.$router.push({name: 'editPost', params: {id: id}});
-    },
-    deletePost(id) {
-      this.$firestore.collection("posts").doc(id).delete().then(() => {
-        this.getMyPosts();
-      });
-    },
-    loadPosts(snapshot) {
-      if (snapshot.empty && snapshot.metadata.fromCache) {
-        throw new Error('empty response');
-      }
-      this.myPosts = []
-      snapshot.forEach((doc) => {
-        const post = doc.data();
-        post.id = doc.id;
-        this.myPosts.push(post);
-      })
-      this.loadingPosts = false;
-    },
-    getMyPosts() {
-      this.$firestore.collection("posts")
-        .orderBy("date", "desc")
-        .where("user", "==", this.$fb.auth().currentUser.email)
-        .get().then(snapshot => this.loadPosts(snapshot));
-    },
-  },
-  created() {
-    this.getMyPosts();
-  }
 }
 </script>

@@ -71,7 +71,7 @@ export default {
     editPost() {
       this.$router.push({ name: 'editPost', params: {id: this.id}});
     },
-    deletePost(id) {
+    deletePost() {
       this.$firestore.collection("posts").doc(this.id).delete().then(() => {
         this.$emit('post-deleted')
       });
