@@ -16,7 +16,11 @@
     <template v-else-if="!loadingSkeleton && !posts.length">
       <h5 class="text-center text-grey">Nothing to see here.</h5>
     </template>
-    <post-skeleton v-else/>
+    <template v-else>
+      <post-skeleton/>
+      <post-skeleton/>
+      <post-skeleton/>
+    </template>
   </div>
 </template>
 

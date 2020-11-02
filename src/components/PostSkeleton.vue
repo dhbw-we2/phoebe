@@ -13,16 +13,14 @@
           </q-item-section>
         </q-item>
       </q-card-section>
-      <q-skeleton height="150px" class="q-mb-sm"/>
+      <q-skeleton height="110px" class="q-mb-sm"/>
     </q-card-section>
 
     <q-separator/>
 
     <q-card-actions align="stretch">
       <q-btn flat round icon="eva-heart-outline"/>
-      <q-skeleton type="text" width="2rem" height="2.7rem"/>
       <q-btn flat round icon="eva-message-square-outline"/>
-      <q-skeleton type="text" width="2rem" height="2.7rem"/>
       <q-btn flat round icon="eva-save-outline"/>
       <q-btn flat round icon="eva-more-horizontal-outline"/>
     </q-card-actions>
