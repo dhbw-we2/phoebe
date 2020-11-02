@@ -61,12 +61,21 @@ export default {
       this.clearQuery()
       let query = this.buildQuery();
       this.postQuery = query.onSnapshot(snapshot => {
-        if (this.initialUpdate) {
-          this.loadPosts(snapshot)
-          this.initialUpdate = false;
-        } else {
-          this.showNewPostsNotification(snapshot)
+        let newPosts = false;
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            newPosts = true
+          }
+        })
+        if (newPosts) {
+          if (this.initialUpdate) {
+            this.loadPosts(snapshot)
+            this.initialUpdate = false;
+          } else {
+            this.showNewPostsNotification(snapshot)
+          }
         }
+
       }, () => {
         this.$q.notify({
           message: 'Firebase Connection Failed!',
@@ -85,7 +94,8 @@ export default {
         this.posts.push(post)
       })
       this.loadingSkeleton = false
-    },
+    }
+    ,
     showNewPostsNotification(snapshot) {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -98,11 +108,13 @@ export default {
           }
         ]
       })
-    },
-    clearQuery () {
+    }
+    ,
+    clearQuery() {
       this.postQuery()
       this.newPostsNotify()
-    },
+    }
+    ,
     buildQuery() {
       let query = this.$firestore.collection("posts").orderBy("date", "desc")
       if (this.userFilter) {
