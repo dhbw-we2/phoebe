@@ -23,5 +23,9 @@ export default {
   data() {
     return {}
   },
+  beforeRouteLeave(to, from, next) {
+    this.$refs.postList.clearQuery()
+    next();
+  }
 }
 </script>

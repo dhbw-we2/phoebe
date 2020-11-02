@@ -35,7 +35,7 @@ export default {
       initialUpdate: true,
       tags: [],
       pendingPosts: [],
-      postListener: Function,
+      postQuery: Function,
       newPostsNotify: Function,
       canShowNewPostsNotify: true,
     }
@@ -53,7 +53,7 @@ export default {
     updateQuery() {
       this.loadingSkeleton = true;
       this.initialUpdate = true;
-      this.postListener()
+      this.postQuery()
       this.newPostsNotify()
       let query = this.$firestore.collection("posts").orderBy("date", "desc")
       if (this.userFilter) {
@@ -62,7 +62,7 @@ export default {
       if (this.tags.length > 0) {
         query = query.where("tags", "array-contains-any", this.tags)
       }
-      this.postListener = query.onSnapshot(snapshot => {
+      this.postQuery = query.onSnapshot(snapshot => {
         if (this.initialUpdate) {
           this.loadPosts(snapshot)
           this.initialUpdate = false;
@@ -112,13 +112,13 @@ export default {
         ]
       })
     },
+    clearQuery () {
+      this.postQuery()
+      this.newPostsNotify()
+    }
   },
   created() {
     this.updateQuery()
   },
-  beforeRouteLeave() {
-    this.postListener()
-    this.newPostsNotify()
-  }
 }
 </script>
