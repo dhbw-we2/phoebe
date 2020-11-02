@@ -4,44 +4,24 @@
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
-      <q-separator/>
-      <q-card-section>
-        <div class="q-pa-md q-gutter-sm">
-          <q-input dark v-model="captionInput" placeholder="This is a catchy Caption">
+      <q-separator />
+      <q-card-section >
+        <div class="q-pa-md q-gutter-md">
+          <q-input rounded filled dark v-model="captionInput" placeholder="Catchy Caption">
             <template v-slot:prepend>
-              <q-icon name="eva-arrow-right-outline"/>
+              <q-icon name="eva-arrow-right-outline" />
             </template>
           </q-input>
-          <q-input bottom-slots dark v-model="tagInput" placeholder="#interestingTags">
-            <template v-slot:prepend>
-              <q-icon name="eva-arrow-right-outline"/>
-            </template>
-            <template v-slot:append>
-              <q-btn
-                unelevated rounded
-                label="Add Tag"
-                icon="eva-plus-outline"
-                v-on:click="addTagFkt"
-              />
-            </template>
-          </q-input>
-          <q-btn
-            color='primary'
-            unelevated rounded
-            icon-right="eva-close-outline"
-            ref="container"
-            v-for="tag in tags"
-            :key="tag"
-            v-on:click="removeTag(tag)">
-            {{ tag }}
-          </q-btn>
+          <tag-creator-bar @tags-changed="setTagData"
+          placeholder="#tags">
+          </tag-creator-bar>
         </div>
       </q-card-section>
-      <q-separator/>
+      <q-separator />
       <q-card-section>
         <q-editor
           v-model="textInput"
-          placeholder="This is a very interesting Text"
+          placeholder="This is a very interesting Post"
           :dense="$q.screen.lt.md"
           :toolbar="[
           [
@@ -124,9 +104,9 @@
 <script>
 
 import PostView from "components/PostView";
-
+import TagCreatorBar from "components/TagCreatorBar";
 export default {
-  components: {PostView},
+  components: {TagCreatorBar, PostView},
 
   computed: {
     getTitle() {
@@ -160,6 +140,7 @@ export default {
     addTagFkt() {
       if (this.tagInput !== '') {
         const size = this.tags.length;
+        //console.log(size);
         this.tags[size] = this.tagInput;
         this.tagInput = '';
       }

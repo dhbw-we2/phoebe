@@ -1,5 +1,5 @@
 <template >
-  <div class="constrain q-pa-md">
+  <div class="constrain q-pb-md">
     <q-card class="card-post-text q-mb-md" flat bordered>
       <q-card-section vertical>
         <q-card-section class="q-pt-xs">
