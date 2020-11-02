@@ -1,27 +1,36 @@
 <template>
   <q-slide-transition>
     <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
-      <q-card-section vertical>
-        <q-card-section class="q-pt-xs">
-          <q-item>
-            <q-item-section avatar>
-              <q-avatar>
-                <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
-              </q-avatar>
-            </q-item-section>
+      <q-card-section horizontal>
+        <q-card-actions vertical class="justify-around">
+          <q-btn flat round icon="eva-arrow-ios-upward-outline" />
+          <q-btn flat round icon="eva-arrow-ios-downward-outline" />
+        </q-card-actions>
 
-            <q-item-section>
-              <q-item-label>
-                <span v-for="tag in tags"> #{{ tag }}</span>
-              </q-item-label>
-              <q-item-label class="text-overline">
-                Posted by u/{{ user }} {{ date | timeSincePost }} ago
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <div class="text-h5 q-mt-sm q-mb-xs">{{ caption }}</div>
+        <q-separator vertical inset="true" />
+
+        <q-card-section vertical class="q-pa-sm">
+          <q-card-section class="q-pa-sm">
+            <q-item class="q-pa-sm q-pb-md">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+                </q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label>
+                  <span v-for="tag in tags"> #{{ tag }}</span>
+                </q-item-label>
+                <q-item-label class="text-overline">
+                  Posted by u/{{ user }} {{ date | timeSincePost }} ago
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <div class="text-h5 q-pa-sm">{{ caption }}</div>
+            <q-card-section v-html="text" class="q-pa-sm q-pb-md"/>
+          </q-card-section>
         </q-card-section>
-        <q-card-section v-html="text" class="col-5"/>
       </q-card-section>
 
       <q-separator/>

@@ -1,19 +1,28 @@
 <template>
   <q-card class="card-post-text q-mb-md" flat bordered>
-    <q-card-section vertical>
-      <q-card-section class="q-pt-xs">
-        <q-item>
-          <q-item-section avatar>
-            <q-skeleton type="QAvatar" size="40px"/>
-          </q-item-section>
+    <q-card-section horizontal>
+      <q-card-actions vertical class="justify-around">
+        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+      </q-card-actions>
 
-          <q-item-section>
-            <q-skeleton type="text"/>
-            <q-skeleton type="text" width="80%"/>
-          </q-item-section>
-        </q-item>
+      <q-separator vertical inset="true"/>
+
+      <q-card-section vertical class="col-11 q-pa-sm">
+        <q-card-section vertical class="q-pa-sm">
+          <q-item class="q-pa-sm q-pb-md">
+            <q-item-section avatar>
+              <q-skeleton type="QAvatar" size="40px"/>
+            </q-item-section>
+
+            <q-item-section>
+              <q-skeleton type="text"/>
+              <q-skeleton type="text" width="80%"/>
+            </q-item-section>
+          </q-item>
+        </q-card-section>
+        <q-skeleton height="110px" class="q-mb-sm"/>
       </q-card-section>
-      <q-skeleton height="110px" class="q-mb-sm"/>
     </q-card-section>
 
     <q-separator/>
