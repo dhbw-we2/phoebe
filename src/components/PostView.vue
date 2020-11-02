@@ -20,7 +20,7 @@
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags"> #{{ tag }}</span>
+                  <span v-for="tag in tags" class="text-primary"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
                   Posted by u/{{ user }} {{ date | timeSincePost }} ago
@@ -28,7 +28,7 @@
               </q-item-section>
             </q-item>
             <div class="text-h5 q-pa-sm">{{ caption }}</div>
-            <q-card-section v-html="text" class="q-pa-sm q-pb-md"/>
+            <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary"/>
           </q-card-section>
         </q-card-section>
       </q-card-section>
