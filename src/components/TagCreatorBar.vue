@@ -2,8 +2,7 @@
   <div>
     <q-input filled bottom-slots dark v-model="tagInput"
              :placeholder="placeholder"
-             v-on:keydown.enter.prevent="addTag"
-             v-on:keydown.space.prevent="addTag">
+             v-on:keypress.space.enter.prevent="addTag">
       <template v-slot:prepend>
         <q-icon :name="icon"/>
       </template>
@@ -57,22 +56,28 @@ export default {
         this.$emit('update:tags', this.tags)
       },
       deep: true
+    },
+    tagInput: function () {
+      if (this.tagInput.slice(-1) === ' ') {
+        this.addTag();
+      }
     }
   },
   methods: {
     addTag() {
-      if (this.tagInput !== '') {
-        if (this.tags.length < 10) {
-          const index = this.tags.indexOf(this.tagInput);
+      if (this.tags.length < 10) {
+        const newTag = this.tagInput.replace(/\s/g, '').toLowerCase()
+        if (newTag !== '') {
+          const index = this.tags.indexOf(newTag);
           if (index === -1) {
-            this.tags.push(this.tagInput.replace(/\s/g, '').toLowerCase());
+            this.tags.push(newTag);
           }
-        } else {
-          this.$q.notify({
-            type: 'warning',
-            message: 'You can only add up to 10 tags!'
-          })
         }
+      } else {
+        this.$q.notify({
+          type: 'warning',
+          message: 'You can only add up to 10 tags!'
+        })
       }
       this.tagInput = '';
     },
