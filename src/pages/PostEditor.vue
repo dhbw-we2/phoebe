@@ -4,20 +4,20 @@
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
-      <q-separator />
-      <q-card-section >
+      <q-separator/>
+      <q-card-section>
         <div class="q-pa-md q-gutter-md">
           <q-input filled dark v-model="captionInput" placeholder="Catchy Caption">
             <template v-slot:prepend>
-              <q-icon name="eva-edit-outline" />
+              <q-icon name="eva-edit-outline"/>
             </template>
           </q-input>
           <tag-creator-bar :tags.sync="tags"
-          placeholder="Add Tags">
+                           placeholder="Add Tags">
           </tag-creator-bar>
         </div>
       </q-card-section>
-      <q-separator />
+      <q-separator/>
       <q-card-section>
         <q-editor
           v-model="textInput"
@@ -87,7 +87,7 @@
           color=positive
           label="submit"
           @click="submitPost"
-          :disable="submitBtnDisable"
+          :disable="postSubmitted"
         />
       </q-card-actions>
     </q-card>
@@ -106,6 +106,7 @@
 
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
+
 export default {
   components: {TagCreatorBar, PostView},
 
@@ -135,7 +136,7 @@ export default {
       tags: [],
       textInput: '',
       date: new Date().getTime(),
-      submitBtnDisable: false,
+      postSubmitted: false,
     }
   },
   methods: {
@@ -147,13 +148,12 @@ export default {
       }
     },
     submitPost() {
-      this.submitBtnDisable = true;
+      this.postSubmitted = true;
       if (this.isEdit) {
         this.$firestore.collection("posts").doc(this.postID).set({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
-          date: this.date,
           user: this.$fb.auth().currentUser.email,
         }).then(() => {
           this.$router.push('/')
@@ -188,7 +188,7 @@ export default {
             type: 'negative'
           })
         })
-        .finally( () => {
+        .finally(() => {
           this.$q.loading.hide()
         })
     },
@@ -208,6 +208,22 @@ export default {
       } else {
         this.$router.push({name: 'newPost'})
       }
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    //Show warning when leaving partially filled form
+    if ((this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput) && !this.postSubmitted) {
+      this.$q.dialog({
+        title: 'Unsaved Changes',
+        message: 'Do you really want to leave the editor?',
+        position: "top",
+        cancel: "No",
+        ok: 'Yes',
+        color: 'primary'
+      }).onOk(() => next())
+        .onDismiss(() => next(false))
+    } else {
+      next()
     }
   }
 }
