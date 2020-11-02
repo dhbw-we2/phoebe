@@ -5,10 +5,10 @@
       <q-toolbar>
         <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
 
-        <q-avatar square size="55px">
+        <q-avatar square size="55px" class="logo" @click="$router.push('/')">
           <img src="~assets/spreddit-logo.svg" alt="Logo">
         </q-avatar>
-        <q-toolbar-title class="logo-text">spreddit</q-toolbar-title>
+        <q-toolbar-title class="logo logo-text" @click="$router.push('/')">spreddit</q-toolbar-title>
 
         <q-btn flat round icon="eva-log-in-outline"
                v-if="!this.$store.state.auth.isAuthenticated"
