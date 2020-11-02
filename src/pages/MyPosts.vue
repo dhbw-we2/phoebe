@@ -3,8 +3,8 @@
     <div class="q-pb-md">
       <tag-creator-bar ref="searchBar"
                        @tags-changed="$refs.postList.$data.tags = $event"
-                       placeholder="Search for Tags"
-                       icon="eva-search-outline">
+                       placeholder="Filter Tags"
+                       icon="eva-funnel-outline">
       </tag-creator-bar>
     </div>
     <PostList ref="postList"

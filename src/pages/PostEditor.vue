@@ -7,13 +7,13 @@
       <q-separator />
       <q-card-section >
         <div class="q-pa-md q-gutter-md">
-          <q-input rounded filled dark v-model="captionInput" placeholder="Catchy Caption">
+          <q-input filled dark v-model="captionInput" placeholder="Catchy Caption">
             <template v-slot:prepend>
-              <q-icon name="eva-arrow-right-outline" />
+              <q-icon name="eva-edit-outline" />
             </template>
           </q-input>
           <tag-creator-bar :tags.sync="tags"
-          placeholder="#tags">
+          placeholder="Add Tags">
           </tag-creator-bar>
         </div>
       </q-card-section>

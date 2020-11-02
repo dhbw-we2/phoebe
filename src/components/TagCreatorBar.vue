@@ -42,7 +42,7 @@ export default {
   props: {
     placeholder: String,
     icon: {
-      default: 'eva-arrow-right-outline',
+      default: 'eva-hash-outline',
     },
     tags: {
       default: () => ([]),
