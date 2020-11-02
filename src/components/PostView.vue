@@ -1,41 +1,43 @@
 <template>
-  <q-card class="card-post-text q-mb-md" flat bordered>
-    <q-card-section vertical>
-      <q-card-section class="q-pt-xs">
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar>
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
-            </q-avatar>
-          </q-item-section>
+  <q-slide-transition>
+    <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
+      <q-card-section vertical>
+        <q-card-section class="q-pt-xs">
+          <q-item>
+            <q-item-section avatar>
+              <q-avatar>
+                <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+              </q-avatar>
+            </q-item-section>
 
-          <q-item-section>
-            <q-item-label>
-              <span v-for="tag in tags"> #{{ tag }}</span>
-            </q-item-label>
-            <q-item-label class="text-overline">
-              Posted by u/{{ user }} {{ date | timeSincePost }} ago
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-        <div class="text-h5 q-mt-sm q-mb-xs">{{ caption }}</div>
+            <q-item-section>
+              <q-item-label>
+                <span v-for="tag in tags"> #{{ tag }}</span>
+              </q-item-label>
+              <q-item-label class="text-overline">
+                Posted by u/{{ user }} {{ date | timeSincePost }} ago
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <div class="text-h5 q-mt-sm q-mb-xs">{{ caption }}</div>
+        </q-card-section>
+        <q-card-section v-html="text" class="col-5"/>
       </q-card-section>
-      <q-card-section v-html="text" class="col-5"/>
-    </q-card-section>
 
-    <q-separator/>
+      <q-separator/>
 
-    <q-card-actions align="stretch">
-      <q-btn flat round icon="eva-heart-outline"/>
-      <q-btn flat round icon="eva-message-square-outline"/>
-      <q-btn flat round icon="eva-save-outline"/>
-      <q-btn flat round icon="eva-more-horizontal-outline"/>
-      <q-space/>
-      <div v-if="dateEdited" class="text-overline"> (edited {{ dateEdited | timeSincePost }} ago)</div>
-      <q-btn flat round icon="eva-edit-2-outline" v-if="user === currentUser" v-on:click="editPost"/>
-      <q-btn flat round icon="eva-trash-2-outline" v-if="user === currentUser" v-on:click="deletePost"/>
-    </q-card-actions>
-  </q-card>
+      <q-card-actions align="stretch">
+        <q-btn flat round icon="eva-heart-outline"/>
+        <q-btn flat round icon="eva-message-square-outline"/>
+        <q-btn flat round icon="eva-save-outline"/>
+        <q-btn flat round icon="eva-more-horizontal-outline"/>
+        <q-space/>
+        <div v-if="dateEdited" class="text-overline"> (edited {{ dateEdited | timeSincePost }} ago)</div>
+        <q-btn flat round icon="eva-edit-2-outline" v-if="user === currentUser" v-on:click="editPost"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="user === currentUser" v-on:click="deletePost"/>
+      </q-card-actions>
+    </q-card>
+  </q-slide-transition>
 </template>
 
 <script>
@@ -61,6 +63,11 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      visible: true
+    }
+  },
   filters: {
     // Display the Time since this post was created
     timeSincePost(value) {
@@ -84,8 +91,9 @@ export default {
       this.$router.push({name: 'editPost', params: {id: this.id}});
     },
     deletePost() {
+      this.visible = false;
       this.$firestore.collection("posts").doc(this.id).delete().then(() => {
-        this.$emit('post-deleted')
+        // this.$emit('post-deleted')
       });
     },
   }
