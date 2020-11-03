@@ -5,11 +5,15 @@
       <q-toolbar>
         <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
 
-        <q-avatar square size="55px" class="logo" @click="$router.push('/')">
-          <img src="~assets/spreddit-logo.svg" alt="Logo">
-        </q-avatar>
-        <q-toolbar-title class="logo-text">
-        <div class="logo" style="display: inline-block" @click="$router.push('/')">spreddit</div>
+        <router-link to="/">
+          <q-avatar square size="55px" class="logo">
+            <img src="~assets/spreddit-logo.svg" alt="Logo">
+          </q-avatar>
+        </router-link>
+        <q-toolbar-title>
+          <router-link to="/" class="logo-text" style="display: inline-block">
+            <div>spreddit</div>
+          </router-link>
         </q-toolbar-title>
 
         <q-btn flat round icon="eva-log-in-outline"
@@ -66,7 +70,7 @@
           <q-item clickable v-ripple
                   to="/myPosts">
             <q-item-section avatar>
-              <q-icon name="eva-person-outline" />
+              <q-icon name="eva-person-outline"/>
             </q-item-section>
             <q-item-section>
               My Post
