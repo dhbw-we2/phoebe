@@ -51,7 +51,7 @@ export default {
   },
   watch: {
     tags: function () {
-      this.updateQuery(this.tags);
+      this.updateQuery();
     }
   },
   methods: {
@@ -61,22 +61,19 @@ export default {
       this.clearQuery()
       let query = this.buildQuery();
       this.postQuery = query.onSnapshot(snapshot => {
-        let newPosts = false;
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
-            newPosts = true
-          }
-        })
-        if (newPosts) {
-          if (this.initialUpdate) {
-            this.loadPosts(snapshot)
-            this.initialUpdate = false;
-          } else {
+        if (this.initialUpdate) {
+          this.loadPosts(snapshot)
+          this.initialUpdate = false;
+        } else {
+          let newPosts = false;
+          snapshot.docChanges().forEach((change) => {
+            if (['added','modified'].indexOf(change.type) !== -1) {
+              newPosts = true
+            }
+          })
+          if(newPosts) {
             this.showNewPostsNotification(snapshot)
           }
-        } else {
-          this.posts = []
-          this.loadingSkeleton = false
         }
 
       }, () => {
@@ -97,8 +94,7 @@ export default {
         this.posts.push(post)
       })
       this.loadingSkeleton = false
-    }
-    ,
+    },
     showNewPostsNotification(snapshot) {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -111,13 +107,11 @@ export default {
           }
         ]
       })
-    }
-    ,
+    },
     clearQuery() {
       this.postQuery()
       this.newPostsNotify()
-    }
-    ,
+    },
     buildQuery() {
       let query = this.$firestore.collection("posts").orderBy("date", "desc")
       if (this.userFilter) {
