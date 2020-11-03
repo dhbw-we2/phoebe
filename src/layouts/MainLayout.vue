@@ -8,7 +8,9 @@
         <q-avatar square size="55px" class="logo" @click="$router.push('/')">
           <img src="~assets/spreddit-logo.svg" alt="Logo">
         </q-avatar>
-        <q-toolbar-title class="logo logo-text" @click="$router.push('/')">spreddit</q-toolbar-title>
+        <q-toolbar-title class="logo-text">
+        <div class="logo" style="display: inline-block" @click="$router.push('/')">spreddit</div>
+        </q-toolbar-title>
 
         <q-btn flat round icon="eva-log-in-outline"
                v-if="!this.$store.state.auth.isAuthenticated"
