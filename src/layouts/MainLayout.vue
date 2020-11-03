@@ -92,13 +92,6 @@
       </q-scroll-area>
     </q-drawer>
 
-    <q-dialog v-model="showLogin">
-      <login/>
-    </q-dialog>
-    <q-dialog v-model="showRegister">
-      <register/>
-    </q-dialog>
-
     <q-page-container>
       <router-view/>
     </q-page-container>
@@ -129,10 +122,7 @@ export default {
       miniState: true
     }
   },
-  components: {
-    'login': require('components/tasks/Login.vue').default,
-    'register': require('components/tasks/Register.vue').default
-  },
+  components: {},
   methods: {
     ...mapActions('auth', ['logoutUser']),
     async logout() {
