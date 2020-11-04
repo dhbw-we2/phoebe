@@ -10,7 +10,7 @@
                  :user="post.user"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
-                 @post-deleted="updateQuery">
+                 @post-deleted="">
       </post-view>
     </template>
     <template v-else-if="!loadingSkeleton && !posts.length">
@@ -43,6 +43,7 @@ export default {
       postQuery: Function,
       newPostsNotify: Function,
       canShowNewPostsNotify: true,
+      newestSnapshot: Function
     }
   },
   props: {
@@ -61,18 +62,19 @@ export default {
       this.clearQuery()
       let query = this.buildQuery();
       this.postQuery = query.onSnapshot(snapshot => {
+        this.newestSnapshot = snapshot
         if (this.initialUpdate) {
           this.loadPosts(snapshot)
           this.initialUpdate = false;
         } else {
           let newPosts = false;
           snapshot.docChanges().forEach((change) => {
-            if (['added','modified'].indexOf(change.type) !== -1) {
+            if (['added', 'modified'].indexOf(change.type) !== -1) {
               newPosts = true
             }
           })
-          if(newPosts) {
-            this.showNewPostsNotification(snapshot)
+          if (newPosts) {
+            this.showNewPostsNotification()
           }
         }
 
@@ -95,7 +97,7 @@ export default {
       })
       this.loadingSkeleton = false
     },
-    showNewPostsNotification(snapshot) {
+    showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
         message: "New Posts",
@@ -103,7 +105,7 @@ export default {
         timeout: 0,
         actions: [
           {
-            label: 'Update', color: 'white', handler: () => this.loadPosts(snapshot)
+            label: 'Update', color: 'white', handler: () => this.loadPosts(this.newestSnapshot)
           }
         ]
       })
