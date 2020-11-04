@@ -23,7 +23,7 @@
                   <span v-for="tag in tags" class="text-primary"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
-                  Posted by u/{{ user }} {{ date | timeSincePost }} ago
+                  Posted by u/{{ user }} {{ timeSincePostCreated }} ago
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -41,7 +41,7 @@
         <q-btn flat round icon="eva-save-outline"/>
         <q-btn flat round icon="eva-more-horizontal-outline"/>
         <q-space/>
-        <div v-if="dateEdited" class="text-overline"> (edited {{ dateEdited | timeSincePost }} ago)</div>
+        <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
         <q-btn flat round icon="eva-edit-2-outline" v-if="user === currentUser" v-on:click="editPost"/>
         <q-btn flat round icon="eva-trash-2-outline" v-if="user === currentUser" v-on:click="deletePost"/>
       </q-card-actions>
@@ -63,6 +63,12 @@ export default {
     dateEdited: Number,
     user: String,
   },
+  data() {
+    return {
+      visible: true,
+      now: new Date().getTime()
+    }
+  },
   computed: {
     currentUser() {
       if (this.$store.state.auth.isAuthenticated) {
@@ -70,29 +76,14 @@ export default {
       } else {
         return undefined;
       }
-    }
-  },
-  data() {
-    return {
-      visible: true
-    }
-  },
-  filters: {
+    },
     // Display the Time since this post was created
-    timeSincePost(value) {
-      let unit = "";
-      let dateNow = Date.now();
-      let result = dateNow - value;
-
-      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
-      if (result < 60000) unit = 'seconds';
-      else if (result < 3600000) unit = 'minutes';
-      else if (result < 86400000) unit = 'hours';
-      else if (result < 2592000000) unit = 'days';
-      else if (result < 31536000000) unit = 'months';
-      else if (result >= 31536000000) unit = 'years';
-
-      return date.getDateDiff(dateNow, value, unit) + " " + unit
+    timeSincePostCreated() {
+      return this.getFormattedTimeBetween(this.date, this.now)
+    },
+    // Display the Time since this post was edited
+    timeSincePostEdited(){
+      return this.getFormattedTimeBetween(this.dateEdited, this.now)
     }
   },
   methods: {
@@ -114,6 +105,30 @@ export default {
         });
       })
     },
+    getFormattedTimeBetween(startTime, finishTime){
+      let unit = "";
+      let result = finishTime - startTime;
+
+      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
+      if (result < 60000) unit = 'seconds';
+      else if (result < 3600000) unit = 'minutes';
+      else if (result < 86400000) unit = 'hours';
+      else if (result < 2592000000) unit = 'days';
+      else if (result < 31536000000) unit = 'months';
+      else if (result >= 31536000000) unit = 'years';
+
+      return date.getDateDiff(finishTime, startTime, unit) + " " + unit
+    },
+    updateNow() {
+      this.now = new Date().getTime();
+      this.scheduleUpdateNow();
+    },
+    scheduleUpdateNow() {
+      setTimeout(this.updateNow, 1000);
+    }
+  },
+  created(){
+    this.scheduleUpdateNow();
   }
 }
 </script>
