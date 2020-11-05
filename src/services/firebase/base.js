@@ -81,3 +81,13 @@ export const isAuthenticated = (store) => {
 export const logoutUser = () => {
   return auth().signOut()
 }
+
+/**
+* create the firebase cloud storage connection
+*/
+export const Store = (CurrentUser) => {
+  const storageRef = firebase.storage().ref();
+
+  storageRef.child(CurrentUser.uid);
+
+}

@@ -16,11 +16,61 @@
           </router-link>
         </q-toolbar-title>
 
-        <q-btn flat round icon="eva-log-in-outline"
-               v-if="!this.$store.state.auth.isAuthenticated"
-               to="/auth/login">
-          <q-tooltip :delay="500">Login</q-tooltip>
-        </q-btn>
+
+        <div class="q-pa-md" v-if="this.$store.state.auth.isAuthenticated">
+          <q-btn-dropdown
+            class=""
+            split="true"
+            label="Account"
+          >
+            <div class="row no-wrap q-pa-md">
+              <div class="column">
+                <div class="text-h6 q-mb-md">Settings</div>
+                <q-toggle v-model="mobileData" label="Use Mobile Data" />
+                <q-toggle v-model="bluetooth" label="Bluetooth" />
+              </div>
+
+              <q-separator vertical class="q-mx-lg" />
+
+              <div class="column items-center">
+                <q-avatar size="72px">
+                  <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+                </q-avatar>
+
+                <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
+
+                <q-btn
+                  color="primary"
+                  label="Logout"
+                  push
+                  size="sm"
+                  v-close-popup
+                />
+              </div>
+            </div>
+          </q-btn-dropdown>
+        </div>
+
+        <div class="q-pa-md" v-if="!this.$store.state.auth.isAuthenticated">
+          <q-btn flat  icon="eva-log-in-outline"
+                 v-if="!this.$store.state.auth.isAuthenticated"
+                 to="/auth/login"
+                 label="Login">
+            <q-tooltip :delay="500">Login</q-tooltip>
+          </q-btn>
+          <q-btn-dropdown
+            class=""
+            split="true"
+            label=""
+          >
+          </q-btn-dropdown>
+        </div>
+
+
+
+
+
+
 
         <q-btn flat round icon="eva-log-out-outline"
                v-if="this.$store.state.auth.isAuthenticated"
@@ -144,7 +194,14 @@ export default {
           message: `${err}`,
         })
       }
-    }
+    },
+  async getUserData() {
+      try {
+        //
+      } catch (e) {
+        console.log(e);
+      }
+  }
   }
 }
 </script>
