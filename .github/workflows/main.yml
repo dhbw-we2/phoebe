@@ -16,7 +16,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Build
-        run: npm run build
+        run: quasar build
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
       - name: Archive Production Artifact
