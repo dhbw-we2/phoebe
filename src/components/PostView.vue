@@ -13,7 +13,7 @@
           <q-card-section class="q-pa-sm">
             <q-item class="q-pa-sm q-pb-md">
               <q-item-section avatar>
-                <q-avatar v-if="avatar">
+                <q-avatar v-if="avatar" size="50px">
                   <q-img :src="avatar" alt="Avatar"/>
                 </q-avatar>
                 <q-avatar v-else round color="primary" icon="eva-person-outline" text-color="white"/>
