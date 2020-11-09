@@ -16,7 +16,7 @@
                 <q-avatar v-if="avatar" size="50px">
                   <q-img :src="avatar" alt="Avatar"/>
                 </q-avatar>
-                <q-avatar v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+                <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
               </q-item-section>
 
               <q-item-section>

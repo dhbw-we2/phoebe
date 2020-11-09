@@ -12,7 +12,7 @@
         <q-card-section vertical class="q-pa-sm">
           <q-item class="q-pa-sm q-pb-md">
             <q-item-section avatar>
-              <q-skeleton type="QAvatar" size="40px"/>
+              <q-skeleton type="QAvatar" size="50px"/>
             </q-item-section>
 
             <q-item-section>
