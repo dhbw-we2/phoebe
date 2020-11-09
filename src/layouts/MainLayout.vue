@@ -59,7 +59,7 @@
                   flat
                   icon="eva-person-outline"
                   label="My Profile"
-                  to="profile"
+                  to="/profile"
                   v-close-popup
                 />
                 <q-btn
