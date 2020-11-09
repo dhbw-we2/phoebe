@@ -7,7 +7,7 @@ const routes = [
       { path: 'home', component: () => import('pages/PageHome.vue') },
       { path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true} },
       { path: 'error', component: () => import('pages/Error404') },
-      {path: 'profile', component: () => import('pages/Profile'), meta: {requiresAuth: true}},
+      {path: 'profile', component: () => import('pages/user/Profile.vue'), meta: {requiresAuth: true}},
     ]
   },
   {

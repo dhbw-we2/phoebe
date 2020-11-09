@@ -27,6 +27,7 @@
               <div class="column">
                 <div class="text-h6 q-mb-md">Settings</div>
                 <q-toggle v-model="darkmode" label="Darkmode" />
+                <label>Hier könnten acievements oder notifications stehen</label>
               </div>
 
               <q-separator vertical class="q-mx-lg" />
@@ -36,13 +37,14 @@
                   <img src="https://cdn.quasar.dev/img/boy-avatar.png">
                 </q-avatar>
 
-                <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
+                <div class="text-subtitle1 q-mt-md q-mb-xs">User</div>
 
                 <q-btn
                   color="primary"
                   label="Logout"
                   push
                   size="sm"
+                  @click="logout"
                   v-close-popup
                 />
               </div>
