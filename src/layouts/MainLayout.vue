@@ -16,87 +16,88 @@
           </router-link>
         </q-toolbar-title>
 
+        <q-btn-dropdown
+          v-if="$store.state.auth.isAuthenticated"
+          icon="eva-bell-outline"
+          flat
+          style="height:100%">
+          <div class="row no-wrap q-pa-md">
+            <div class="column">
+              <div class="text-h6 q-mb-md">Notifications</div>
+              <q-list bordered separator>
+                <q-item>
+                  <q-item-section>Hier könnten achievements oder notifications stehen</q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+          </div>
+        </q-btn-dropdown>
 
-        <div class="q-pa-md" v-if="this.$store.state.auth.isAuthenticated">
-          <q-btn-dropdown
-            class=""
-            split= split
-            label="Account"
-          >
-            <div class="row no-wrap q-pa-md">
-              <div class="column">
-                <div class="text-h6 q-mb-md">Settings</div>
-                <q-toggle v-model="darkmode" label="Darkmode" />
-                <label>Hier könnten acievements oder notifications stehen</label>
-              </div>
-
-              <q-separator vertical class="q-mx-lg" />
-
-              <div class="column items-center">
-                <q-btn round :ripple="false"
-                       v-if="this.$store.state.auth.isAuthenticated"
-                       to="/profile">
-                  <q-avatar size="5em">
-                    <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
-                  </q-avatar>
-                  <q-tooltip :delay="500">Profile</q-tooltip>
-                </q-btn>
-                <div class="text-subtitle1 q-mt-md q-mb-xs">User</div>
-
+        <q-btn-dropdown
+          flat
+          :ripple="false"
+          dropdown-icon="eva-chevron-down-outline"
+          style="height:100%">
+          <template v-slot:label>
+            <q-avatar size="45px">
+              <q-img :src="currentUser.profilePicture" alt="Avatar"
+                     v-if="currentUser && !showDefaultProfilePicture()"/>
+              <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
+                      v-else/>
+            </q-avatar>
+          </template>
+          <div v-if="$store.state.auth.isAuthenticated && currentUser">
+            <div class="column items-center q-pt-md">
+              <div class="text-h6 text-bold">{{ currentUser.username }}</div>
+              <div class="column q-pb-sm q-pt-sm">
                 <q-btn
-                  color="primary"
+                  flat
+                  icon="eva-person-outline"
+                  label="My Profile"
+                  to="profile"
+                  v-close-popup
+                />
+                <q-btn
+                  flat
+                  icon="eva-log-out-outline"
                   label="Logout"
-                  push
-                  size="sm"
                   @click="logout"
                   v-close-popup
                 />
               </div>
-              <q-btn round :ripple="false"
-                     v-if="this.currentUser"
-                     to="/profile">
-                <q-avatar size="40px">
-                  <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
-                          v-if="showDefaultProfilePicture()"/>
-                  <q-img :src="currentUser.profilePicture" alt="Avatar"
-                         v-else/>
-                </q-avatar>
-                <q-tooltip :delay="500">Profile</q-tooltip>
-              </q-btn>
             </div>
-          </q-btn-dropdown>
-        </div>
-
-
-        <div class="q-pa-md" v-if="!this.$store.state.auth.isAuthenticated">
-          <q-btn-dropdown
-            class=""
-            split= split
-            label="Login"
-            to="/auth/login"
-          >
-            <div class="row no-wrap q-pa-md">
-              <div class="column">
-                <div class="text-h6 q-mb-md">Settings</div>
-                <q-toggle v-model="darkmode" label="Darkmode" />
-                <label>Hier könnten acievements oder notifications stehen</label>
-              </div>
-
-              <q-separator vertical class="q-mx-lg" />
-
-              <div class="column items-center-centered">
-                <q-btn flat  icon="eva-log-in-outline"
-                       v-if="!this.$store.state.auth.isAuthenticated"
-                       to="/auth/login"
-                       label="Login"
-                       justify-content="center"
-                       >
-                  <q-tooltip :delay="500">Login</q-tooltip>
-                </q-btn>
+          </div>
+          <div v-else>
+            <div class="column items-center">
+              <div class="column q-pb-sm q-pt-sm">
+                <q-btn
+                  flat
+                  icon="eva-log-in-outline"
+                  label="Login"
+                  to="auth/login"
+                  v-close-popup
+                />
               </div>
             </div>
-          </q-btn-dropdown>
-        </div>
+          </div>
+          <q-separator/>
+          <div class="column q-pb-sm q-pt-sm">
+            <q-btn
+              v-if="$q.dark.isActive"
+              flat
+              icon="eva-sun-outline"
+              label="Light Mode"
+              @click="toggleDarkMode"
+            />
+            <q-btn
+              v-else
+              flat
+              icon="eva-moon-outline"
+              label="Dark Mode"
+              @click="toggleDarkMode"
+            />
+          </div>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
@@ -221,6 +222,9 @@ export default {
         this.currentUser.profilePicture === null ||
         this.currentUser.profilePicture === undefined
     },
+    toggleDarkMode() {
+      this.$q.dark.toggle()
+    }
   },
   created() {
   }
