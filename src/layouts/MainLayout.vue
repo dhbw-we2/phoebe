@@ -15,7 +15,6 @@
             <div>spreddit</div>
           </router-link>
         </q-toolbar-title>
-
         <q-btn flat round icon="eva-log-in-outline"
                v-if="!this.$store.state.auth.isAuthenticated"
                to="/auth/login">
@@ -29,10 +28,13 @@
         </q-btn>
 
         <q-btn round :ripple="false"
-               v-if="this.$store.state.auth.isAuthenticated"
+               v-if="this.currentUser"
                to="/profile">
           <q-avatar size="40px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+            <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
+                    v-if="showDefaultProfilePicture()"/>
+            <q-img :src="currentUser.profilePicture" alt="Avatar"
+                   v-else/>
           </q-avatar>
           <q-tooltip :delay="500">Profile</q-tooltip>
         </q-btn>
@@ -117,7 +119,8 @@
 </style>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
+import {currentUser} from "src/store/user/getters";
 
 export default {
   data() {
@@ -125,10 +128,13 @@ export default {
       showLogin: false,
       showRegister: false,
       drawer: false,
-      miniState: true
+      miniState: true,
+      defaultProfilePicture: true
     }
   },
-  components: {},
+  computed: {
+    ...mapGetters('user', ['currentUser']),
+  },
   methods: {
     ...mapActions('auth', ['logoutUser']),
     async logout() {
@@ -144,7 +150,14 @@ export default {
           message: `${err}`,
         })
       }
-    }
+    },
+    showDefaultProfilePicture() {
+      return this.currentUser.profilePicture === '' ||
+        this.currentUser.profilePicture === null ||
+        this.currentUser.profilePicture === undefined
+    },
+  },
+  created() {
   }
 }
 </script>
