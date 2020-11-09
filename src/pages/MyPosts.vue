@@ -8,7 +8,7 @@
       </tag-creator-bar>
     </div>
     <PostList ref="postList"
-              :user-filter="this.$fb.auth().currentUser.email"/>
+              :user-filter="this.$fb.auth().currentUser.uid"/>
   </q-page>
 </template>
 

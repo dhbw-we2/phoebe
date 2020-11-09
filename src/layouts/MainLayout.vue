@@ -79,7 +79,7 @@
                   flat
                   icon="eva-log-in-outline"
                   label="Login"
-                  to="auth/login"
+                  to="/auth/login"
                   v-close-popup
                 />
               </div>
