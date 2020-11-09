@@ -20,14 +20,13 @@
         <div class="q-pa-md" v-if="this.$store.state.auth.isAuthenticated">
           <q-btn-dropdown
             class=""
-            split="true"
+            split= split
             label="Account"
           >
             <div class="row no-wrap q-pa-md">
               <div class="column">
                 <div class="text-h6 q-mb-md">Settings</div>
-                <q-toggle v-model="mobileData" label="Use Mobile Data" />
-                <q-toggle v-model="bluetooth" label="Bluetooth" />
+                <q-toggle v-model="darkmode" label="Darkmode" />
               </div>
 
               <q-separator vertical class="q-mx-lg" />
@@ -60,7 +59,7 @@
           </q-btn>
           <q-btn-dropdown
             class=""
-            split="true"
+            split= split
             label=""
           >
           </q-btn-dropdown>
@@ -175,7 +174,9 @@ export default {
       showLogin: false,
       showRegister: false,
       drawer: false,
-      miniState: true
+      miniState: true,
+      darkmode: true,
+      split: true
     }
   },
   components: {},
