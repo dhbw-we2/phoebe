@@ -43,8 +43,8 @@
         <q-btn flat round icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser" v-on:click="deletePost"/>
+        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser()" v-on:click="editPost"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser()" v-on:click="deletePost"/>
       </q-card-actions>
     </q-card>
   </q-slide-transition>
@@ -135,8 +135,8 @@ export default {
       })
     },
     postedByCurrentUser(){
-      if(currentUser){
-        if(uid === currentUser.uid){
+      if(this.currentUser){
+        if(this.uid === this.currentUser.uid){
           return true;
         }
       }
