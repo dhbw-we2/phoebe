@@ -7,17 +7,15 @@
         </q-card-section>
         <q-card-section>
           <q-card-section>
-            <div class="profile-picture" @click="showPhotoUpload('profile')">
-              <div class="column items-center" v-if="showDefaultPhoto()">
-                <q-avatar class="q-mb-sm" round="round" color="primary" icon="eva-person-outline" font-size="110px"
-                          size="180px" text-color="white"></q-avatar>
-                <span><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span></div>
-              <div class="column items-center" v-else>
-                <q-avatar class="q-mb-sm shadow-5" size="180px" @click="showPhotoUpload('profile')">
-                  <q-img :src="currentUser.profilePicture"></q-img>
-                </q-avatar>
-                <span class=""><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span>
-              </div>
+            <div class="column items-center" v-if="showDefaultPhoto()">
+              <q-avatar  @click="showPhotoUpload('profile')" class="q-mb-sm profile-picture" round="round" color="primary" icon="eva-person-outline" font-size="110px"
+                        size="180px" text-color="white"></q-avatar>
+              <span><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span></div>
+            <div class="column items-center" v-else>
+              <q-avatar class="q-mb-sm shadow-5 profile-picture" size="180px" @click="showPhotoUpload('profile')">
+                <q-img :src="currentUser.profilePicture"></q-img>
+              </q-avatar>
+              <span class=""><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span>
             </div>
           </q-card-section>
           <q-card-section >
