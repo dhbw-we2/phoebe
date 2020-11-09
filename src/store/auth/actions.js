@@ -9,8 +9,8 @@ import User from 'src/models/User'
 
 export const addUserToUsersCollection = async function (state, userRef) {
   const
-    {email, username} = state,
-    user = new User({email, username})
+    {email, username, uid} = state,
+    user = new User({email, username, uid})
   return userRef.set(user)
 }
 
@@ -18,10 +18,9 @@ export const createNewUser = async function ($root, data) {
   const $fb = this.$fb
   const {email, password, username} = data
   const fbAuthResponse = await $fb.createUserWithEmail(email, password)
-  const id = fbAuthResponse.user.uid
-  // const id = "101010"
-  const userRef = $fb.userRef('users', id)
-  return addUserToUsersCollection({email, username}, userRef)
+  const uid = fbAuthResponse.user.uid
+  const userRef = $fb.userRef('users', uid)
+  return addUserToUsersCollection({email, username, uid}, userRef)
 }
 
 export const loginUser = async function ($root, payload) {
