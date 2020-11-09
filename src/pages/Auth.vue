@@ -51,6 +51,19 @@
           <q-icon class="cursor-pointer" :name="isPwd ? 'visibility_off' : 'visibility'" @click="isPwd = !isPwd"/>
         </template>
       </q-input>
+      <q-input
+        v-if="isRegistration"
+        lazy-rules="lazy-rules"
+        outlined
+        autocomplete="username"
+        color="primary"
+        label="USERNAME"
+        v-model="username"
+        :rules="[val => !!val || '*Field is required', checkIfUsernameFree ]"
+        type="username"
+        debounce="500"
+        @keyup.enter="onSubmit();"
+      />
       <q-btn
         class="full-width q-mt-md"
         color="primary"
@@ -99,21 +112,24 @@ export default {
       email: null,
       isPwd: true,
       password: null,
+      username: null,
       passwordMatch: null,
-      submitting: false
+      submitting: false,
+      usernameQueryState: false,
+      usernameTaken: false,
     }
   },
   methods: {
     ...mapActions('auth', ['createNewUser', 'loginUser']),
     onSubmit() {
       this.submitting = true;
-      const {email, password} = this
+      const {email, password, username} = this
       this.$refs.emailAuthenticationForm.validate()
         .then(async success => {
             if (success) {
               try {
                 if (this.isRegistration) {
-                  await this.createNewUser({email, password})
+                  await this.createNewUser({email, password, username})
                   this.$q.notify({
                     type: 'positive',
                     message: "Account created!"
@@ -125,7 +141,7 @@ export default {
                     message: "You are now logged in!"
                   })
                 }
-                this.$router.push({path: '/'})
+                await this.$router.push({path: '/'})
               } catch (err) {
                 const mess = function (code) {
                   switch (code) {
@@ -148,10 +164,19 @@ export default {
           }
         )
     },
-    test(){
-      console.log("test")
+    checkIfUsernameFree(){
+      return new Promise((resolve) => {
+        this.$firestore.collection('users').where('username', '==', this.username).get().then(querySnapshot => {
+          if(querySnapshot.size > 0) {
+              resolve('Username already taken!')
+          } else {
+            resolve(true)
+          }
+        })
+      })
+
     }
-  }
+  },
 }
 </script>
 

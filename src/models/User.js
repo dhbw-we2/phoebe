@@ -2,10 +2,8 @@ export default class User {
   /**
    * Create a user.
    * @param {String} id - Place holder for a unique Firebase id.
-   * @param {String} backgroundPhoto - A generated URL from Google Storage.
    * @param {String} email - A valid email.
-   * @param {String} fullName - The user's full name.
-   * @param {String} mobile - the user's mobile number.
+   * @param {String} username - The user's given username.
    * @param {String} profilePicture - A generated URL from Google Storage.
    */
   id = ''
@@ -18,7 +16,7 @@ export default class User {
    * user creation
    */
   constructor (args) {
-    Object.keys(args).forEach((v, i) => {
+    Object.keys(args).forEach((v) => {
       this[v] = args[v]
     })
 

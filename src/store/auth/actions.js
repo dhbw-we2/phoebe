@@ -9,18 +9,19 @@ import User from 'src/models/User'
 
 export const addUserToUsersCollection = async function (state, userRef) {
   const
-    {email} = state,
-    user = new User({email})
+    {email, username} = state,
+    user = new User({email, username})
   return userRef.set(user)
 }
 
 export const createNewUser = async function ($root, data) {
   const $fb = this.$fb
-  const {email, password} = data
+  const {email, password, username} = data
   const fbAuthResponse = await $fb.createUserWithEmail(email, password)
   const id = fbAuthResponse.user.uid
+  // const id = "101010"
   const userRef = $fb.userRef('users', id)
-  return addUserToUsersCollection(userRef)
+  return addUserToUsersCollection({email, username}, userRef)
 }
 
 export const loginUser = async function ($root, payload) {
@@ -29,7 +30,7 @@ export const loginUser = async function ($root, payload) {
   return await $fb.loginWithEmail(email, password)
 }
 
-export const logoutUser = async function ({state}) {
+export const logoutUser = async function () {
   await firestoreAction(({unbindFirestoreRef}) => {
     unbindFirestoreRef('currentUser')
   })
