@@ -33,10 +33,14 @@
               <q-separator vertical class="q-mx-lg" />
 
               <div class="column items-center">
-                <q-avatar size="72px">
-                  <img src="https://cdn.quasar.dev/img/boy-avatar.png">
-                </q-avatar>
-
+                <q-btn round :ripple="false"
+                       v-if="this.$store.state.auth.isAuthenticated"
+                       to="/profile">
+                  <q-avatar size="5em">
+                    <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+                  </q-avatar>
+                  <q-tooltip :delay="500">Profile</q-tooltip>
+                </q-btn>
                 <div class="text-subtitle1 q-mt-md q-mb-xs">User</div>
 
                 <q-btn
@@ -52,41 +56,36 @@
           </q-btn-dropdown>
         </div>
 
+
         <div class="q-pa-md" v-if="!this.$store.state.auth.isAuthenticated">
-          <q-btn flat  icon="eva-log-in-outline"
-                 v-if="!this.$store.state.auth.isAuthenticated"
-                 to="/auth/login"
-                 label="Login">
-            <q-tooltip :delay="500">Login</q-tooltip>
-          </q-btn>
           <q-btn-dropdown
             class=""
             split= split
-            label=""
+            label="Login"
+            to="/auth/login"
           >
+            <div class="row no-wrap q-pa-md">
+              <div class="column">
+                <div class="text-h6 q-mb-md">Settings</div>
+                <q-toggle v-model="darkmode" label="Darkmode" />
+                <label>Hier könnten acievements oder notifications stehen</label>
+              </div>
+
+              <q-separator vertical class="q-mx-lg" />
+
+              <div class="column items-center-centered">
+                <q-btn flat  icon="eva-log-in-outline"
+                       v-if="!this.$store.state.auth.isAuthenticated"
+                       to="/auth/login"
+                       label="Login"
+                       justify-content="center"
+                       >
+                  <q-tooltip :delay="500">Login</q-tooltip>
+                </q-btn>
+              </div>
+            </div>
           </q-btn-dropdown>
         </div>
-
-
-
-
-
-
-
-        <q-btn flat round icon="eva-log-out-outline"
-               v-if="this.$store.state.auth.isAuthenticated"
-               @click="logout">
-          <q-tooltip :delay="500">Logout</q-tooltip>
-        </q-btn>
-
-        <q-btn round :ripple="false"
-               v-if="this.$store.state.auth.isAuthenticated"
-               to="/profile">
-          <q-avatar size="40px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
-          </q-avatar>
-          <q-tooltip :delay="500">Profile</q-tooltip>
-        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -165,6 +164,11 @@
 .q-toolbar
   @media (min-width: $breakpoint-xs-min)
     height: 70px
+
+.items-center-centered
+  display: flex
+  justify-content: center
+  align-items: center
 </style>
 
 <script>
