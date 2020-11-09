@@ -52,6 +52,17 @@
                   v-close-popup
                 />
               </div>
+              <q-btn round :ripple="false"
+                     v-if="this.currentUser"
+                     to="/profile">
+                <q-avatar size="40px">
+                  <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
+                          v-if="showDefaultProfilePicture()"/>
+                  <q-img :src="currentUser.profilePicture" alt="Avatar"
+                         v-else/>
+                </q-avatar>
+                <q-tooltip :delay="500">Profile</q-tooltip>
+              </q-btn>
             </div>
           </q-btn-dropdown>
         </div>
@@ -172,7 +183,8 @@
 </style>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
+import {currentUser} from "src/store/user/getters";
 
 export default {
   data() {
@@ -185,7 +197,9 @@ export default {
       split: true
     }
   },
-  components: {},
+  computed: {
+    ...mapGetters('user', ['currentUser']),
+  },
   methods: {
     ...mapActions('auth', ['logoutUser']),
     async logout() {
@@ -202,13 +216,13 @@ export default {
         })
       }
     },
-  async getUserData() {
-      try {
-        //
-      } catch (e) {
-        console.log(e);
-      }
-  }
+    showDefaultProfilePicture() {
+      return this.currentUser.profilePicture === '' ||
+        this.currentUser.profilePicture === null ||
+        this.currentUser.profilePicture === undefined
+    },
+  },
+  created() {
   }
 }
 </script>

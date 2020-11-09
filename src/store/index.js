@@ -23,6 +23,7 @@ export default function (/* { ssrContext } */) {
       auth,
       user
     },
+
     mutations: {
       ...vuexfireMutations
     },

@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import { QSpinnerGears } from 'quasar'
 export default {
   name: 'ForgotPassword',
   data () {
@@ -40,10 +39,10 @@ export default {
   },
   methods: {
     onSubmit () {
-      this.loading = true;
       this.$refs.forgotPasswordForm.validate()
         .then(async success => {
           if (success) {
+            this.loading = true;
             try {
               await this.$fb.auth().sendPasswordResetEmail(this.email)
               this.$q.notify({

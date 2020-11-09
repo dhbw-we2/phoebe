@@ -7,7 +7,7 @@ import 'firebase/storage'
  * Firestore
  * https: //firebase.google.com/docs/reference/js/firebase.firestore.Firestore.html
  *
- * @return {firebase.firestore.Firestore} returns Firestore
+ * @return {Interface} returns Firestore
  */
 export const firestore = () => {
   return firebase.firestore()
