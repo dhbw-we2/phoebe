@@ -1,6 +1,5 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
-import 'firebase/firestore'
 
 
 /**
@@ -8,8 +7,8 @@ import 'firebase/firestore'
  * https: //firebase.google.com/docs/reference/js/firebase.auth.html#callable
  * @return {Object} currentUser object from firebase
  */
-export const firestore = () => {
-  return firebase.firestore()
+export const self = () => {
+  return firebase
 }
 
 /**
@@ -58,8 +57,14 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
   // Save to the store
   store.commit('auth/setAuthState', {
     isAuthenticated: currentUser !== null,
-    isReady: true
+    isReady: true,
+    uid: (currentUser ? currentUser.uid : '')
   })
+
+  // Get & bind the current user
+  if (store.state.auth.isAuthenticated) {
+    await store.dispatch('user/getCurrentUser', currentUser.uid)
+  }
 
   // If the user loses authentication route
   // them to the login page
@@ -80,14 +85,4 @@ export const isAuthenticated = (store) => {
  */
 export const logoutUser = () => {
   return auth().signOut()
-}
-
-/**
-* create the firebase cloud storage connection
-*/
-export const Store = (CurrentUser) => {
-  const storageRef = firebase.storage().ref();
-
-  storageRef.child(CurrentUser.uid);
-
 }
