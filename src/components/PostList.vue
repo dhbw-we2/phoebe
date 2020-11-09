@@ -7,7 +7,7 @@
                  :caption="post.caption"
                  :date="post.date"
                  :text="post.text"
-                 :user="post.user"
+                 :uid="post.user"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
                  @post-deleted="">

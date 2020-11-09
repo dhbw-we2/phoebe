@@ -20,7 +20,8 @@
           v-if="$store.state.auth.isAuthenticated"
           icon="eva-bell-outline"
           flat
-          style="height:100%">
+          style="height:100%"
+          padding="5px">
           <div class="row no-wrap q-pa-md">
             <div class="column">
               <div class="text-h6 q-mb-md">Notifications</div>
@@ -37,7 +38,8 @@
           flat
           :ripple="false"
           dropdown-icon="eva-chevron-down-outline"
-          style="height:100%">
+          style="height:100%"
+          padding="5px">
           <template v-slot:label>
             <q-avatar size="45px">
               <q-img :src="currentUser.profilePicture" alt="Avatar"
@@ -46,15 +48,18 @@
                       v-else/>
             </q-avatar>
           </template>
-          <div v-if="$store.state.auth.isAuthenticated && currentUser">
+          <div v-if="$store.state.auth.isAuthenticated">
             <div class="column items-center q-pt-md">
-              <div class="text-h6 text-bold">{{ currentUser.username }}</div>
+              <div class="text-h6 text-bold"
+              v-if="currentUser">
+                {{ currentUser.username }}
+              </div>
               <div class="column q-pb-sm q-pt-sm">
                 <q-btn
                   flat
                   icon="eva-person-outline"
                   label="My Profile"
-                  to="profile"
+                  to="/profile"
                   v-close-popup
                 />
                 <q-btn
@@ -194,8 +199,6 @@ export default {
       showRegister: false,
       drawer: false,
       miniState: true,
-      darkmode: true,
-      split: true
     }
   },
   computed: {

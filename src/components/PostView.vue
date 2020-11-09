@@ -3,19 +3,20 @@
     <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-around">
-          <q-btn flat round icon="eva-arrow-ios-upward-outline" />
-          <q-btn flat round icon="eva-arrow-ios-downward-outline" />
+          <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+          <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
         </q-card-actions>
 
-        <q-separator vertical inset="true" />
+        <q-separator vertical inset="true"/>
 
         <q-card-section vertical class="q-pa-sm">
           <q-card-section class="q-pa-sm">
             <q-item class="q-pa-sm q-pb-md">
               <q-item-section avatar>
-                <q-avatar>
-                  <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+                <q-avatar v-if="avatar">
+                  <q-img :src="avatar" alt="Avatar"/>
                 </q-avatar>
+                <q-avatar v-else round color="primary" icon="eva-person-outline" text-color="white"/>
               </q-item-section>
 
               <q-item-section>
@@ -23,7 +24,7 @@
                   <span v-for="tag in tags" class="text-primary"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
-                  Posted by u/{{ user }} {{ timeSincePostCreated }} ago
+                  Posted by u/{{ username }} {{ timeSincePostCreated }} ago
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -42,8 +43,8 @@
         <q-btn flat round icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="user === currentUser" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="user === currentUser" v-on:click="deletePost"/>
+        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser" v-on:click="editPost"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser" v-on:click="deletePost"/>
       </q-card-actions>
     </q-card>
   </q-slide-transition>
@@ -51,6 +52,7 @@
 
 <script>
 import {date} from "quasar";
+import {mapGetters} from "vuex";
 
 export default {
   name: "PostView",
@@ -61,28 +63,24 @@ export default {
     text: String,
     date: Number,
     dateEdited: Number,
-    user: String,
+    uid: String,
   },
   data() {
     return {
       visible: true,
-      now: new Date().getTime()
+      now: new Date().getTime(),
+      username: null,
+      avatar: null,
     }
   },
   computed: {
-    currentUser() {
-      if (this.$store.state.auth.isAuthenticated) {
-        return this.$fb.auth().currentUser.email
-      } else {
-        return undefined;
-      }
-    },
+    ...mapGetters('user', ['currentUser']),
     // Display the Time since this post was created
     timeSincePostCreated() {
       return this.getFormattedTimeBetween(this.date, this.now)
     },
     // Display the Time since this post was edited
-    timeSincePostEdited(){
+    timeSincePostEdited() {
       return this.getFormattedTimeBetween(this.dateEdited, this.now)
     }
   },
@@ -105,7 +103,7 @@ export default {
         });
       })
     },
-    getFormattedTimeBetween(startTime, finishTime){
+    getFormattedTimeBetween(startTime, finishTime) {
       let unit = "";
       let result = finishTime - startTime;
 
@@ -125,10 +123,37 @@ export default {
     },
     scheduleUpdateNow() {
       setTimeout(this.updateNow, 1000);
+    },
+    userHasAvatar() {
+      this.$firestore.collection('users').doc(this.uid).get().then(doc => {
+        if (doc.profilePicture) {
+          this.avatar = doc.profilePicture
+          return true
+        } else {
+          return false
+        }
+      })
+    },
+    postedByCurrentUser(){
+      if(currentUser){
+        if(uid === currentUser.uid){
+          return true;
+        }
+      }
+      return false
     }
   },
-  created(){
+  created() {
     this.scheduleUpdateNow();
+
+    // Get Username and Avatar from Database
+    this.$firestore.collection('users').doc(this.uid).get().then(doc => {
+      if(doc.exists){
+        const data = doc.data()
+        this.username = data.username
+        this.avatar = data.profilePicture
+      }
+    })
   }
 }
 </script>

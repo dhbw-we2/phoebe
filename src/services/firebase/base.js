@@ -62,9 +62,11 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
     uid: (currentUser ? currentUser.uid : '')
   })
 
-  // Get & bind the current user
+  // Get & bind the current user (unbind on logout)
   if (store.state.auth.isAuthenticated) {
     await store.dispatch('user/getCurrentUser', currentUser.uid)
+  } else {
+    await store.dispatch('user/clearCurrentUser')
   }
 
   // If the user looses authentication route

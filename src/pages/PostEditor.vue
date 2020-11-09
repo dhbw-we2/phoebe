@@ -1,5 +1,5 @@
 <template>
-  <div class="constrain q-pa-md">
+  <div class="constrain q-pa-md" v-if="currentUser">
     <q-card class="card-post-text q-mb-md" flat bordered>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
@@ -96,7 +96,7 @@
               :caption="captionInput"
               :date="date"
               :text="textInput"
-              :user="this.$fb.auth().currentUser.email"
+              :uid="this.currentUser.uid"
               :tags="tags">
     </PostView>
 
@@ -106,11 +106,13 @@
 
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
+import {mapGetters} from "vuex";
 
 export default {
   components: {TagCreatorBar, PostView},
 
   computed: {
+    ...mapGetters('user', ['currentUser']),
     getTitle() {
       return this.isEdit ? 'Edit Post' : 'Create a Post'
     },
@@ -169,7 +171,7 @@ export default {
           tags: this.tags,
           text: this.textInput,
           date: new Date().getTime(),
-          user: this.$fb.auth().currentUser.email,
+          user: this.currentUser.uid,
         }).then(() => {
           this.$router.push('/')
         }).catch((err) => {
