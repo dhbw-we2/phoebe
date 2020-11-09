@@ -16,26 +16,87 @@
           </router-link>
         </q-toolbar-title>
 
-        <q-btn flat round icon="eva-log-in-outline"
-               v-if="!this.$store.state.auth.isAuthenticated"
-               to="/auth/login">
-          <q-tooltip :delay="500">Login</q-tooltip>
-        </q-btn>
 
-        <q-btn flat round icon="eva-log-out-outline"
-               v-if="this.$store.state.auth.isAuthenticated"
-               @click="logout">
-          <q-tooltip :delay="500">Logout</q-tooltip>
-        </q-btn>
+        <div class="q-pa-md" v-if="this.$store.state.auth.isAuthenticated">
+          <q-btn-dropdown
+            class=""
+            split= split
+            label="Account"
+          >
+            <div class="row no-wrap q-pa-md">
+              <div class="column">
+                <div class="text-h6 q-mb-md">Settings</div>
+                <q-toggle v-model="darkmode" label="Darkmode" />
+                <label>Hier könnten acievements oder notifications stehen</label>
+              </div>
 
-        <q-btn round :ripple="false"
-               v-if="this.$store.state.auth.isAuthenticated"
-               to="/profile">
-          <q-avatar size="40px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
-          </q-avatar>
-          <q-tooltip :delay="500">Profile</q-tooltip>
-        </q-btn>
+              <q-separator vertical class="q-mx-lg" />
+
+              <div class="column items-center">
+                <q-btn round :ripple="false"
+                       v-if="this.$store.state.auth.isAuthenticated"
+                       to="/profile">
+                  <q-avatar size="5em">
+                    <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+                  </q-avatar>
+                  <q-tooltip :delay="500">Profile</q-tooltip>
+                </q-btn>
+                <div class="text-subtitle1 q-mt-md q-mb-xs">User</div>
+
+                <q-btn
+                  color="primary"
+                  label="Logout"
+                  push
+                  size="sm"
+                  @click="logout"
+                  v-close-popup
+                />
+              </div>
+              <q-btn round :ripple="false"
+                     v-if="this.currentUser"
+                     to="/profile">
+                <q-avatar size="40px">
+                  <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
+                          v-if="showDefaultProfilePicture()"/>
+                  <q-img :src="currentUser.profilePicture" alt="Avatar"
+                         v-else/>
+                </q-avatar>
+                <q-tooltip :delay="500">Profile</q-tooltip>
+              </q-btn>
+            </div>
+          </q-btn-dropdown>
+        </div>
+
+
+        <div class="q-pa-md" v-if="!this.$store.state.auth.isAuthenticated">
+          <q-btn-dropdown
+            class=""
+            split= split
+            label="Login"
+            to="/auth/login"
+          >
+            <div class="row no-wrap q-pa-md">
+              <div class="column">
+                <div class="text-h6 q-mb-md">Settings</div>
+                <q-toggle v-model="darkmode" label="Darkmode" />
+                <label>Hier könnten acievements oder notifications stehen</label>
+              </div>
+
+              <q-separator vertical class="q-mx-lg" />
+
+              <div class="column items-center-centered">
+                <q-btn flat  icon="eva-log-in-outline"
+                       v-if="!this.$store.state.auth.isAuthenticated"
+                       to="/auth/login"
+                       label="Login"
+                       justify-content="center"
+                       >
+                  <q-tooltip :delay="500">Login</q-tooltip>
+                </q-btn>
+              </div>
+            </div>
+          </q-btn-dropdown>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -114,10 +175,16 @@
 .q-toolbar
   @media (min-width: $breakpoint-xs-min)
     height: 70px
+
+.items-center-centered
+  display: flex
+  justify-content: center
+  align-items: center
 </style>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
+import {currentUser} from "src/store/user/getters";
 
 export default {
   data() {
@@ -125,10 +192,14 @@ export default {
       showLogin: false,
       showRegister: false,
       drawer: false,
-      miniState: true
+      miniState: true,
+      darkmode: true,
+      split: true
     }
   },
-  components: {},
+  computed: {
+    ...mapGetters('user', ['currentUser']),
+  },
   methods: {
     ...mapActions('auth', ['logoutUser']),
     async logout() {
@@ -144,7 +215,14 @@ export default {
           message: `${err}`,
         })
       }
-    }
+    },
+    showDefaultProfilePicture() {
+      return this.currentUser.profilePicture === '' ||
+        this.currentUser.profilePicture === null ||
+        this.currentUser.profilePicture === undefined
+    },
+  },
+  created() {
   }
 }
 </script>

@@ -78,9 +78,9 @@ export default {
           }
         }
 
-      }, () => {
+      }, (err) => {
         this.$q.notify({
-          message: 'Firebase Connection Failed!',
+          message: `Firebase Connection Failed! ${err}`,
           type: 'negative'
         })
       })
