@@ -92,12 +92,13 @@
       </q-card-actions>
     </q-card>
 
-    <PostView disabled="true"
+    <PostView disabled
               :caption="captionInput"
               :date="date"
               :text="textInput"
               :uid="this.currentUser.uid"
-              :tags="tags">
+              :tags="tags"
+              preview>
     </PostView>
 
   </div>
