@@ -43,8 +43,8 @@
         <q-btn flat round icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser && !preview" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser && !preview" v-on:click="deletePost"/>
+        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
       </q-card-actions>
     </q-card>
   </q-slide-transition>
