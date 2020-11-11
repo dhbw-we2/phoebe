@@ -63,7 +63,7 @@ export default {
     text: String,
     date: Number,
     dateEdited: Number,
-    uid: String,
+    userRef: Object,
     preview: Boolean
   },
   data() {
@@ -125,16 +125,6 @@ export default {
     scheduleUpdateNow() {
       setTimeout(this.updateNow, 1000);
     },
-    userHasAvatar() {
-      this.$firestore.collection('users').doc(this.uid).get().then(doc => {
-        if (doc.profilePicture) {
-          this.avatar = doc.profilePicture
-          return true
-        } else {
-          return false
-        }
-      })
-    },
     postedByCurrentUser() {
       if (this.currentUser) {
         if (this.uid === this.currentUser.uid) {
@@ -147,14 +137,16 @@ export default {
   created() {
     this.scheduleUpdateNow();
 
-    // Get Username and Avatar from Database
-    this.$firestore.collection('users').doc(this.uid).get().then(doc => {
-      if (doc.exists) {
-        const data = doc.data()
-        this.username = data.username
-        this.avatar = data.profilePicture
-      }
-    })
+    if(this.userRef){
+      this.userRef.get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data()
+          this.username = data.username
+          this.avatar = data.profilePicture
+          this.uid = data.uid
+        }
+      })
+    }
   }
 }
 </script>

@@ -140,7 +140,7 @@
               <q-icon name="eva-person-outline"/>
             </q-item-section>
             <q-item-section>
-              My Post
+              My Posts
             </q-item-section>
           </q-item>
 

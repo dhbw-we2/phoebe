@@ -1,6 +1,6 @@
 import firebaseServices from '../services/firebase'
-import { Notify } from 'quasar'
-import { store } from '../store'
+import {Notify} from 'quasar'
+import {store} from '../store'
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'

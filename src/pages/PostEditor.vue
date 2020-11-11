@@ -96,7 +96,7 @@
               :caption="captionInput"
               :date="date"
               :text="textInput"
-              :uid="this.currentUser.uid"
+              :user-ref="getCurrentUserRef()"
               :tags="tags"
               preview>
     </PostView>
@@ -108,6 +108,7 @@
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
 import {mapGetters} from "vuex";
+import {userRef} from "src/services/firebase/db";
 
 export default {
   components: {TagCreatorBar, PostView},
@@ -153,6 +154,7 @@ export default {
     submitPost() {
       this.postSubmitted = true;
       if (this.isEdit) {
+        //Edit existing post
         this.$firestore.collection("posts").doc(this.postID).update({
           caption: this.captionInput.trim(),
           tags: this.tags,
@@ -167,12 +169,13 @@ export default {
           })
         })
       } else {
+        //Submit new post
         this.$firestore.collection("posts").add({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
           date: new Date().getTime(),
-          user: this.currentUser.uid,
+          user: userRef(this.currentUser.uid),
         }).then(() => {
           this.$router.push('/')
         }).catch((err) => {
@@ -212,6 +215,9 @@ export default {
       this.textInput = ''
       this.date = new Date().getTime()
     },
+    getCurrentUserRef(){
+      return userRef(this.$store.state.auth.uid)
+    }
   },
   created() {
     if (this.isEdit) {
