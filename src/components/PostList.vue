@@ -14,7 +14,7 @@
                  :caption="post.caption"
                  :date="post.date"
                  :text="post.text"
-                 :uid="post.user"
+                 :user-ref="post.user"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
                  @tag-clicked="tags = [$event]">
@@ -55,7 +55,7 @@ export default {
   },
   props: {
     tagFilter: Boolean,
-    userFilter: String,
+    userFilter: Object,
   },
   watch: {
     tags: function () {
@@ -100,6 +100,9 @@ export default {
       snapshot.forEach((doc) => {
         const post = doc.data()
         post.id = doc.id
+        if(typeof(post.user) !== 'object'){
+          post.user = null
+        }
         this.posts.push(post)
       })
       this.loadingSkeleton = false

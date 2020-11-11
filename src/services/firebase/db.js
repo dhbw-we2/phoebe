@@ -13,11 +13,10 @@ export const firestore = () => {
   return firebase.firestore()
 }
 /**
- * @param  {String} collectionName - Firestore collection name
  * @param  {String} id - Uid to assign to a doc in firestore collection
  */
-export const userRef = (collectionName, id) => {
-  return firestore().collection(collectionName).doc(id)
+export const userRef = (id) => {
+  return firestore().collection('users').doc(id)
 }
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
