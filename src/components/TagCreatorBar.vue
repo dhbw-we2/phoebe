@@ -50,12 +50,6 @@ export default {
     }
   },
   watch: {
-    tags: {
-      handler: function () {
-        this.$emit('tags-changed', this.tags);
-      },
-      deep: true
-    },
     tagInput: function () {
       if (this.tagInput.slice(-1) === ' ') {
         this.addTag();

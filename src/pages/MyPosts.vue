@@ -1,13 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <div class="q-pb-md">
-      <tag-creator-bar ref="searchBar"
-                       @tags-changed="$refs.postList.$data.tags = $event"
-                       placeholder="Filter Tags"
-                       icon="eva-funnel-outline">
-      </tag-creator-bar>
-    </div>
     <PostList ref="postList"
+              tag-filter
               :user-filter="this.$fb.auth().currentUser.uid"/>
   </q-page>
 </template>

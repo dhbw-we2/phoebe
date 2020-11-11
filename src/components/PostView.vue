@@ -21,7 +21,7 @@
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags" class="text-primary"> #{{ tag }}</span>
+                  <span v-for="tag in tags" class="text-primary cursor-pointer" @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
                   Posted by u/{{ username }} {{ timeSincePostCreated }} ago
@@ -43,8 +43,8 @@
         <q-btn flat round icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser()" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser()" v-on:click="deletePost"/>
+        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser && !preview" v-on:click="editPost"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser && !preview" v-on:click="deletePost"/>
       </q-card-actions>
     </q-card>
   </q-slide-transition>
@@ -64,6 +64,7 @@ export default {
     date: Number,
     dateEdited: Number,
     uid: String,
+    preview: Boolean
   },
   data() {
     return {
@@ -134,21 +135,21 @@ export default {
         }
       })
     },
-    postedByCurrentUser(){
-      if(this.currentUser){
-        if(this.uid === this.currentUser.uid){
+    postedByCurrentUser() {
+      if (this.currentUser) {
+        if (this.uid === this.currentUser.uid) {
           return true;
         }
       }
       return false
-    }
+    },
   },
   created() {
     this.scheduleUpdateNow();
 
     // Get Username and Avatar from Database
     this.$firestore.collection('users').doc(this.uid).get().then(doc => {
-      if(doc.exists){
+      if (doc.exists) {
         const data = doc.data()
         this.username = data.username
         this.avatar = data.profilePicture
