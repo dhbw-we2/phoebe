@@ -1,23 +1,24 @@
-<template >
+<template>
   <div class="q-pl-md">
     <q-card-section horizontal>
       <q-card-actions vertical class="justify-around">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline" />
-        <q-btn flat round icon="eva-arrow-ios-downward-outline" />
+        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
       </q-card-actions>
 
-      <q-separator vertical inset="true" />
+      <q-separator vertical inset="true"/>
       <q-card-section vertical class="q-pa-sm">
         <q-card-section horizontal>
           <q-item class="q-pa-sm q-pb-md" vertical>
             <q-item-section avatar>
-              <q-avatar>
-                <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="Avatar"/>
+              <q-avatar v-if="avatar" size="50px">
+                <q-img :src="avatar" alt="Avatar"/>
               </q-avatar>
+              <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                Posted by u/{{ user }} {{ date | timeSincePost }} ago
+                Posted by u/{{ username }} {{ date | timeSincePost }} ago
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -29,7 +30,7 @@
             />
             <q-btn flat round
                    icon="eva-trash-2-outline"
-                   v-if="user === this.$fb.auth().currentUser.email"
+                   v-if="uid ===currentUser.uid"
                    v-on:click="deleteThisComment"/>
           </q-card-actions>
         </q-card-section>
@@ -45,10 +46,10 @@
             <q-btn
               unelevated rounded
               color=positive
-              label="post comment"
+              label="REPLY"
               icon="eva-message-circle-outline"
               type="submit"
-              v-on:click="addComment"/>
+              @click="AddReply"/>
           </q-card-actions>
         </q-card-section>
 
@@ -56,11 +57,12 @@
     </q-card-section>
     <q-separator/>
     <q-card-section
-          class="q-pa-sm">
+      class="q-pa-sm">
       <comment-list
-        @deleteComment="deleteCommentFromTree"
-        v-if="hasComments"
-        :commentsFromParent="comments">
+        v-if="hasSubComments"
+        :post="post"
+        :comment-id="id"
+        :all-comments="allComments">
       </comment-list>
     </q-card-section>
   </div>
@@ -68,9 +70,11 @@
 
 <script>
 import {date} from "quasar";
+import {mapGetters} from "vuex";
+import {commentRef, postRef} from "src/services/firebase/db";
 
 export default {
-  name: "comment",
+  name: "Comment",
   components: {
     TextEditor: () => import('components/textEditor'),
     CommentList: () => import('components/CommentList')
@@ -78,53 +82,43 @@ export default {
   props: {
     id: String,
     text: String,
-    user: String,
+    userRef: Object,
     date: Number,
     dateEdited: undefined,
-    comments: Array,
+    allComments: Array,
+    post: String,
   },
   data() {
     return {
-      hasComments: false,
+      hasSubComments: false,
       answering: false,
-      commentInput:"",
+      commentInput: "",
+      avatar: null,
+      username: null,
+      uid: null,
     }
   },
+  computed: {
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+  },
   methods: {
-    addComment(){
+    AddReply() {
       this.$firestore.collection("comments").add({
         date: new Date().getTime(),
-        user: this.$fb.auth().currentUser.email,
-        comments: [],
+        user: this.currentUserRef,
         text: this.commentInput,
-      })
-        .then(docRef => {
-          this.comments.push(docRef.id)
-          this.$firestore.collection("comments").doc(this.id).update(
-            {comments: this.comments}
-          )
-        })
-        .catch(function(error) {
-          console.error("Error adding comment to firebase: ", error);
-        });
-      this.commentInput = []
-      this.$forceUpdate();
+        parentComment: commentRef(this.id),
+        post: postRef(this.post)
+      }).catch(function (error) {
+        console.error("Error adding comment to firebase: ", error);
+      });
+      this.commentInput = ''
+      this.answering = false
     },
-    deleteCommentFromTree(CommentList){
-      this.comments = CommentList
-      this.$firestore.collection("comments").doc(this.id).update(
-        {comments: this.comments}
-      )
-    },
-    checkComments(){
-      if(this.comments){
-        this.hasComments = this.comments.length >= 1;
-      }
-    },
-    answerComment(){
+    answerComment() {
       this.answering = !this.answering
     },
-    deleteThisComment(){
+    deleteThisComment() {
       this.$q.dialog({
         title: 'Delete comment',
         message: 'Do you really want to delete this comment?',
@@ -133,19 +127,41 @@ export default {
         ok: 'Yes',
         color: 'primary'
       }).onOk(() => {
-        this.$firestore.collection("comments").doc(this.id).delete().then(() => {
-           this.$emit('comment-deleted', this.id)
+        commentRef(this.id).delete().then(() => {
+          this.$emit('comment-deleted', this.id)
         });
       })
     },
-  },
-  watch:{
-    comments: function () {
-      this.hasComments = this.comments.length >= 1;
+    checkForSubComments(){
+      let subComments = false
+      this.allComments.every((comment) => {
+        if (comment.parentComment && comment.parentComment.id === this.id) {
+          subComments = true;
+          return false
+        } else {
+          return true
+        }
+      })
+      this.hasSubComments = subComments
     }
   },
   created() {
-    this.checkComments();
+    if (this.userRef) {
+      this.userRef.get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data()
+          this.username = data.username
+          this.avatar = data.profilePicture
+          this.uid = data.uid
+        }
+      })
+      this.checkForSubComments()
+    }
+  },
+  watch: {
+    allComments() {
+      this.checkForSubComments()
+    }
   },
   filters: {
     // Display the Time since this post was created

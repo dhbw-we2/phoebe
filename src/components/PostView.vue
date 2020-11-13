@@ -21,7 +21,8 @@
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags" class="text-primary cursor-pointer" @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                  <span v-for="tag in tags" class="text-primary cursor-pointer"
+                        @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
                   Posted by u/{{ username }} {{ timeSincePostCreated }} ago
@@ -50,7 +51,7 @@
         <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
         <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
       </q-card-actions>
-      <template v-if="commentsOn">
+      <template v-if="commentsVisible">
         <q-separator/>
         <q-card-section>
           <text-editor
@@ -65,15 +66,15 @@
               label="post comment"
               icon="eva-message-circle-outline"
               type="submit"
-              v-on:click="addComment"/>
+              @click="addComment"/>
           </q-card-actions>
         </q-card-section>
         <q-separator/>
         <q-card-section class="q-pa-sm">
+
           <comment-list
-            @deleteComment="deleteComment"
-            :commentsFromParent="comments">
-          </comment-list>
+            :post="id"/>
+
         </q-card-section>
       </template>
     </q-card>
@@ -83,6 +84,7 @@
 <script>
 import {date} from "quasar";
 import {mapGetters} from "vuex";
+import {postRef} from "src/services/firebase/db";
 
 export default {
   name: "PostView",
@@ -106,10 +108,12 @@ export default {
       now: new Date().getTime(),
       username: null,
       avatar: null,
+      commentsVisible: false,
+      commentInput: '',
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSincePostCreated() {
       return this.getFormattedTimeBetween(this.date, this.now)
@@ -120,8 +124,8 @@ export default {
     }
   },
   methods: {
-    showHideComments(){
-      this.commentsOn = !this.commentsOn
+    showHideComments() {
+      this.commentsVisible = !this.commentsVisible
     },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
@@ -136,7 +140,7 @@ export default {
         color: 'primary'
       }).onOk(() => {
         this.visible = false;
-        this.$firestore.collection("posts").doc(this.id).delete().then(() => {
+        postRef(this.id).delete().then(() => {
           // this.$emit('post-deleted')
         });
       })
@@ -170,11 +174,25 @@ export default {
       }
       return false
     },
+    addComment() {
+      this.$firestore.collection('comments').add({
+        date: new Date().getTime(),
+        user: this.currentUserRef,
+        text: this.commentInput,
+        post: postRef(this.id)
+      }).catch(reason => {
+        this.$q.notify({
+          type: 'negative',
+          message: `Failed to post comment: ${reason}`
+        })
+      })
+      this.commentInput = ''
+    }
   },
   created() {
     this.scheduleUpdateNow();
 
-    if(this.userRef){
+    if (this.userRef) {
       this.userRef.get().then(doc => {
         if (doc.exists) {
           const data = doc.data()

@@ -18,6 +18,14 @@ export const firestore = () => {
 export const userRef = (id) => {
   return firestore().collection('users').doc(id)
 }
+
+export const postRef = (id) => {
+  return firestore().collection('posts').doc(id)
+}
+
+export const commentRef = (id) => {
+  return firestore().collection('comments').doc(id)
+}
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
  */
