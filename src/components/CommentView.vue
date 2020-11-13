@@ -62,7 +62,7 @@
         v-if="hasSubComments"
         :post="post"
         :comment-id="id"
-        :all-comments="allComments">
+        :inherited-comments="allComments">
       </comment-list>
     </q-card-section>
   </div>
@@ -134,10 +134,11 @@ export default {
     },
     checkForSubComments(){
       let subComments = false
+      this.hasSubComments = false
       this.allComments.every((comment) => {
         if (comment.parentComment && comment.parentComment.id === this.id) {
           subComments = true;
-          return false
+          return true
         } else {
           return true
         }

@@ -7,9 +7,9 @@
       :text="comment.text"
       :user-ref="comment.user"
       :date="comment.date"
-      :all-comments="queriedComments"
+      :all-comments="allComments"
       :post="post"
-      />
+    />
   </div>
 </template>
 
@@ -25,25 +25,17 @@ export default {
   props: {
     post: String,
     commentId: String,
-    allComments: Array,
+    inheritedComments: Array,
   },
 
   data() {
     return {
       comments: [],
       commentsQuery: Function,
-      queriedComments: [],
+      allComments: [],
     }
   },
   methods: {
-    loadComments() {
-      this.comments = []
-      this.queriedComments.forEach((comment) => {
-        if (comment.parentComment && comment.parentComment.id === this.commentId) {
-          this.comments.push(comment)
-        }
-      })
-    },
     createQuery() {
       this.clearQuery()
       let query = this.buildQuery();
@@ -71,10 +63,22 @@ export default {
         comment.id = doc.id
         comments.push(comment)
       })
-      this.queriedComments = comments;
+      this.allComments = comments;
+      this.loadTopLevelComments()
+    },
+    loadTopLevelComments(){
       this.comments = []
-      comments.forEach((comment) => {
+      this.allComments.forEach((comment) => {
         if (!comment.parentComment) {
+          this.comments.push(comment)
+        }
+      })
+    },
+    loadSubComments(){
+      this.allComments = this.inheritedComments
+      this.comments = []
+      this.allComments.forEach((comment) => {
+        if (comment.parentComment && comment.parentComment.id === this.commentId) {
           this.comments.push(comment)
         }
       })
@@ -82,17 +86,22 @@ export default {
   },
   created() {
     // Check if CommentList is a nested list
-    if (!this.commentId) {
+    if (!this.inheritedComments) {
       // Is top list
       this.createQuery()
     } else {
       // Is nested list
-      this.queriedComments = this.allComments
-      this.loadComments()
+      this.loadSubComments()
     }
   },
-  beforeDestroy(){
+  beforeDestroy() {
     this.clearQuery()
+  },
+  watch: {
+    inheritedComments(){
+      this.loadSubComments()
+    }
   }
+
 }
 </script>
