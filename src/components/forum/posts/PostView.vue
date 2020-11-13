@@ -71,10 +71,7 @@
         </q-card-section>
         <q-separator/>
         <q-card-section class="q-pa-sm">
-
-          <comment-list
-            :post="id"/>
-
+          <comment-list :post="id"/>
         </q-card-section>
       </template>
     </q-card>
@@ -82,7 +79,7 @@
 </template>
 
 <script>
-import {date} from "quasar";
+import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
 import {postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
@@ -106,6 +103,7 @@ export default {
       visible: true,
       now: new Date().getTime(),
       username: null,
+      uid: null,
       avatar: null,
       commentsVisible: false,
       commentInput: '',
@@ -115,11 +113,11 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSincePostCreated() {
-      return this.getFormattedTimeBetween(this.date, this.now)
+      return getFormattedTimeBetween(this.date, this.now)
     },
     // Display the Time since this post was edited
     timeSincePostEdited() {
-      return this.getFormattedTimeBetween(this.dateEdited, this.now)
+      return getFormattedTimeBetween(this.dateEdited, this.now)
     }
   },
   methods: {
@@ -144,20 +142,6 @@ export default {
         });
       })
     },
-    getFormattedTimeBetween(startTime, finishTime) {
-      let unit = "";
-      let result = finishTime - startTime;
-
-      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
-      if (result < 60000) unit = 'seconds';
-      else if (result < 3600000) unit = 'minutes';
-      else if (result < 86400000) unit = 'hours';
-      else if (result < 2592000000) unit = 'days';
-      else if (result < 31536000000) unit = 'months';
-      else if (result >= 31536000000) unit = 'years';
-
-      return date.getDateDiff(finishTime, startTime, unit) + " " + unit
-    },
     updateNow() {
       this.now = new Date().getTime();
       this.scheduleUpdateNow();
@@ -166,12 +150,7 @@ export default {
       setTimeout(this.updateNow, 1000);
     },
     postedByCurrentUser() {
-      if (this.currentUser) {
-        if (this.uid === this.currentUser.uid) {
-          return true;
-        }
-      }
-      return false
+      return this.uid === this.currentUser.uid;
     },
     addComment() {
       this.$firestore.collection('comments').add({

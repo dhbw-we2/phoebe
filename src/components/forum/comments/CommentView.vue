@@ -18,7 +18,7 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                Posted by u/{{ username }} {{ date | timeSincePost }} ago
+                Posted by u/{{ username }} {{ timeSinceCommentCreated }} ago
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -30,8 +30,8 @@
             />
             <q-btn flat round
                    icon="eva-trash-2-outline"
-                   v-if="uid ===currentUser.uid"
-                   v-on:click="deleteThisComment"/>
+                   v-if="uid === currentUser.uid"
+                   v-on:click="deleteComment"/>
           </q-card-actions>
         </q-card-section>
         <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary"/>
@@ -68,9 +68,9 @@
 </template>
 
 <script>
-import {date} from "quasar";
 import {mapGetters} from "vuex";
 import {commentRef, postRef} from "src/services/firebase/db";
+import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
 
 export default {
   name: "CommentView",
@@ -95,10 +95,19 @@ export default {
       avatar: null,
       username: null,
       uid: null,
+      now: new Date().getTime(),
     }
   },
   computed: {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    // Display the Time since this post was created
+    timeSinceCommentCreated() {
+      return getFormattedTimeBetween(this.date, this.now)
+    },
+    // Display the Time since this post was edited
+    timeSinceCommentEdited() {
+      return getFormattedTimeBetween(this.dateEdited, this.now)
+    }
   },
   methods: {
     AddReply() {
@@ -117,7 +126,7 @@ export default {
     answerComment() {
       this.answering = !this.answering
     },
-    deleteThisComment() {
+    deleteComment() {
       this.$q.dialog({
         title: 'Delete comment',
         message: 'Do you really want to delete this comment?',
@@ -126,6 +135,7 @@ export default {
         ok: 'Yes',
         color: 'primary'
       }).onOk(() => {
+
         commentRef(this.id).delete().then(() => {
           this.$emit('comment-deleted', this.id)
         });
@@ -143,9 +153,17 @@ export default {
         }
       })
       this.hasSubComments = subComments
-    }
+    },
+    updateNow() {
+      this.now = new Date().getTime();
+      this.scheduleUpdateNow();
+    },
+    scheduleUpdateNow() {
+      setTimeout(this.updateNow, 1000);
+    },
   },
   created() {
+    this.scheduleUpdateNow()
     if (this.userRef) {
       this.userRef.get().then(doc => {
         if (doc.exists) {
@@ -161,24 +179,6 @@ export default {
   watch: {
     allComments() {
       this.checkForSubComments()
-    }
-  },
-  filters: {
-    // Display the Time since this post was created
-    timeSincePost(value) {
-      let unit = "";
-      let dateNow = Date.now();
-      let result = dateNow - value;
-
-      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
-      if (result < 60000) unit = 'seconds';
-      else if (result < 3600000) unit = 'minutes';
-      else if (result < 86400000) unit = 'hours';
-      else if (result < 2592000000) unit = 'days';
-      else if (result < 31536000000) unit = 'months';
-      else if (result >= 31536000000) unit = 'years';
-
-      return date.getDateDiff(dateNow, value, unit) + " " + unit
     }
   },
 }
