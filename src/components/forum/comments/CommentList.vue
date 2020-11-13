@@ -16,13 +16,11 @@
 <script>
 
 import {postRef} from "src/services/firebase/db";
-
 export default {
   name: "CommentList",
   components: {
-    CommentView: () => import('components/CommentView')
-  },
-  props: {
+    CommentView: () => import('components/forum/comments/CommentView')
+  },  props: {
     post: String,
     commentId: String,
     inheritedComments: Array,

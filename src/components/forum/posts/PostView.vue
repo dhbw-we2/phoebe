@@ -85,13 +85,12 @@
 import {date} from "quasar";
 import {mapGetters} from "vuex";
 import {postRef} from "src/services/firebase/db";
+import CommentList from "components/forum/comments/CommentList";
+import TextEditor from "components/forum/TextEditor";
 
 export default {
   name: "PostView",
-  components: {
-    TextEditor: () => import('components/textEditor'),
-    CommentList: () => import('components/CommentList'),
-  },
+  components: {CommentList, TextEditor},
   props: {
     id: String,
     caption: String,

@@ -67,7 +67,7 @@ export default {
   name: 'UserProfile',
   mixins: [QUploaderBase],
   components: {
-    'fbq-uploader': () => import('src/components/FBQUploader.vue')
+    'fbq-uploader': () => import('components/profile/FBQUploader.vue')
   },
   data() {
     return {

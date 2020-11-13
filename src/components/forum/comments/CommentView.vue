@@ -62,8 +62,7 @@
         v-if="hasSubComments"
         :post="post"
         :comment-id="id"
-        :inherited-comments="allComments">
-      </comment-list>
+        :inherited-comments="allComments"/>
     </q-card-section>
   </div>
 </template>
@@ -74,10 +73,10 @@ import {mapGetters} from "vuex";
 import {commentRef, postRef} from "src/services/firebase/db";
 
 export default {
-  name: "Comment",
+  name: "CommentView",
   components: {
-    TextEditor: () => import('components/textEditor'),
-    CommentList: () => import('components/CommentList')
+    TextEditor: () => import('components/forum/TextEditor'),
+    CommentList: () => import('components/forum/comments/CommentList')
   },
   props: {
     id: String,
@@ -132,7 +131,7 @@ export default {
         });
       })
     },
-    checkForSubComments(){
+    checkForSubComments() {
       let subComments = false
       this.hasSubComments = false
       this.allComments.every((comment) => {

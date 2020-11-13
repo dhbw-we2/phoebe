@@ -56,7 +56,7 @@
 
 <script>
 export default {
-  name: "textEditor",
+  name: "TextEditor",
   props: {
     placeholderText: String,
   },

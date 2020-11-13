@@ -58,14 +58,12 @@
 <script>
 
 import {mapGetters} from "vuex";
+import TextEditor from "components/forum/TextEditor"
+import PostView from "components/forum/posts/PostView";
+import TagCreatorBar from "components/forum/TagCreatorBar"
 
 export default {
-  components: {
-    TextEditor: () => import('components/textEditor'),
-    TagCreatorBar: () => import('components/TagCreatorBar'),
-    PostView: () => import('components/PostView'),
-  },
-
+  components: {TextEditor, PostView, TagCreatorBar},
   computed: {
     ...mapGetters('user', ['currentUserRef']),
     getTitle() {

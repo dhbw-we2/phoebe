@@ -32,9 +32,9 @@
 </template>
 
 <script>
-import PostSkeleton from "components/PostSkeleton";
-import PostView from "components/PostView";
-import TagCreatorBar from "components/TagCreatorBar";
+import PostSkeleton from "components/forum/posts/PostSkeleton";
+import PostView from "components/forum/posts/PostView";
+import TagCreatorBar from "components/forum/TagCreatorBar";
 
 export default {
   name: 'PostList',
