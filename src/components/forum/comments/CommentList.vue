@@ -15,7 +15,7 @@
 
 <script>
 
-import {postRef} from "src/services/firebase/db";
+import {commentCollection, postRef} from "src/services/firebase/db";
 export default {
   name: "CommentList",
   components: {
@@ -48,7 +48,7 @@ export default {
       this.commentsQuery()
     },
     buildQuery() {
-      let query = this.$firestore.collection("comments").orderBy("date", "asc")
+      let query = commentCollection().orderBy("date", "asc")
       if (this.post) {
         query = query.where("post", "==", postRef(this.post))
       }

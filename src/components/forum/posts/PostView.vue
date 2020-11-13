@@ -81,7 +81,7 @@
 <script>
 import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
-import {postRef} from "src/services/firebase/db";
+import {commentCollection, postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
 
@@ -153,7 +153,7 @@ export default {
       return this.uid === this.currentUser.uid;
     },
     addComment() {
-      this.$firestore.collection('comments').add({
+      commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
         text: this.commentInput,

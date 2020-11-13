@@ -61,6 +61,7 @@ import {mapGetters} from "vuex";
 import TextEditor from "components/forum/TextEditor"
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar"
+import {postCollection} from "src/services/firebase/db";
 
 export default {
   components: {TextEditor, PostView, TagCreatorBar},
@@ -106,7 +107,7 @@ export default {
       this.postSubmitted = true;
       if (this.isEdit) {
         //Edit existing post
-        this.$firestore.collection("posts").doc(this.postID).update({
+        postCollection().doc(this.postID).update({
           caption: this.captionInput.trim(),
           tags: this.tags,
           text: this.textInput,
@@ -121,7 +122,7 @@ export default {
         })
       } else {
         //Submit new post
-        this.$firestore.collection("posts").add({
+        postCollection().add({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
@@ -142,7 +143,7 @@ export default {
       this.tags.splice(index, 1);
     },
     restoreIfEdit() {
-      this.$firestore.collection("posts").doc(this.postID).get().then(doc => {
+      postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
         this.textInput = post.text;
         this.tags = post.tags;

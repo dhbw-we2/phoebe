@@ -93,6 +93,7 @@
 
 <script>
 import {mapActions} from 'vuex'
+import {userCollection} from "src/services/firebase/db";
 
 export default {
   name: 'Auth',
@@ -166,7 +167,7 @@ export default {
     },
     checkIfUsernameFree(){
       return new Promise((resolve) => {
-        this.$firestore.collection('users').where('username', '==', this.username).get().then(querySnapshot => {
+        userCollection().where('username', '==', this.username).get().then(querySnapshot => {
           if(querySnapshot.size > 0) {
               resolve('Username already taken!')
           } else {

@@ -35,6 +35,7 @@
 import PostSkeleton from "components/forum/posts/PostSkeleton";
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
+import {postCollection} from "src/services/firebase/db";
 
 export default {
   name: 'PostList',
@@ -125,7 +126,7 @@ export default {
       this.newPostsNotify()
     },
     buildQuery() {
-      let query = this.$firestore.collection("posts").orderBy("date", "desc")
+      let query = postCollection().orderBy("date", "desc")
       if (this.userFilter) {
         query = query.where('user', '==', this.userFilter)
       }

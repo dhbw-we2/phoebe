@@ -69,7 +69,7 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {commentRef, postRef} from "src/services/firebase/db";
+import {commentCollection, commentRef, postRef} from "src/services/firebase/db";
 import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
 
 export default {
@@ -111,7 +111,7 @@ export default {
   },
   methods: {
     AddReply() {
-      this.$firestore.collection("comments").add({
+      commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
         text: this.commentInput,
@@ -135,6 +135,7 @@ export default {
         ok: 'Yes',
         color: 'primary'
       }).onOk(() => {
+
 
         commentRef(this.id).delete().then(() => {
           this.$emit('comment-deleted', this.id)
