@@ -79,13 +79,13 @@ export default {
     ...mapGetters('user', ['currentUser']),
     meta() {
       return {
-        id: this.currentUser.id,
+        uid: this.currentUser.uid,
         photoType: this.photoType
       }
     },
     prefixPath() {
-      const id = this.currentUser.id
-      return `${id}/${this.photoType}Picture/${this.photoType}Picture.`
+      const uid = this.currentUser.uid
+      return `${uid}/${this.photoType}Picture/${this.photoType}Picture.`
     }
   },
   methods: {
@@ -133,7 +133,7 @@ export default {
       info.files.forEach(file => fileNames.push(file))
       this.photoUpload = false
       this.$q.notify({
-        message: `Successfully uploaded your photo: ${fileNames}`,
+        message: 'Successfully uploaded your profile picture',
         color: 'positive'
       })
     }

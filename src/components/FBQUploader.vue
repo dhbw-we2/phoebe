@@ -101,7 +101,7 @@ export default {
             this.files.forEach(async file => {
               this.updateComponent(index, 0, 'uploaded')
               const link = await profileImageStorageRef.snapshot.ref.getDownloadURL()
-              userRef('users', meta.id).update({ [`${meta.photoType}Picture`]: link })
+              userRef(meta.uid).update({ [`${meta.photoType}Picture`]: link })
               this.$emit('uploaded', { files: [ file.name ] })
             })
             resolve()
