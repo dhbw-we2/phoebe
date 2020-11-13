@@ -36,7 +36,8 @@
                 <q-item class="q-mb-md">
                   <q-item-section>
                     <q-item-label overline>SPOTIFY ACCOUNT</q-item-label>
-                    <q-btn icon="eva-link-outline" class="q-ma-sm" color="primary" style="max-width: 15rem" label="Link Spotify"></q-btn>
+                    <q-btn @click="spotify" icon="eva-link-outline" class="q-ma-sm" color="primary" style="max-width: 15rem" label="Link Spotify">
+                    </q-btn>
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -97,7 +98,7 @@ export default {
       this.photoType = ''
     },
     async saveUserData() {
-      const {currentUser, email, fullName, mobile} = this
+      const {currentUser, username, spotifyToken} = this
 
       this.$q.loading.show({
         message: 'Updating your data, please stand by...',
@@ -105,10 +106,9 @@ export default {
 
       try {
         await this.updateUserData({
-          id: currentUser.id,
-          email,
-          fullName,
-          mobile
+          id: currentUser.uid,
+          username,
+          spotifyToken
         })
       } catch (err) {
         this.$q.notify({
@@ -136,7 +136,7 @@ export default {
         message: `Successfully uploaded your photo: ${fileNames}`,
         color: 'positive'
       })
-    }
+    },
   },
 }
 </script>
