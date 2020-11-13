@@ -38,14 +38,44 @@
 
       <q-card-actions align="stretch">
         <q-btn flat round icon="eva-heart-outline"/>
-        <q-btn flat round icon="eva-message-square-outline"/>
-        <q-btn flat round icon="eva-save-outline"/>
-        <q-btn flat round icon="eva-more-horizontal-outline"/>
+        <q-btn flat round
+               v-on:click="showHideComments"
+               icon="eva-message-square-outline"/>
+        <q-btn flat round
+               icon="eva-save-outline"/>
+        <q-btn flat round
+               icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
         <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
         <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
       </q-card-actions>
+      <template v-if="commentsOn">
+        <q-separator/>
+        <q-card-section>
+          <text-editor
+            placeholderText="Very interesting Comment"
+            @changeText="commentInput = $event">
+          </text-editor>
+          <q-card-actions align="stretch">
+            <q-space/>
+            <q-btn
+              unelevated rounded
+              color=positive
+              label="post comment"
+              icon="eva-message-circle-outline"
+              type="submit"
+              v-on:click="addComment"/>
+          </q-card-actions>
+        </q-card-section>
+        <q-separator/>
+        <q-card-section class="q-pa-sm">
+          <comment-list
+            @deleteComment="deleteComment"
+            :commentsFromParent="comments">
+          </comment-list>
+        </q-card-section>
+      </template>
     </q-card>
   </q-slide-transition>
 </template>
@@ -56,6 +86,10 @@ import {mapGetters} from "vuex";
 
 export default {
   name: "PostView",
+  components: {
+    TextEditor: () => import('components/textEditor'),
+    CommentList: () => import('components/CommentList'),
+  },
   props: {
     id: String,
     caption: String,
@@ -86,6 +120,9 @@ export default {
     }
   },
   methods: {
+    showHideComments(){
+      this.commentsOn = !this.commentsOn
+    },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
     },
