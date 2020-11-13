@@ -35,12 +35,16 @@ export default function (/* { store, ssrContext } */) {
   // Firebase is finished with its initialization process,
   // and handle the user accordingly
   Router.beforeEach(async (to, from, next) => {
-    const {ensureAuthIsInitialized, isAuthenticated} = firebaseServices
+    const {ensureAuthIsInitialized, ensureUserDataIsInitialized, isAuthenticated} = firebaseServices
     try {
       // Force the app to wait until Firebase has
       // finished its initialization, and handle the
       // authentication state of the user properly
       await ensureAuthIsInitialized(store)
+      if(isAuthenticated(store)){
+        await ensureUserDataIsInitialized(store)
+      }
+
       if (to.matched.some(record => record.meta.requiresAuth)) {
         if (isAuthenticated(store)) {
           next()

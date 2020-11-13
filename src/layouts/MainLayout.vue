@@ -43,7 +43,7 @@
           <template v-slot:label>
             <q-avatar size="45px">
               <q-img :src="currentUser.profilePicture" alt="Avatar"
-                     v-if="currentUser && !showDefaultProfilePicture()"/>
+                     v-if="$store.state.auth.isAuthenticated && currentUser && !showDefaultProfilePicture()"/>
               <q-icon round="round" color="white" name="eva-person-outline" text-color="white"
                       v-else/>
             </q-avatar>
@@ -51,7 +51,7 @@
           <div v-if="$store.state.auth.isAuthenticated">
             <div class="column items-center q-pt-md">
               <div class="text-h6 text-bold"
-              v-if="currentUser">
+                   v-if="currentUser">
                 {{ currentUser.username }}
               </div>
               <div class="column q-pb-sm q-pt-sm">
@@ -190,7 +190,6 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import {currentUser} from "src/store/user/getters";
 
 export default {
   data() {

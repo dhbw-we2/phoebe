@@ -1,5 +1,5 @@
 <template>
-  <div class="constrain q-pa-md" v-if="currentUser">
+  <div class="constrain q-pa-md">
     <q-card class="card-post-text q-mb-md" flat bordered>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
@@ -96,7 +96,7 @@
               :caption="captionInput"
               :date="date"
               :text="textInput"
-              :user-ref="getCurrentUserRef()"
+              :user-ref="currentUserRef"
               :tags="tags"
               preview>
     </PostView>
@@ -108,13 +108,12 @@
 import PostView from "components/PostView";
 import TagCreatorBar from "components/TagCreatorBar";
 import {mapGetters} from "vuex";
-import {userRef} from "src/services/firebase/db";
 
 export default {
   components: {TagCreatorBar, PostView},
 
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUserRef']),
     getTitle() {
       return this.isEdit ? 'Edit Post' : 'Create a Post'
     },
@@ -175,7 +174,7 @@ export default {
           tags: this.tags,
           text: this.textInput,
           date: new Date().getTime(),
-          user: userRef(this.currentUser.uid),
+          user: this.currentUserRef,
         }).then(() => {
           this.$router.push('/')
         }).catch((err) => {
@@ -215,9 +214,6 @@ export default {
       this.textInput = ''
       this.date = new Date().getTime()
     },
-    getCurrentUserRef(){
-      return userRef(this.$store.state.auth.uid)
-    }
   },
   created() {
     if (this.isEdit) {
@@ -231,7 +227,8 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
-    if ((this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput) && !this.postSubmitted) {
+    if (!this.postSubmitted && this.currentUser &&
+      (this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput)) {
       this.$q.dialog({
         title: 'Unsaved Changes',
         message: 'Do you really want to leave the editor?',

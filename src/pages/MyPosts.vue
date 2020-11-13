@@ -2,14 +2,14 @@
   <q-page class="constrain q-pa-md">
     <PostList ref="postList"
               tag-filter
-              :user-filter="getCurrentUserRef()"/>
+              :user-filter="currentUserRef"/>
   </q-page>
 </template>
 
 <script>
 import TagCreatorBar from "components/TagCreatorBar";
 import PostList from "components/PostList";
-import {userRef} from 'src/services/firebase/db';
+import {mapGetters} from "vuex";
 
 export default {
   name: 'MyPosts',
@@ -18,14 +18,12 @@ export default {
   data() {
     return {}
   },
+  computed: {
+    ...mapGetters('user', ['currentUserRef']),
+  },
   beforeRouteLeave(to, from, next) {
     this.$refs.postList.clearQuery()
     next();
   },
-  methods:{
-    getCurrentUserRef(){
-      return userRef(this.$store.state.auth.uid)
-    }
-  }
 }
 </script>

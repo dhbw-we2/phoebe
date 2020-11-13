@@ -1,4 +1,5 @@
 import User from "src/models/User";
+import {userRef} from "src/services/firebase/db";
 
 export const currentUser = ({currentUser}) => {
   if (currentUser) {
@@ -11,4 +12,8 @@ export const currentUser = ({currentUser}) => {
     })
   }
   return currentUser
+}
+
+export const currentUserRef = ({currentUser}) => {
+  return userRef(currentUser.uid)
 }
