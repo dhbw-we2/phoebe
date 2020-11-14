@@ -1,9 +1,9 @@
 <template>
   <div class="q-pl-md">
     <q-card-section horizontal>
-      <q-card-actions vertical class="justify-around">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
-        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+      <q-card-actions vertical class="justify-center">
+        <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
       </q-card-actions>
 
       <q-separator vertical inset="true"/>
@@ -36,26 +36,25 @@
           </q-card-actions>
         </q-card-section>
         <q-card-section v-html="(text ? text : '[removed]')" class="q-pa-sm q-pb-md links-primary"/>
-
-        <q-card-section v-if="replying">
-          <text-editor
-            placeholderText="Very interesting Comment"
-            @changeText="commentInput = $event">
-          </text-editor>
-          <q-card-actions align="stretch">
-            <q-space/>
-            <q-btn
-              unelevated rounded
-              color=positive
-              label="REPLY"
-              icon="eva-message-circle-outline"
-              type="submit"
-              @click="AddReply"/>
-          </q-card-actions>
-        </q-card-section>
       </q-card-section>
     </q-card-section>
     <q-separator/>
+    <q-card-section v-if="replying">
+      <text-editor
+        placeholderText="Very interesting Comment"
+        @changeText="commentInput = $event">
+      </text-editor>
+      <q-card-actions align="stretch">
+        <q-space/>
+        <q-btn
+          unelevated rounded
+          color=positive
+          label="REPLY"
+          icon="eva-message-circle-outline"
+          type="submit"
+          @click="AddReply"/>
+      </q-card-actions>
+    </q-card-section>
     <q-card-section
       class="q-pa-sm">
       <comment-list
