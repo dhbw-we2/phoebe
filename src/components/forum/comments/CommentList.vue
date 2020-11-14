@@ -9,6 +9,7 @@
         :date="comment.date"
         :all-comments="allComments"
         :post="post"
+        :parent-comment="comment.parentComment"
       />
     </div>
 </template>

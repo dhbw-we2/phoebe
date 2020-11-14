@@ -86,6 +86,7 @@ export default {
     dateEdited: undefined,
     allComments: Array,
     post: String,
+    parentComment: Object,
   },
   data() {
     return {
@@ -146,9 +147,23 @@ export default {
             }
           })
         } else {
+          this.recursiveDelete(this.parentComment)
           commentRef(this.id).delete();
         }
       })
+    },
+    recursiveDelete(parentComment) {
+      if (parentComment) {
+        const parentIndex = this.allComments.findIndex(comment => comment.id === parentComment.id)
+        if (parentIndex !== -1) {
+          if(!this.allComments[parentIndex].text){
+            this.recursiveDelete(this.allComments[parentIndex].parentComment)
+          }
+        }
+        if(!this.allComments[parentIndex].text) {
+          commentRef(parentComment.id).delete()
+        }
+      }
     },
     checkForSubComments() {
       let subComments = false
@@ -174,24 +189,32 @@ export default {
         return this.uid === this.currentUser.uid;
       }
     },
+    updateUserData() {
+      if (this.userRef) {
+        this.userRef.get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data()
+            this.username = data.username
+            this.avatar = data.profilePicture
+            this.uid = data.uid
+          }
+        })
+      } else {
+        this.username = null
+        this.avatar = null
+        this.uid = null
+      }
+    }
   },
   created() {
     this.scheduleUpdateNow()
-    if (this.userRef) {
-      this.userRef.get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data()
-          this.username = data.username
-          this.avatar = data.profilePicture
-          this.uid = data.uid
-        }
-      })
-    }
+    this.updateUserData()
     this.checkForSubComments()
   },
   watch: {
     allComments() {
       this.checkForSubComments()
+      this.updateUserData()
     },
     currentUser() {
       if (!this.currentUser) {
