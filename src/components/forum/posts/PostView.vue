@@ -2,9 +2,9 @@
   <q-slide-transition>
     <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
       <q-card-section horizontal>
-        <q-card-actions vertical class="justify-around">
-          <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
-          <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+        <q-card-actions vertical class="justify-center">
+            <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
+            <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
         </q-card-actions>
 
         <q-separator vertical inset="true"/>
@@ -21,7 +21,8 @@
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags" class="text-primary cursor-pointer" @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                  <span v-for="tag in tags" class="text-primary cursor-pointer"
+                        @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline">
                   Posted by u/{{ username }} {{ timeSincePostCreated }} ago
@@ -38,24 +39,59 @@
 
       <q-card-actions align="stretch">
         <q-btn flat round icon="eva-heart-outline"/>
-        <q-btn flat round icon="eva-message-square-outline"/>
-        <q-btn flat round icon="eva-save-outline"/>
-        <q-btn flat round icon="eva-more-horizontal-outline"/>
+        <q-btn flat round
+               v-on:click="showHideComments"
+               icon="eva-message-square-outline"
+               :loading="commentsLoading"/>
+        <q-btn flat round
+               icon="eva-save-outline"/>
+        <q-btn flat round
+               icon="eva-more-horizontal-outline"/>
         <q-space/>
         <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
         <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
         <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
       </q-card-actions>
+      <q-slide-transition appear :duration=300>
+        <div v-if="commentsActive" v-show="commentsShown">
+          <q-separator/>
+          <q-card-section v-if="$store.state.auth.isAuthenticated">
+            <text-editor
+              placeholderText="Very interesting Comment"
+              @changeText="commentInput = $event">
+            </text-editor>
+            <q-card-actions align="stretch">
+              <q-space/>
+              <q-btn
+                unelevated rounded
+                color=positive
+                label="post comment"
+                icon="eva-message-circle-outline"
+                type="submit"
+                @click="addComment"/>
+            </q-card-actions>
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <comment-list ref="commentList"
+                          :post="id"
+                          @comments-loaded="commentsLoaded"/>
+          </q-card-section>
+        </div>
+      </q-slide-transition>
     </q-card>
   </q-slide-transition>
 </template>
 
 <script>
-import {date} from "quasar";
+import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
+import {commentCollection, postRef} from "src/services/firebase/db";
+import CommentList from "components/forum/comments/CommentList";
+import TextEditor from "components/forum/TextEditor";
 
 export default {
   name: "PostView",
+  components: {CommentList, TextEditor},
   props: {
     id: String,
     caption: String,
@@ -71,21 +107,43 @@ export default {
       visible: true,
       now: new Date().getTime(),
       username: null,
+      uid: null,
       avatar: null,
+      commentsActive: false,
+      commentInput: '',
+      commentsShown: false,
+      commentsLoading: false
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSincePostCreated() {
-      return this.getFormattedTimeBetween(this.date, this.now)
+      return getFormattedTimeBetween(this.date, this.now)
     },
     // Display the Time since this post was edited
     timeSincePostEdited() {
-      return this.getFormattedTimeBetween(this.dateEdited, this.now)
+      return getFormattedTimeBetween(this.dateEdited, this.now)
     }
   },
   methods: {
+    commentsLoaded() {
+      this.commentsShown = true
+      this.commentsLoading = false
+    },
+    showHideComments() {
+      if (!this.commentsShown) {
+        if (!this.commentsActive) {
+          this.commentsLoading = true
+          this.commentsActive = true
+        } else {
+          this.commentsShown = true
+        }
+      } else {
+        this.commentsShown = false;
+      }
+
+    },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
     },
@@ -99,24 +157,10 @@ export default {
         color: 'primary'
       }).onOk(() => {
         this.visible = false;
-        this.$firestore.collection("posts").doc(this.id).delete().then(() => {
+        postRef(this.id).delete().then(() => {
           // this.$emit('post-deleted')
         });
       })
-    },
-    getFormattedTimeBetween(startTime, finishTime) {
-      let unit = "";
-      let result = finishTime - startTime;
-
-      // Why i used ifs https://stackoverflow.com/questions/6665997/switch-statement-for-greater-than-less-than
-      if (result < 60000) unit = 'seconds';
-      else if (result < 3600000) unit = 'minutes';
-      else if (result < 86400000) unit = 'hours';
-      else if (result < 2592000000) unit = 'days';
-      else if (result < 31536000000) unit = 'months';
-      else if (result >= 31536000000) unit = 'years';
-
-      return date.getDateDiff(finishTime, startTime, unit) + " " + unit
     },
     updateNow() {
       this.now = new Date().getTime();
@@ -127,17 +171,28 @@ export default {
     },
     postedByCurrentUser() {
       if (this.currentUser) {
-        if (this.uid === this.currentUser.uid) {
-          return true;
-        }
+        return this.uid === this.currentUser.uid;
       }
-      return false
     },
+    addComment() {
+      commentCollection().add({
+        date: new Date().getTime(),
+        user: this.currentUserRef,
+        text: this.commentInput,
+        post: postRef(this.id)
+      }).catch(reason => {
+        this.$q.notify({
+          type: 'negative',
+          message: `Failed to post comment: ${reason}`
+        })
+      })
+      this.commentInput = ''
+    }
   },
   created() {
     this.scheduleUpdateNow();
 
-    if(this.userRef){
+    if (this.userRef) {
       this.userRef.get().then(doc => {
         if (doc.exists) {
           const data = doc.data()

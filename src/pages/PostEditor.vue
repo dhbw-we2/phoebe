@@ -19,58 +19,10 @@
       </q-card-section>
       <q-separator/>
       <q-card-section>
-        <q-editor
-          v-model="textInput"
-          placeholder="This is a very interesting Post"
-          :dense="$q.screen.lt.md"
-          :toolbar="[
-          [
-            {
-              label: $q.lang.editor.align,
-              icon: $q.iconSet.editor.align,
-              fixedLabel: true,
-              list: 'only-icons',
-              options: ['left', 'center', 'right', 'justify']
-            },
-          ],
-          [
-            {
-              label: $q.lang.editor.defaultFont,
-              icon: $q.iconSet.editor.font,
-              fixedIcon: true,
-              list: 'no-icons',
-              options: [
-                'default_font',
-                'arial',
-                'arial_black',
-                'comic_sans',
-                'courier_new',
-                'impact',
-                'lucida_grande',
-                'times_new_roman',
-                'verdana'
-              ]
-            },
-            'removeFormat'
-          ],
-          ['bold', 'italic', 'strike', 'underline'],
-          ['link'],
-
-          ['unordered', 'ordered'],
-
-          ['undo', 'redo']
-        ]"
-          :fonts="{
-          arial: 'Arial',
-          arial_black: 'Arial Black',
-          comic_sans: 'Comic Sans MS',
-          courier_new: 'Courier New',
-          impact: 'Impact',
-          lucida_grande: 'Lucida Grande',
-          times_new_roman: 'Times New Roman',
-          verdana: 'Verdana'
-        }"
-        />
+        <text-editor
+          placeholderText="Very interesting Post"
+          @changeText="textInput = $event">
+        </text-editor>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
@@ -105,13 +57,14 @@
 </template>
 <script>
 
-import PostView from "components/PostView";
-import TagCreatorBar from "components/TagCreatorBar";
 import {mapGetters} from "vuex";
+import TextEditor from "components/forum/TextEditor"
+import PostView from "components/forum/posts/PostView";
+import TagCreatorBar from "components/forum/TagCreatorBar"
+import {postCollection} from "src/services/firebase/db";
 
 export default {
-  components: {TagCreatorBar, PostView},
-
+  components: {TextEditor, PostView, TagCreatorBar},
   computed: {
     ...mapGetters('user', ['currentUserRef']),
     getTitle() {
@@ -154,7 +107,7 @@ export default {
       this.postSubmitted = true;
       if (this.isEdit) {
         //Edit existing post
-        this.$firestore.collection("posts").doc(this.postID).update({
+        postCollection().doc(this.postID).update({
           caption: this.captionInput.trim(),
           tags: this.tags,
           text: this.textInput,
@@ -169,7 +122,7 @@ export default {
         })
       } else {
         //Submit new post
-        this.$firestore.collection("posts").add({
+        postCollection().add({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
@@ -190,7 +143,7 @@ export default {
       this.tags.splice(index, 1);
     },
     restoreIfEdit() {
-      this.$firestore.collection("posts").doc(this.postID).get().then(doc => {
+      postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
         this.textInput = post.text;
         this.tags = post.tags;

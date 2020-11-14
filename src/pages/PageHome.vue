@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import TagCreatorBar from "components/TagCreatorBar";
-import PostList from "components/PostList";
+import TagCreatorBar from "components/forum/TagCreatorBar";
+import PostList from "components/forum/posts/PostList";
 
 export default {
   name: 'PageHome',
