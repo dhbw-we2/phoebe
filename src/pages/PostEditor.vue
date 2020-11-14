@@ -1,5 +1,5 @@
 <template>
-  <div class="constrain q-pa-md" v-if="currentUser">
+  <div class="constrain q-pa-md">
     <q-card class="card-post-text q-mb-md" flat bordered>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
@@ -19,58 +19,10 @@
       </q-card-section>
       <q-separator/>
       <q-card-section>
-        <q-editor
-          v-model="textInput"
-          placeholder="This is a very interesting Post"
-          :dense="$q.screen.lt.md"
-          :toolbar="[
-          [
-            {
-              label: $q.lang.editor.align,
-              icon: $q.iconSet.editor.align,
-              fixedLabel: true,
-              list: 'only-icons',
-              options: ['left', 'center', 'right', 'justify']
-            },
-          ],
-          [
-            {
-              label: $q.lang.editor.defaultFont,
-              icon: $q.iconSet.editor.font,
-              fixedIcon: true,
-              list: 'no-icons',
-              options: [
-                'default_font',
-                'arial',
-                'arial_black',
-                'comic_sans',
-                'courier_new',
-                'impact',
-                'lucida_grande',
-                'times_new_roman',
-                'verdana'
-              ]
-            },
-            'removeFormat'
-          ],
-          ['bold', 'italic', 'strike', 'underline'],
-          ['link'],
-
-          ['unordered', 'ordered'],
-
-          ['undo', 'redo']
-        ]"
-          :fonts="{
-          arial: 'Arial',
-          arial_black: 'Arial Black',
-          comic_sans: 'Comic Sans MS',
-          courier_new: 'Courier New',
-          impact: 'Impact',
-          lucida_grande: 'Lucida Grande',
-          times_new_roman: 'Times New Roman',
-          verdana: 'Verdana'
-        }"
-        />
+        <text-editor
+          placeholderText="Very interesting Post"
+          @changeText="textInput = $event">
+        </text-editor>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
@@ -96,7 +48,7 @@
               :caption="captionInput"
               :date="date"
               :text="textInput"
-              :user-ref="getCurrentUserRef()"
+              :user-ref="currentUserRef"
               :tags="tags"
               preview>
     </PostView>
@@ -105,16 +57,16 @@
 </template>
 <script>
 
-import PostView from "components/PostView";
-import TagCreatorBar from "components/TagCreatorBar";
 import {mapGetters} from "vuex";
-import {userRef} from "src/services/firebase/db";
+import TextEditor from "components/forum/TextEditor"
+import PostView from "components/forum/posts/PostView";
+import TagCreatorBar from "components/forum/TagCreatorBar"
+import {postCollection} from "src/services/firebase/db";
 
 export default {
-  components: {TagCreatorBar, PostView},
-
+  components: {TextEditor, PostView, TagCreatorBar},
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUserRef']),
     getTitle() {
       return this.isEdit ? 'Edit Post' : 'Create a Post'
     },
@@ -155,7 +107,7 @@ export default {
       this.postSubmitted = true;
       if (this.isEdit) {
         //Edit existing post
-        this.$firestore.collection("posts").doc(this.postID).update({
+        postCollection().doc(this.postID).update({
           caption: this.captionInput.trim(),
           tags: this.tags,
           text: this.textInput,
@@ -170,12 +122,12 @@ export default {
         })
       } else {
         //Submit new post
-        this.$firestore.collection("posts").add({
+        postCollection().add({
           caption: this.captionInput,
           tags: this.tags,
           text: this.textInput,
           date: new Date().getTime(),
-          user: userRef(this.currentUser.uid),
+          user: this.currentUserRef,
         }).then(() => {
           this.$router.push('/')
         }).catch((err) => {
@@ -191,7 +143,7 @@ export default {
       this.tags.splice(index, 1);
     },
     restoreIfEdit() {
-      this.$firestore.collection("posts").doc(this.postID).get().then(doc => {
+      postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
         this.textInput = post.text;
         this.tags = post.tags;
@@ -215,9 +167,6 @@ export default {
       this.textInput = ''
       this.date = new Date().getTime()
     },
-    getCurrentUserRef(){
-      return userRef(this.$store.state.auth.uid)
-    }
   },
   created() {
     if (this.isEdit) {
@@ -231,7 +180,8 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
-    if ((this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput) && !this.postSubmitted) {
+    if (!this.postSubmitted && this.currentUser &&
+      (this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput)) {
       this.$q.dialog({
         title: 'Unsaved Changes',
         message: 'Do you really want to leave the editor?',

@@ -20,7 +20,7 @@ export const auth = () => {
 }
 
 /**
- * Async function providing the application time to
+ * Async functions providing the application time to
  * wait for firebase to initialize and determine if a
  * user is authenticated or not with only a single observable
  *
@@ -36,6 +36,24 @@ export const ensureAuthIsInitialized = (store) => {
     }, () => {
       reject(new Error('Looks like there is a problem with the firebase service. Please try again later'))
     })
+  })
+}
+
+export const ensureUserDataIsInitialized = (store) => {
+  if (store.state.user.isReady) return true
+  // Create the observer only once on init
+  return new Promise((resolve, reject) => {
+    let unwatch = store.watch((state) => {
+      return state.user.isReady
+    }, (isReady) => {
+      if(isReady){
+        resolve()
+        unwatch()
+      }
+    })
+    setTimeout(() => {
+      reject("User Data Timeout")
+    },5000)
   })
 }
 
@@ -64,14 +82,14 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
   // Get & bind the current user (unbind on logout)
   if (store.state.auth.isAuthenticated) {
     await store.dispatch('user/getCurrentUser', currentUser.uid)
-  } else {
-    await store.dispatch('user/clearCurrentUser')
+    await store.commit('user/setReady', true)
   }
 
   // If the user looses authentication route
-  // them to the login page
+  // them to the login page and clear currentUser state
   if (!currentUser && initialAuthState) {
-    store.dispatch('auth/routeUserToHome')
+    await store.dispatch('auth/routeUserToHome')
+    await store.dispatch('user/clearCurrentUser')
   }
 }
 

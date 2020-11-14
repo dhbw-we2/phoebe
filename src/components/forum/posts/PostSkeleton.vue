@@ -1,9 +1,9 @@
 <template>
   <q-card class="card-post-text q-mb-md" flat bordered>
     <q-card-section horizontal>
-      <q-card-actions vertical class="justify-around">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
-        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+      <q-card-actions vertical class="justify-center">
+        <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
       </q-card-actions>
 
       <q-separator vertical inset="true"/>

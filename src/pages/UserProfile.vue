@@ -1,6 +1,6 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <div v-if="currentUser">
+    <div>
       <q-card class="my-card">
         <q-card-section>
           <p class="text-center text-h4 no-margin">User Profile</p>
@@ -8,7 +8,8 @@
         <q-card-section>
           <q-card-section>
             <div class="column items-center" v-if="showDefaultPhoto()">
-              <q-avatar  @click="showPhotoUpload('profile')" class="q-mb-sm profile-picture" round="round" color="primary" icon="eva-person-outline" font-size="110px"
+              <q-avatar @click="showPhotoUpload('profile')" class="q-mb-sm profile-picture" round="round"
+                        color="primary" icon="eva-person-outline" font-size="110px"
                         size="180px" text-color="white"></q-avatar>
               <span><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span></div>
             <div class="column items-center" v-else>
@@ -18,7 +19,7 @@
               <span class=""><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span>
             </div>
           </q-card-section>
-          <q-card-section >
+          <q-card-section>
             <div class="column items-center">
               <q-list class="col text-center">
                 <q-item class="q-mb-sm">
@@ -36,7 +37,8 @@
                 <q-item class="q-mb-md">
                   <q-item-section>
                     <q-item-label overline>SPOTIFY ACCOUNT</q-item-label>
-                    <q-btn icon="eva-link-outline" class="q-ma-sm" color="primary" style="max-width: 15rem" label="Link Spotify"></q-btn>
+                    <q-btn icon="eva-link-outline" class="q-ma-sm" color="primary" style="max-width: 15rem"
+                           label="Link Spotify"></q-btn>
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -60,13 +62,12 @@
 <script>
 import {mapActions, mapGetters} from 'vuex'
 import {QUploaderBase} from 'quasar'
-import {currentUser} from "src/store/user/getters";
 
 export default {
   name: 'UserProfile',
   mixins: [QUploaderBase],
   components: {
-    'fbq-uploader': () => import('src/components/FBQUploader.vue')
+    'fbq-uploader': () => import('components/profile/FBQUploader.vue')
   },
   data() {
     return {
@@ -78,14 +79,13 @@ export default {
     ...mapGetters('user', ['currentUser']),
     meta() {
       return {
-        id: this.currentUser.id,
+        uid: this.currentUser.uid,
         photoType: this.photoType
       }
     },
     prefixPath() {
-      const id = this.currentUser.id,
-        path = `${id}/${this.photoType}Picture/${this.photoType}Picture.`
-      return path
+      const uid = this.currentUser.uid
+      return `${uid}/${this.photoType}Picture/${this.photoType}Picture.`
     }
   },
   methods: {
@@ -133,7 +133,7 @@ export default {
       info.files.forEach(file => fileNames.push(file))
       this.photoUpload = false
       this.$q.notify({
-        message: `Successfully uploaded your photo: ${fileNames}`,
+        message: 'Successfully uploaded your profile picture',
         color: 'positive'
       })
     }

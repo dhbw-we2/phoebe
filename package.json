@@ -12,6 +12,7 @@
     "deploy": "firebase use default && cross-env QENV=development quasar build && firebase deploy"
   },
   "dependencies": {
+    "@firebase/firestore-types": "^2.0.0",
     "@quasar/extras": "^1.9.10",
     "axios": "^0.18.1",
     "core-js": "^3.6.5",

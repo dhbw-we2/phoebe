@@ -19,7 +19,7 @@ export const createNewUser = async function ($root, data) {
   const {email, password, username} = data
   const fbAuthResponse = await $fb.createUserWithEmail(email, password)
   const uid = fbAuthResponse.user.uid
-  const userRef = $fb.userRef('users', uid)
+  const userRef = $fb.userRef(uid)
   return addUserToUsersCollection({email, username, uid}, userRef)
 }
 
@@ -39,5 +39,5 @@ export const logoutUser = async function () {
 export function routeUserToHome() {
   this.$router.push({
     path: '/'
-  })
+  }).catch(() => {})
 }

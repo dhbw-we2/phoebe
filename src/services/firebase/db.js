@@ -7,16 +7,31 @@ import 'firebase/storage'
  * Firestore
  * https: //firebase.google.com/docs/reference/js/firebase.firestore.Firestore.html
  *
- * @return {Interface} returns Firestore
+ * @return {firebase.firestore.Firestore} returns Firestore
  */
 export const firestore = () => {
   return firebase.firestore()
 }
-/**
- * @param  {String} id - Uid to assign to a doc in firestore collection
- */
+
+export const userCollection = () => {
+  return firestore().collection('users')
+}
 export const userRef = (id) => {
   return firestore().collection('users').doc(id)
+}
+
+export const postCollection = () => {
+  return firestore().collection('posts')
+}
+export const postRef = (id) => {
+  return firestore().collection('posts').doc(id)
+}
+
+export const commentRef = (id) => {
+  return firestore().collection('comments').doc(id)
+}
+export const commentCollection = () => {
+  return firestore().collection('comments')
 }
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
