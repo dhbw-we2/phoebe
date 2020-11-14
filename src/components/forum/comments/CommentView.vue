@@ -52,7 +52,12 @@
           label="REPLY"
           icon="eva-message-circle-outline"
           type="submit"
-          @click="AddReply"/>
+          @click="AddReply"
+        :loading="submittingReply">
+          <template v-slot:loading>
+            <q-spinner-dots/>
+          </template>
+        </q-btn>
       </q-card-actions>
     </q-card-section>
     <q-card-section
@@ -97,6 +102,7 @@ export default {
       username: null,
       uid: null,
       now: new Date().getTime(),
+      submittingReply: false,
     }
   },
   computed: {
@@ -112,6 +118,7 @@ export default {
   },
   methods: {
     AddReply() {
+      this.submittingReply = true;
       commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
@@ -120,9 +127,11 @@ export default {
         post: postRef(this.post)
       }).catch(function (error) {
         console.error("Error adding comment to firebase: ", error);
-      });
+      }).finally(() => {
+        this.submittingReply = false;
+        this.replying = false
+      })
       this.commentInput = ''
-      this.replying = false
     },
     replyToComment() {
       this.replying = !this.replying

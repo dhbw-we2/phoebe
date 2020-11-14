@@ -68,7 +68,12 @@
                 label="POST COMMENT"
                 icon="eva-message-circle-outline"
                 type="submit"
-                @click="addComment"/>
+                @click="addComment"
+                :loading="submittingComment">
+                <template v-slot:loading>
+                  <q-spinner-dots/>
+                </template>
+              </q-btn>
             </q-card-actions>
           </q-card-section>
           <q-card-section class="q-pt-none">
@@ -112,7 +117,8 @@ export default {
       commentsActive: false,
       commentInput: '',
       commentsShown: false,
-      commentsLoading: false
+      commentsLoading: false,
+      submittingComment: false,
     }
   },
   computed: {
@@ -175,6 +181,7 @@ export default {
       }
     },
     addComment() {
+      this.submittingComment = true
       commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
@@ -185,6 +192,8 @@ export default {
           type: 'negative',
           message: `Failed to post comment: ${reason}`
         })
+      }).finally(() => {
+        this.submittingComment = false
       })
       this.commentInput = ''
     }
