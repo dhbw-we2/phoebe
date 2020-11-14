@@ -21,7 +21,7 @@
       <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
-          @changeText="textInput = $event">
+          :text-input.sync="textInput">
         </text-editor>
       </q-card-section>
       <q-card-actions align="right">

@@ -58,14 +58,14 @@
           <q-card-section v-if="$store.state.auth.isAuthenticated">
             <text-editor
               placeholderText="Very interesting Comment"
-              @changeText="commentInput = $event">
+              :text-input.sync="commentInput">
             </text-editor>
             <q-card-actions align="stretch">
               <q-space/>
               <q-btn
                 unelevated rounded
                 color=positive
-                label="post comment"
+                label="POST COMMENT"
                 icon="eva-message-circle-outline"
                 type="submit"
                 @click="addComment"/>
@@ -202,6 +202,6 @@ export default {
         }
       })
     }
-  }
+  },
 }
 </script>

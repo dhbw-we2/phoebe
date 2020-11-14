@@ -42,7 +42,7 @@
     <q-card-section v-if="replying">
       <text-editor
         placeholderText="Very interesting Comment"
-        @changeText="commentInput = $event">
+        :text-input.sync="commentInput">
       </text-editor>
       <q-card-actions align="stretch">
         <q-space/>

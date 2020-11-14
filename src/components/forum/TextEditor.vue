@@ -1,7 +1,6 @@
 <template>
   <q-editor
-    v-model="textInput"
-    @input="changeText"
+    v-model="textInputProxy"
     :placeholder=placeholderText
     :dense="$q.screen.lt.md"
     :toolbar="[
@@ -59,16 +58,18 @@ export default {
   name: "TextEditor",
   props: {
     placeholderText: String,
+    textInput: '',
+  },
+  computed: {
+    textInputProxy: {
+      get() {return this.textInput},
+      set(value) {this.$emit('update:text-input', value)}
+    }
   },
   data(){
     return{
-      textInput: '',
+
     }
-  },
-  methods:{
-    changeText(){
-      this.$emit('changeText',this.textInput)
-    },
   },
 }
 </script>
