@@ -1,16 +1,16 @@
 <template>
-  <div>
-    <comment-view
-      v-for="comment in comments"
-      :key="comment.id"
-      :id="comment.id"
-      :text="comment.text"
-      :user-ref="comment.user"
-      :date="comment.date"
-      :all-comments="allComments"
-      :post="post"
-    />
-  </div>
+    <div>
+      <comment-view
+        v-for="comment in comments"
+        :key="comment.id"
+        :id="comment.id"
+        :text="comment.text"
+        :user-ref="comment.user"
+        :date="comment.date"
+        :all-comments="allComments"
+        :post="post"
+      />
+    </div>
 </template>
 
 <script>
@@ -20,7 +20,8 @@ export default {
   name: "CommentList",
   components: {
     CommentView: () => import('components/forum/comments/CommentView')
-  },  props: {
+  },
+  props: {
     post: String,
     commentId: String,
     inheritedComments: Array,
@@ -63,8 +64,9 @@ export default {
       })
       this.allComments = comments;
       this.loadTopLevelComments()
+      this.$emit('comments-loaded')
     },
-    loadTopLevelComments(){
+    loadTopLevelComments() {
       this.comments = []
       this.allComments.forEach((comment) => {
         if (!comment.parentComment) {
@@ -72,7 +74,7 @@ export default {
         }
       })
     },
-    loadSubComments(){
+    loadSubComments() {
       this.allComments = this.inheritedComments
       this.comments = []
       this.allComments.forEach((comment) => {
@@ -96,7 +98,7 @@ export default {
     this.clearQuery()
   },
   watch: {
-    inheritedComments(){
+    inheritedComments() {
       this.loadSubComments()
     }
   }

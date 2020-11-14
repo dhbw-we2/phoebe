@@ -41,7 +41,8 @@
         <q-btn flat round icon="eva-heart-outline"/>
         <q-btn flat round
                v-on:click="showHideComments"
-               icon="eva-message-square-outline"/>
+               icon="eva-message-square-outline"
+               :loading="commentsLoading"/>
         <q-btn flat round
                icon="eva-save-outline"/>
         <q-btn flat round
@@ -51,29 +52,32 @@
         <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
         <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
       </q-card-actions>
-      <template v-if="commentsVisible">
-        <q-separator/>
-        <q-card-section>
-          <text-editor
-            placeholderText="Very interesting Comment"
-            @changeText="commentInput = $event">
-          </text-editor>
-          <q-card-actions align="stretch">
-            <q-space/>
-            <q-btn
-              unelevated rounded
-              color=positive
-              label="post comment"
-              icon="eva-message-circle-outline"
-              type="submit"
-              @click="addComment"/>
-          </q-card-actions>
-        </q-card-section>
-        <q-separator/>
-        <q-card-section class="q-pa-sm">
-          <comment-list :post="id"/>
-        </q-card-section>
-      </template>
+      <q-slide-transition appear :duration=300>
+        <div v-if="commentsActive" v-show="commentsShown">
+          <q-separator/>
+          <q-card-section v-if="$store.state.auth.isAuthenticated">
+            <text-editor
+              placeholderText="Very interesting Comment"
+              @changeText="commentInput = $event">
+            </text-editor>
+            <q-card-actions align="stretch">
+              <q-space/>
+              <q-btn
+                unelevated rounded
+                color=positive
+                label="post comment"
+                icon="eva-message-circle-outline"
+                type="submit"
+                @click="addComment"/>
+            </q-card-actions>
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <comment-list ref="commentList"
+                          :post="id"
+                          @comments-loaded="commentsLoaded"/>
+          </q-card-section>
+        </div>
+      </q-slide-transition>
     </q-card>
   </q-slide-transition>
 </template>
@@ -105,8 +109,10 @@ export default {
       username: null,
       uid: null,
       avatar: null,
-      commentsVisible: false,
+      commentsActive: false,
       commentInput: '',
+      commentsShown: false,
+      commentsLoading: false
     }
   },
   computed: {
@@ -121,8 +127,22 @@ export default {
     }
   },
   methods: {
+    commentsLoaded() {
+      this.commentsShown = true
+      this.commentsLoading = false
+    },
     showHideComments() {
-      this.commentsVisible = !this.commentsVisible
+      if (!this.commentsShown) {
+        if (!this.commentsActive) {
+          this.commentsLoading = true
+          this.commentsActive = true
+        } else {
+          this.commentsShown = true
+        }
+      } else {
+        this.commentsShown = false;
+      }
+
     },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
@@ -150,7 +170,9 @@ export default {
       setTimeout(this.updateNow, 1000);
     },
     postedByCurrentUser() {
-      return this.uid === this.currentUser.uid;
+      if (this.currentUser) {
+        return this.uid === this.currentUser.uid;
+      }
     },
     addComment() {
       commentCollection().add({

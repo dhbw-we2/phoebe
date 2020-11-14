@@ -18,7 +18,7 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                Posted by u/{{ username }} {{ timeSinceCommentCreated }} ago
+                Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }} ago
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -26,17 +26,18 @@
           <q-card-actions class="text-right">
             <q-btn flat round
                    icon="eva-message-square-outline"
-                   @click="answerComment"
+                   @click="replyToComment"
+                   v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
             />
             <q-btn flat round
                    icon="eva-trash-2-outline"
-                   v-if="uid === currentUser.uid"
+                   v-if="postedByCurrentUser()"
                    v-on:click="deleteComment"/>
           </q-card-actions>
         </q-card-section>
-        <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary"/>
+        <q-card-section v-html="(text ? text : '[removed]')" class="q-pa-sm q-pb-md links-primary"/>
 
-        <q-card-section v-if="answering">
+        <q-card-section v-if="replying">
           <text-editor
             placeholderText="Very interesting Comment"
             @changeText="commentInput = $event">
@@ -52,7 +53,6 @@
               @click="AddReply"/>
           </q-card-actions>
         </q-card-section>
-
       </q-card-section>
     </q-card-section>
     <q-separator/>
@@ -71,6 +71,7 @@
 import {mapGetters} from "vuex";
 import {commentCollection, commentRef, postRef} from "src/services/firebase/db";
 import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
+import * as firebase from 'firebase/app';
 
 export default {
   name: "CommentView",
@@ -90,7 +91,7 @@ export default {
   data() {
     return {
       hasSubComments: false,
-      answering: false,
+      replying: false,
       commentInput: "",
       avatar: null,
       username: null,
@@ -121,10 +122,10 @@ export default {
         console.error("Error adding comment to firebase: ", error);
       });
       this.commentInput = ''
-      this.answering = false
+      this.replying = false
     },
-    answerComment() {
-      this.answering = !this.answering
+    replyToComment() {
+      this.replying = !this.replying
     },
     deleteComment() {
       this.$q.dialog({
@@ -135,16 +136,23 @@ export default {
         ok: 'Yes',
         color: 'primary'
       }).onOk(() => {
-
-
-        commentRef(this.id).delete().then(() => {
-          this.$emit('comment-deleted', this.id)
-        });
+        if (this.hasSubComments) {
+          commentCollection().where('parentComment', '==', commentRef(this.id)).get().then(querySnapshot => {
+            if (querySnapshot.size > 0) {
+              commentRef(this.id).update({
+                user: firebase.firestore.FieldValue.delete(),
+                text: firebase.firestore.FieldValue.delete(),
+                dateEdited: firebase.firestore.FieldValue.delete(),
+              })
+            }
+          })
+        } else {
+          commentRef(this.id).delete();
+        }
       })
     },
     checkForSubComments() {
       let subComments = false
-      this.hasSubComments = false
       this.allComments.every((comment) => {
         if (comment.parentComment && comment.parentComment.id === this.id) {
           subComments = true;
@@ -162,6 +170,11 @@ export default {
     scheduleUpdateNow() {
       setTimeout(this.updateNow, 1000);
     },
+    postedByCurrentUser() {
+      if (this.currentUser) {
+        return this.uid === this.currentUser.uid;
+      }
+    },
   },
   created() {
     this.scheduleUpdateNow()
@@ -174,12 +187,17 @@ export default {
           this.uid = data.uid
         }
       })
-      this.checkForSubComments()
     }
+    this.checkForSubComments()
   },
   watch: {
     allComments() {
       this.checkForSubComments()
+    },
+    currentUser() {
+      if (!this.currentUser) {
+        this.replying = false
+      }
     }
   },
 }
