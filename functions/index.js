@@ -10,11 +10,12 @@ const scopes = ['user-read-private', 'user-read-email'],
   response.send("Hello from Firebase!");
 });*/
 
-exports.login = functions.https.onRequest((request, response ) => {
+exports.SpotifyAuth = functions.https.onRequest((request, response ) => {
   const spotifyWebApi = new SpotifyWebApi({
     client_id: clientId,
     redirect_uri: redirectUri
   })
   const token = spotifyWebApi.getAccessToken(scopes)
   console.log(token)
+  response.send(token.toString())
 })

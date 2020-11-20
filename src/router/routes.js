@@ -9,7 +9,7 @@ const routes = [
       { path: 'error', component: () => import('pages/Error404') },
       { path: 'profile', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
       { path: '%2Fprofile%2F', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
-      { path: 'callback', component: () => import('pages/test'), meta: {requiresAuth: true}},
+      { path: 'callback', component: () => import('pages/test')},
     ]
   },
   {
