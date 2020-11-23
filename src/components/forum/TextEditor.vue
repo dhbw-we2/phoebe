@@ -56,16 +56,16 @@
       <q-btn
         class="absolute-bottom-right q-ma-lg"
         icon="eva-smiling-face-outline"
-        @click="toggleShowEmojiDialog()"
+        @click="ShowEmojiDialog()"
       />
     </div>
-    <div v-if="showEmojiDialog" class="flex-start absolute-bottom-right" @focusout="toggleShowEmojiDialog()" tabindex="-1">
+    <div v-if="EmojiDialog" class="flex-start absolute-bottom-right" @focus="ShowEmojiDialog" @focusout="HideEmojiDialog()" tabindex="-1">
       <VEmojiPicker
         showEmojiDialog="false"
         @select="selectEmoji"
         dark="true"
       />
-      <q-btn icon="eva-close-outline" @click="toggleShowEmojiDialog" unelevated rounded color=negative />
+      <q-btn icon="eva-close-outline" @click="ShowEmojiDialog" unelevated rounded color=negative />
     </div>
   </div>
 </template>
@@ -90,12 +90,15 @@ export default {
   },
   data(){
     return{
-      showEmojiDialog: false,
+      EmojiDialog: false,
     }
   },
   methods:{
-    toggleShowEmojiDialog() {
-      this.showEmojiDialog = !this.showEmojiDialog
+    ShowEmojiDialog() {
+      this.EmojiDialog = true
+    },
+    HideEmojiDialog() {
+      this.EmojiDialog = false
     },
     selectEmoji(emoji) {
       this.textInputProxy = (this.textInputProxy + emoji.data)
