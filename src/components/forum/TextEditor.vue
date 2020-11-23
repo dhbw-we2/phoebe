@@ -56,11 +56,15 @@
       <q-btn
         class="absolute-bottom-right q-ma-lg"
         icon="eva-smiling-face-outline"
-        @click="toggleShowEmojiDialog"
+        @click="toggleShowEmojiDialog()"
       />
     </div>
-    <div v-if="showEmojiDialog" class="flex-start absolute-bottom-right">
-      <VEmojiPicker @select="selectEmoji" dark="true"/>
+    <div v-if="showEmojiDialog" class="flex-start absolute-bottom-right" @focusout="toggleShowEmojiDialog()" tabindex="-1">
+      <VEmojiPicker
+        showEmojiDialog="false"
+        @select="selectEmoji"
+        dark="true"
+      />
       <q-btn icon="eva-close-outline" @click="toggleShowEmojiDialog" unelevated rounded color=negative />
     </div>
   </div>
@@ -68,7 +72,7 @@
 
 <script>
 import { VEmojiPicker } from 'v-emoji-picker';
-//import packData from 'v-emoji-picker/data/emojis.json'
+
 export default {
   components: {
     VEmojiPicker
@@ -96,6 +100,6 @@ export default {
     selectEmoji(emoji) {
       this.textInputProxy = (this.textInputProxy + emoji.data)
     },
-  }
+  },
 }
 </script>
