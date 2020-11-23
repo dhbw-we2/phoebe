@@ -5,11 +5,14 @@ export default class User {
    * @param {String} email - A valid email.
    * @param {String} username - The user's given username.
    * @param {String} profilePicture - A generated URL from Google Storage.
+   * @param {String} spotifyToken - A generated token connected to the users Spotify Account
    */
   uid = ''
   email = ''
   username = ''
   profilePicture = ''
+  spotifyAccessToken = ''
+  spotifyRefreshToken = ''
 
   /**
    * @param  {Object} args - User arguments supplied during
