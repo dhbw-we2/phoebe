@@ -11,7 +11,8 @@ export default class User {
   email = ''
   username = ''
   profilePicture = ''
-  spotifyToken = ''
+  spotifyAccessToken = ''
+  spotifyRefreshToken = ''
 
   /**
    * @param  {Object} args - User arguments supplied during
