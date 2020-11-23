@@ -8,8 +8,8 @@
   "scripts": {
     "test": "echo \"No test specified\" && exit 0",
     "dev": "cross-env QENV=development quasar dev",
-    "build": "cross-env QENV=development quasar build",
-    "deploy": "firebase use default && cross-env QENV=development quasar build && firebase deploy"
+    "build": "cross-env QENV=production quasar build",
+    "deploy": "firebase use default && cross-env QENV=production quasar build && firebase deploy"
   },
   "dependencies": {
     "@firebase/firestore-types": "^2.0.0",

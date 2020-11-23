@@ -65,6 +65,8 @@ export default {
         default:
           this.result = this.$route.query.error
       }
+    } else {
+      this.result = 'Something went wrong...'
     }
   }
 }
