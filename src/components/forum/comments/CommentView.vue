@@ -41,6 +41,7 @@
     <q-separator/>
     <q-card-section v-if="replying">
       <text-editor
+        class="relative-position"
         placeholderText="Very interesting Comment"
         :text-input.sync="commentInput">
       </text-editor>
