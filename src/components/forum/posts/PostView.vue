@@ -57,6 +57,7 @@
           <q-separator/>
           <q-card-section v-if="$store.state.auth.isAuthenticated">
             <text-editor
+              class="relative-position"
               placeholderText="Very interesting Comment"
               :text-input.sync="commentInput">
             </text-editor>
@@ -68,7 +69,7 @@
                 label="POST COMMENT"
                 icon="eva-message-circle-outline"
                 type="submit"
-                @click="addComment"
+                @click="addComment($event); closeEmojiDialog($event);"
                 :loading="submittingComment">
                 <template v-slot:loading>
                   <q-spinner-dots/>
@@ -196,6 +197,13 @@ export default {
         this.submittingComment = false
       })
       this.commentInput = ''
+    },
+    closeEmojiDialog () {
+      if(this.showEmojiDialog)
+      {
+        this.toggleShowEmojiDialog()
+      }
+      console.log(this.showEmojiDialog)
     }
   },
   created() {
