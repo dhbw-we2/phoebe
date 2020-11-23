@@ -18,5 +18,5 @@ export const clearCurrentUser = firestoreAction(({ unbindFirestoreRef }, ) => {
  * @param  {Object} payload
  */
 export const updateUserData = async function ({ state }, payload) {
-  return userRef(payload.id).update(payload)
+  return userRef(payload.uid).update(payload)
 }
