@@ -4,6 +4,7 @@ import { vuexfireMutations } from 'vuexfire'
 
 import auth from './auth'
 import user from './user'
+import spotify from './spotify'
 
 Vue.use(Vuex)
 
@@ -21,7 +22,8 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       auth,
-      user
+      user,
+      spotify
     },
 
     mutations: {

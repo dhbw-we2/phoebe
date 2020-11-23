@@ -3,10 +3,10 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', redirect: 'home' },
-      { path: 'home', component: () => import('pages/PageHome.vue') },
-      { path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true} },
-      { path: 'error', component: () => import('pages/Error404') },
+      {path: '', redirect: 'home'},
+      {path: 'home', component: () => import('pages/PageHome.vue')},
+      {path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true}},
+      {path: 'error', component: () => import('pages/Error404')},
       {path: 'profile', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
     ]
   },
@@ -24,10 +24,12 @@ const routes = [
     children: [
       {path: 'login', name: 'Login', component: () => import('pages/Auth')},
       {path: 'register', name: 'Register', component: () => import('pages/Auth')},
-      {path: 'forgotPassword', name: 'ForgotPassword', component: () => import('pages/ForgotPassword.vue')
+      {
+        path: 'forgotPassword', name: 'ForgotPassword', component: () => import('pages/ForgotPassword.vue')
       },
     ]
-  }
+  },
+  {path: '/spotifyAuthCallback', component: () => import('pages/SpotifyAuthCallback'), meta: {requiresAuth: true}},
 ]
 
 // Always leave this as last one
