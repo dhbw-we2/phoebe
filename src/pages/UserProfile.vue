@@ -79,7 +79,7 @@ import {mapActions, mapGetters} from 'vuex'
 import {QUploaderBase} from 'quasar'
 import {currentUser} from "src/store/user/getters";
 import querystring from "querystring";
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
 
 export default {
   name: 'UserProfile',
