@@ -4,22 +4,28 @@
 
 # spreddit - spread your music!
 
-## Was kann man damit machen?
-- Nutzermanagement mit Login (Verknüpfung Spotify (o.ä.) Account)
-- Forum mit Erstellen eigener Threads zum Austausch unter Nutzern
-- An-Pin-Funktion einzelner Threads für personalisierten Feed
-- Benachrichtigungen für neue Releases (Anbindung an Kalender)
-- Playlist Erstellung (anhand Empfehlungen nach Stimmungstags)
-- Playlist Generierung aus irgendwas (bspw. Fokus auf spezielle Lizenzen)
+## Beschreibung
+### Unique Selling Proposition
 
-## Für wen ist diese Anwendung?
-- Musik und Podcastfans aller Altersgruppen
+Unsere Web-App bietet Ihnen ein Musik-fokussierten News Aggregator mit integrierter Spotify Anbindung. 
+Es erlaubt dem Nutzer einen Austausch über Lieder, Playlists, Alben, Künstler und Podcasts.
 
-## Was ist der Mehrwert der App?
--  Austausch zwischen Musikfans
-- Benachrichtigungen zu Künstlern/Genres und automatische Erinnerung über Kalender für Releases
-- Auf Lizenzen spezialisierte Musik Playlist (für bspw. Content Creator)
-- Podcast Austausch/Vorschlag von anderen Nutzern über gewisse Themen
+### Was kann man damit machen?
+
+- Der Nutzer kann sich einen Account erstellen und individuell gestalten
+- Der Nutzer kann einen Spotify Account mit seinem Account verbinden
+- Der Nutzer kann Posts erstellen, bestehend aus:
+    - Titel
+    - Text
+    - Lied, Playlist, Album, Künstler oder Podcast
+    - Tags (Kategorien/Themen des Posts)
+    - Automatisch generierte Nutzerinformationen
+- Der Nutzer kann unter Posts einer Diskussion in den Kommentaren beitreten
+- Der Nutzer kann sich durch das Markieren von Tags einen personalisierten Feed erstellen
+- Der Nutzer erhält Benachrichtigungen falls für seine Themen ein neuer Post vorhanden ist
+
+### Für wen ist diese Anwendung?
+Diese App ist für Musik und Podcastfans aller Altersgruppen.
 
 ## Development
 ### Installation
