@@ -60,3 +60,7 @@ Example excerpt of `.quasar.env.json`
 To start the development server run
 
 `npm run dev`
+
+### Deploying the app
+A Github action is triggered if you commit changes to our master branch.
+This action automatically deploys the app.
