@@ -129,6 +129,7 @@ export default {
         })
         return
       }
+      this.replying = false
       this.submittingReply = true;
       commentCollection().add({
         date: new Date().getTime(),
@@ -136,13 +137,14 @@ export default {
         text: this.sanitizedComment,
         parentComment: commentRef(this.id),
         post: postRef(this.post)
-      }).catch(function (error) {
+      }).then(()=> {
+        this.commentInput = ''
+      }).catch((error) =>  {
         console.error("Error adding comment to firebase: ", error);
+        this.replying = true
       }).finally(() => {
         this.submittingReply = false;
-        this.replying = false
       })
-      this.commentInput = ''
     },
     replyToComment() {
       this.replying = !this.replying
