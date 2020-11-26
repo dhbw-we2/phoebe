@@ -76,10 +76,10 @@ export default {
     postID() {
       return this.$route.params.id
     },
-    sanitizedCaption(){
+    sanitizedCaption() {
       return this.captionInput.trim()
     },
-    sanitizedText(){
+    sanitizedText() {
       return this.textInput.replace(/&nbsp;/g, '').trim()
     }
   },
@@ -193,7 +193,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
-    if (!this.postSubmitted && (this.tags.length > 0 || this.sanitizedText || this.sanitizedCaption || this.tagInput)) {
+    if (!this.postSubmitted && (this.tags.length > 0 || this.sanitizedText || this.sanitizedCaption || this.tagInput) && this.$store.state.auth.isAuthenticated) {
       this.$q.dialog({
         title: 'Unsaved Changes',
         message: 'Do you really want to leave the editor?',
