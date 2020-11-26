@@ -20,7 +20,9 @@ Es erlaubt dem Nutzer einen Austausch über Lieder, Playlists, Alben, Künstler 
     - Lied, Playlist, Album, Künstler oder Podcast
     - Tags (Kategorien/Themen des Posts)
     - Automatisch generierte Nutzerinformationen
+- Jeder Feed besitzt ein Tag bassiertes Filtersystem
 - Der Nutzer kann unter Posts einer Diskussion in den Kommentaren beitreten
+- Der Nutzer kann Posts und Kommentare upvoten
 - Der Nutzer kann sich durch das Markieren von Tags einen personalisierten Feed erstellen
 - Der Nutzer erhält Benachrichtigungen falls für seine Themen ein neuer Post vorhanden ist
 
