@@ -31,11 +31,14 @@
 
     </div>
     <div v-if="emojiDialog" ref="emojiDialogRef"
-         class="flex-start absolute-bottom-right" tabindex="-1"
+         class="absolute-bottom-right"
+         style="outline: none"
+         tabindex="-1"
          @focusout="emojiDialog = false">
       <VEmojiPicker
         @select="selectEmoji"
-        dark="true"/>
+        dark="true"
+        class="emoji-picker-color-override"/>
     </div>
   </div>
 </template>
