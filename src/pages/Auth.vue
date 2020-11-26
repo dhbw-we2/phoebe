@@ -59,7 +59,11 @@
         color="primary"
         label="USERNAME"
         v-model="username"
-        :rules="[val => !!val || '*Field is required', checkIfUsernameFree ]"
+        :rules="[
+          val => !!val || '*Field is required',
+          val => val.length < 20 || 'Username cannot be longer than 20 characters',
+          val => !/\s/.test(val) || 'Username cannot contain any whitespaces',
+          checkIfUsernameFree ]"
         type="username"
         debounce="500"
         @keyup.enter="onSubmit();"
@@ -165,11 +169,11 @@ export default {
           }
         )
     },
-    checkIfUsernameFree(){
+    checkIfUsernameFree() {
       return new Promise((resolve) => {
         userCollection().where('username', '==', this.username).get().then(querySnapshot => {
-          if(querySnapshot.size > 0) {
-              resolve('Username already taken!')
+          if (querySnapshot.size > 0) {
+            resolve('Username already taken!')
           } else {
             resolve(true)
           }

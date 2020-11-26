@@ -45,9 +45,9 @@
     </q-card>
 
     <PostView disabled
-              :caption="captionInput"
+              :caption="sanitizedCaption"
               :date="date"
-              :text="textInput"
+              :text="sanitizedText"
               :user-ref="currentUserRef"
               :tags="tags"
               preview>
@@ -75,6 +75,12 @@ export default {
     },
     postID() {
       return this.$route.params.id
+    },
+    sanitizedCaption() {
+      return this.captionInput.trim()
+    },
+    sanitizedText() {
+      return this.textInput.replace(/&nbsp;/g, '').trim()
     }
   },
   watch: {
@@ -104,13 +110,20 @@ export default {
       }
     },
     submitPost() {
+      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
+        this.$q.notify({
+          message: 'Not all fields have been filled out',
+          type: 'negative'
+        })
+        return
+      }
       this.postSubmitted = true;
       if (this.isEdit) {
         //Edit existing post
         postCollection().doc(this.postID).update({
-          caption: this.captionInput.trim(),
+          caption: this.sanitizedCaption,
           tags: this.tags,
-          text: this.textInput,
+          text: this.sanitizedText,
           dateEdited: new Date().getTime()
         }).then(() => {
           this.$router.push('/')
@@ -123,9 +136,9 @@ export default {
       } else {
         //Submit new post
         postCollection().add({
-          caption: this.captionInput,
+          caption: this.sanitizedCaption,
           tags: this.tags,
-          text: this.textInput,
+          text: this.sanitizedText,
           date: new Date().getTime(),
           user: this.currentUserRef,
         }).then(() => {
@@ -180,8 +193,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
-    if (!this.postSubmitted && this.currentUser &&
-      (this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput)) {
+    if (!this.postSubmitted && (this.tags.length > 0 || this.sanitizedText || this.sanitizedCaption || this.tagInput) && this.$store.state.auth.isAuthenticated) {
       this.$q.dialog({
         title: 'Unsaved Changes',
         message: 'Do you really want to leave the editor?',

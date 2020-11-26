@@ -1,11 +1,12 @@
 <template>
   <div>
     <div>
-      <q-editor class="relative-position"
-        v-model="textInputProxy"
-        :placeholder=placeholderText
-        :dense="$q.screen.lt.md"
-        :toolbar="[
+      <q-editor class=""
+                ref="editor"
+                v-model="textInputProxy"
+                :placeholder=placeholderText
+                :dense="$q.screen.lt.md"
+                :toolbar="[
               [
                 {
                   label: $q.lang.editor.align,
@@ -40,9 +41,10 @@
 
               ['unordered', 'ordered'],
 
-              ['undo', 'redo']
+              ['undo', 'redo'],
+              ['emoji']
             ]"
-        :fonts="{
+                :fonts="{
               arial: 'Arial',
               arial_black: 'Arial Black',
               comic_sans: 'Comic Sans MS',
@@ -52,26 +54,32 @@
               times_new_roman: 'Times New Roman',
               verdana: 'Verdana'
             }">
+        <template v-slot:emoji>
+          <q-btn
+            dense no-caps
+            ref="token"
+            no-wrap
+            unelevated
+            size="sm"
+            icon="eva-smiling-face-outline"
+            @click="toggleEmojiDialog"
+          />
+        </template>
       </q-editor>
-      <q-btn
-        class="absolute-bottom-right q-ma-lg"
-        icon="eva-smiling-face-outline"
-        @click="ShowEmojiDialog()"
-      />
+
     </div>
-    <div v-if="EmojiDialog" class="flex-start absolute-bottom-right" @focus="ShowEmojiDialog" @focusout="HideEmojiDialog()" tabindex="-1">
+    <div v-if="emojiDialog" ref="emojiDialogRef"
+         class="flex-start absolute-bottom-right" tabindex="-1"
+         @focusout="emojiDialog = false">
       <VEmojiPicker
-        showEmojiDialog="false"
         @select="selectEmoji"
-        dark="true"
-      />
-      <q-btn icon="eva-close-outline" @click="ShowEmojiDialog" unelevated rounded color=negative />
+        dark="true"/>
     </div>
   </div>
 </template>
 
 <script>
-import { VEmojiPicker } from 'v-emoji-picker';
+import {VEmojiPicker} from 'v-emoji-picker';
 
 export default {
   components: {
@@ -84,24 +92,34 @@ export default {
   },
   computed: {
     textInputProxy: {
-      get() {return this.textInput},
-      set(value) {this.$emit('update:text-input', value)}
+      get() {
+        return this.textInput
+      },
+      set(value) {
+        this.$emit('update:text-input', value)
+      }
     }
   },
-  data(){
-    return{
-      EmojiDialog: false,
+  data() {
+    return {
+      emojiDialog: false,
     }
   },
-  methods:{
-    ShowEmojiDialog() {
-      this.EmojiDialog = true
-    },
-    HideEmojiDialog() {
-      this.EmojiDialog = false
+  methods: {
+    toggleEmojiDialog() {
+      this.emojiDialog = !this.emojiDialog
+      if (this.emojiDialog) {
+        this.$nextTick(function () {
+          this.$refs.emojiDialogRef.focus();
+        });
+      }
     },
     selectEmoji(emoji) {
-      this.textInputProxy = (this.textInputProxy + emoji.data)
+      this.$nextTick(function () {
+        this.$refs.emojiDialogRef.focus();
+        this.emojiDialog = true;
+      });
+      this.$refs.editor.runCmd('insertText', emoji.data)
     },
   },
 }

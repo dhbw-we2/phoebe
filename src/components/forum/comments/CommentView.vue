@@ -54,7 +54,7 @@
           icon="eva-message-circle-outline"
           type="submit"
           @click="AddReply"
-        :loading="submittingReply">
+          :loading="submittingReply">
           <template v-slot:loading>
             <q-spinner-dots/>
           </template>
@@ -115,15 +115,25 @@ export default {
     // Display the Time since this post was edited
     timeSinceCommentEdited() {
       return getFormattedTimeBetween(this.dateEdited, this.now)
+    },
+    sanitizedComment() {
+      return this.commentInput.replace(/&nbsp;/g, '').trim()
     }
   },
   methods: {
     AddReply() {
+      if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
+        this.$q.notify({
+          type: 'negative',
+          message: `Cannot post empty comment`
+        })
+        return
+      }
       this.submittingReply = true;
       commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
-        text: this.commentInput,
+        text: this.sanitizedComment,
         parentComment: commentRef(this.id),
         post: postRef(this.post)
       }).catch(function (error) {
@@ -166,11 +176,11 @@ export default {
       if (parentComment) {
         const parentIndex = this.allComments.findIndex(comment => comment.id === parentComment.id)
         if (parentIndex !== -1) {
-          if(!this.allComments[parentIndex].text){
+          if (!this.allComments[parentIndex].text) {
             this.recursiveDelete(this.allComments[parentIndex].parentComment)
           }
         }
-        if(!this.allComments[parentIndex].text) {
+        if (!this.allComments[parentIndex].text) {
           commentRef(parentComment.id).delete()
         }
       }

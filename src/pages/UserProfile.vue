@@ -64,10 +64,13 @@
       <q-dialog v-model="photoUpload" transition-hide="scale" transition-show="scale" @before-hide="resetPhotoType">
         <fbq-uploader
           class="q-my-lg"
-          label="Please Upload a Photo"
+          label="Upload a Picture (max. 200 KiB)"
           :meta="meta"
           :prefixPath="prefixPath"
           @uploaded="uploadComplete"
+          accept="image/*"
+          @rejected="imageRejected"
+          max-file-size="204800"
         ></fbq-uploader>
       </q-dialog>
     </div>
@@ -145,13 +148,27 @@ export default {
       this.photoUpload = true
       this.photoType = type
     },
-    uploadComplete(info) {
-      let fileNames = []
-      info.files.forEach(file => fileNames.push(file))
+    uploadComplete() {
       this.photoUpload = false
       this.$q.notify({
         message: 'Successfully uploaded your profile picture',
         color: 'positive'
+      })
+    },
+    imageRejected(rejectedEntries) {
+      console.log(rejectedEntries)
+      let message = 'Something went wrong'
+      switch (rejectedEntries[0].failedPropValidation) {
+        case('max-file-size'):
+          message = 'File size too large!'
+          break
+        case('accept'):
+          message = 'Please choose an image file!'
+          break
+      }
+      this.$q.notify({
+        message: message,
+        color: 'negative'
       })
     },
     linkSpotifyAccount() {
