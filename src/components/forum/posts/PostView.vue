@@ -131,6 +131,9 @@ export default {
     // Display the Time since this post was edited
     timeSincePostEdited() {
       return getFormattedTimeBetween(this.dateEdited, this.now)
+    },
+    sanitizedComment(){
+      return this.commentInput.replace(/&nbsp;/g, '').trim()
     }
   },
   methods: {
@@ -182,11 +185,18 @@ export default {
       }
     },
     addComment() {
+      if(!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
+        this.$q.notify({
+          type: 'negative',
+          message: `Cannot post empty comment`
+        })
+        return
+      }
       this.submittingComment = true
       commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
-        text: this.commentInput,
+        text: this.sanitizedComment,
         post: postRef(this.id)
       }).catch(reason => {
         this.$q.notify({
