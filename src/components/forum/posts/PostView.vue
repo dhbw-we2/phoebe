@@ -69,7 +69,7 @@
                 label="POST COMMENT"
                 icon="eva-message-circle-outline"
                 type="submit"
-                @click="addComment($event); closeEmojiDialog($event);"
+                @click="addComment($event);"
                 :loading="submittingComment">
                 <template v-slot:loading>
                   <q-spinner-dots/>
@@ -208,13 +208,6 @@ export default {
       })
       this.commentInput = ''
     },
-    closeEmojiDialog () {
-      if(this.showEmojiDialog)
-      {
-        this.toggleShowEmojiDialog()
-      }
-      console.log(this.showEmojiDialog)
-    }
   },
   created() {
     this.scheduleUpdateNow();
