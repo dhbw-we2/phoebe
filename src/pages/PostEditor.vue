@@ -180,8 +180,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
-    if (!this.postSubmitted && this.currentUser &&
-      (this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput)) {
+    if (!this.postSubmitted && (this.tags.length > 0 || this.textInput || this.captionInput || this.tagInput)) {
       this.$q.dialog({
         title: 'Unsaved Changes',
         message: 'Do you really want to leave the editor?',
