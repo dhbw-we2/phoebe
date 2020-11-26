@@ -110,7 +110,7 @@ export default {
       }
     },
     submitPost() {
-      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText) {
+      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
           message: 'Not all fields have been filled out',
           type: 'negative'
