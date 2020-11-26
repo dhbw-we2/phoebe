@@ -156,7 +156,6 @@ export default {
       })
     },
     imageRejected(rejectedEntries) {
-      console.log(rejectedEntries)
       let message = 'Something went wrong'
       switch (rejectedEntries[0].failedPropValidation) {
         case('max-file-size'):

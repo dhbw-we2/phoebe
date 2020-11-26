@@ -6,54 +6,16 @@
                 v-model="textInputProxy"
                 :placeholder=placeholderText
                 :dense="$q.screen.lt.md"
-                :toolbar="[
-              [
-                {
-                  label: $q.lang.editor.align,
-                  icon: $q.iconSet.editor.align,
-                  fixedLabel: true,
-                  list: 'only-icons',
-                  options: ['left', 'center', 'right', 'justify']
-                },
-              ],
-              [
-                {
-                  label: $q.lang.editor.defaultFont,
-                  icon: $q.iconSet.editor.font,
-                  fixedIcon: true,
-                  list: 'no-icons',
-                  options: [
-                    'default_font',
-                    'arial',
-                    'arial_black',
-                    'comic_sans',
-                    'courier_new',
-                    'impact',
-                    'lucida_grande',
-                    'times_new_roman',
-                    'verdana'
-                  ]
-                },
-                'removeFormat'
-              ],
-              ['bold', 'italic', 'strike', 'underline'],
-              ['link'],
-
-              ['unordered', 'ordered'],
-
-              ['undo', 'redo'],
-              ['emoji']
-            ]"
-                :fonts="{
-              arial: 'Arial',
-              arial_black: 'Arial Black',
-              comic_sans: 'Comic Sans MS',
-              courier_new: 'Courier New',
-              impact: 'Impact',
-              lucida_grande: 'Lucida Grande',
-              times_new_roman: 'Times New Roman',
-              verdana: 'Verdana'
-            }">
+                @paste.native="evt => pasteCapture(evt)"
+                content-class="links-primary"
+                :toolbar="
+                [
+                  ['bold', 'italic', 'strike', 'underline'],
+                  ['unordered', 'ordered'],
+                  ['undo', 'redo'],
+                  ['emoji']
+                ]"
+      >
         <template v-slot:emoji>
           <q-btn
             dense no-caps
@@ -121,6 +83,33 @@ export default {
       });
       this.$refs.editor.runCmd('insertText', emoji.data)
     },
+    pasteCapture(evt) {
+      let text, onPasteStripFormattingIEPaste
+      evt.preventDefault()
+      if (evt.originalEvent && evt.originalEvent.clipboardData.getData) {
+        text = evt.originalEvent.clipboardData.getData('text/plain')
+        if(text.startsWith("http")){
+          const linkHTML = `<a href="${text}">${text}</a>`;
+          this.$refs.editor.runCmd('insertHTML', linkHTML)
+        } else {
+          this.$refs.editor.runCmd('insertText', text)
+        }
+      } else if (evt.clipboardData && evt.clipboardData.getData) {
+        text = evt.clipboardData.getData('text/plain')
+        if(text.startsWith("http")){
+          const linkHTML = `<a href="${text}">${text}</a>`;
+          this.$refs.editor.runCmd('insertHTML', linkHTML)
+        } else {
+          this.$refs.editor.runCmd('insertText', text)
+        }
+      } else if (window.clipboardData && window.clipboardData.getData) {
+        if (!onPasteStripFormattingIEPaste) {
+          onPasteStripFormattingIEPaste = true
+          this.$refs.editor.runCmd('ms-pasteTextOnly', text)
+        }
+        onPasteStripFormattingIEPaste = false
+      }
+    }
   },
 }
 </script>
