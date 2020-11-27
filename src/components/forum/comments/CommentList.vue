@@ -53,6 +53,8 @@ export default {
       let query = commentCollection().orderBy("date", "asc")
       if (this.post) {
         query = query.where("post", "==", postRef(this.post))
+      } else {
+        throw new Error("Loaded comment list without post ID")
       }
       return query
     },
