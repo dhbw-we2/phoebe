@@ -1,8 +1,7 @@
-import SpotifyWebApi from "spotify-web-api-node";
+import spotifyService from "../services/spotify";
 
 export default ({Vue}) => {
-  Vue.prototype.$spotify = new SpotifyWebApi({
-    clientId: process.env.SPOTIFY_CONFIG.CLIENT_ID,
-    redirectUri: process.env.SPOTIFY_CONFIG.REDIRECT_URI
-  })
+  spotifyService.SpotifyInit()
+
+  Vue.prototype.$spotify = spotifyService
 }
