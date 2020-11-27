@@ -19,6 +19,10 @@
       </q-card-section>
       <q-separator/>
       <q-card-section>
+        <spotify-search-bar class="q-pa-md" />
+      </q-card-section>
+      <q-separator/>
+      <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
           :text-input.sync="textInput">
@@ -61,35 +65,70 @@ import {mapGetters} from "vuex";
 import TextEditor from "components/forum/TextEditor"
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar"
+import SpotifySearchBar from "components/forum/SpotifySearchBar"
 import {postCollection} from "src/services/firebase/db";
 
 export default {
-  components: {TextEditor, PostView, TagCreatorBar},
+  components: {TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
   computed: {
     ...mapGetters('user', ['currentUserRef']),
+    /**
+     * Returns
+     * @returns {string}
+     */
     getTitle() {
       return this.isEdit ? 'Edit Post' : 'Create a Post'
     },
+    /**
+     *
+     * @returns {boolean}
+     */
     isEdit() {
       return this.$route.name === 'editPost'
     },
+    /**
+     *
+     * @returns {string}
+     */
     postID() {
       return this.$route.params.id
     },
+    /**
+     *
+     * @returns {string}
+     */
     sanitizedCaption() {
       return this.captionInput.trim()
     },
+    /**
+     *
+     * @returns {string}
+     */
     sanitizedText() {
       return this.textInput.replace(/&nbsp;/g, '').trim()
     }
   },
   watch: {
+    /**
+     *
+     * @param route
+     */
     '$route.name'(route) {
       if (route === 'newPost') {
         this.clearInputs()
       }
     }
   },
+  /**
+   *
+   * @returns tagInput: string
+   * @returns date: number
+   * @returns textInput: string
+   * @returns title: string
+   * @returns postSubmitted: boolean
+   * @returns captionInput: string
+   * @returns tags: []
+   */
   data() {
     return {
       title: 'Create a Post',
@@ -102,6 +141,9 @@ export default {
     }
   },
   methods: {
+    /**
+     * Adds Tag to the Tag-Array if the input field is not empty
+     */
     addTagFkt() {
       if (this.tagInput !== '') {
         const size = this.tags.length;
@@ -109,6 +151,9 @@ export default {
         this.tagInput = '';
       }
     },
+    /**
+     *
+     */
     submitPost() {
       if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
