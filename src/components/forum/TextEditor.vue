@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div>
       <q-editor class=""
                 ref="editor"
                 v-model="textInputProxy"
@@ -28,8 +27,6 @@
           />
         </template>
       </q-editor>
-
-    </div>
     <div v-if="emojiDialog" ref="emojiDialogRef"
          class="absolute-bottom-right"
          style="outline: none"
