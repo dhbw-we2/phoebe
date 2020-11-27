@@ -52,3 +52,25 @@ html
   --ep-color-bg: #{$dark} !important
   --ep-color-sbg: #{$dark} !important
   --ep-color-active: #{$primary} !important
+
+.bg-image
+  background-image: url(../assets/background/black-1072366_1920.jpg)
+  background-repeat: no-repeat
+  background-attachment: fixed
+  -webkit-background-size: cover
+  -moz-background-size: cover
+  -o-background-size: cover
+  background-size: cover
+
+.radial-gradient
+  position: fixed
+  top: 0px
+  left: 0px
+  height: 100%
+  width: 100%
+
+  /*Fallback if gradeints don't work */
+  background: #9b59b6
+  /*Linear gradient... */
+  background: radial-gradient(at center, #3498db 10%, #9b59b6)
+

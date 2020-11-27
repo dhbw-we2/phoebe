@@ -4,9 +4,21 @@
                      ref="searchBar"
                      v-bind:tags="tags"
                      placeholder="Filter Tags"
-                     icon="eva-funnel-outline"
-                     class="q-pb-md">
+                     icon="eva-funnel-outline">
     </tag-creator-bar>
+    <q-card-actions align="right">
+      <div class="q-gutter-sm">
+        <q-btn
+          color='negative'
+          unelevated rounded filled
+          icon-right="eva-plus-outline"
+          v-on:click="subscribeTo()"
+          v-if="tags.length > 0"
+          label="SUBSCRIBE"
+          class="q-mb-sm q-pa-xs">
+        </q-btn>
+      </div>
+    </q-card-actions>
     <template v-if="!loadingSkeleton && posts.length">
       <post-view v-for="post in posts"
                  :key="post.id"
@@ -124,6 +136,9 @@ export default {
     clearQuery() {
       this.postQuery()
       this.newPostsNotify()
+    },
+    subscribeTo(){
+
     },
     buildQuery() {
       let query = postCollection().orderBy("date", "desc")

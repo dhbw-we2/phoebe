@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh LpR fFf">
+  <q-layout view="hHh LpR fFf" class="radial-gradient" id="background">
 
     <q-header elevated class="bg-dark">
       <q-toolbar>
@@ -191,6 +191,17 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 
+document.addEventListener('mousemove', event => {
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  const mouseXpercentage = Math.round(event.pageX / windowWidth * 100);
+  const mouseYpercentage = Math.round(event.pageY / windowHeight * 100);
+
+  document.querySelector(".radial-gradient").style.background=('radial-gradient(at ' + mouseXpercentage + '% ' + mouseYpercentage + '%, #1ed760 5%, #1D1D1D 95%)')
+//393e46
+});
+
 export default {
   data() {
     return {
@@ -200,6 +211,7 @@ export default {
       miniState: true,
     }
   },
+
   computed: {
     ...mapGetters('user', ['currentUser']),
   },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-input filled bottom-slots dark v-model="tagInput"
+    <q-input filled bottom-slots dark bg-color="dark" v-model="tagInput"
              :placeholder="placeholder"
              v-on:keypress.space.enter.prevent="addTag">
       <template v-slot:prepend>
