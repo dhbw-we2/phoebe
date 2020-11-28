@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-mb-sm">
     <q-input filled bottom-slots dark bg-color="dark" v-model="tagInput"
              :placeholder="placeholder"
              v-on:keypress.space.enter.prevent="addTag">
@@ -28,10 +28,26 @@
         {{ tag }}
       </q-btn>
     </div>
+    <q-card-actions align="right" v-if="allowSubscribe">
+      <div class="q-gutter-sm">
+        <q-btn
+          color='negative'
+          unelevated rounded filled
+          icon-right="eva-plus-outline"
+          v-on:click="subscribeTo()"
+          v-if="tags.length > 0"
+          label="SUBSCRIBE"
+          class="q-pa-xs">
+        </q-btn>
+      </div>
+    </q-card-actions>
   </div>
 </template>
 
 <script>
+import * as firebase from 'firebase/app';
+import {mapGetters} from "vuex";
+
 export default {
   name: "TagCreatorBar",
   data() {
@@ -47,7 +63,8 @@ export default {
     tags: {
       default: () => ([]),
       type: Array
-    }
+    },
+    allowSubscribe: Boolean,
   },
   watch: {
     tagInput: function () {
@@ -55,6 +72,9 @@ export default {
         this.addTag();
       }
     }
+  },
+  computed: {
+    ...mapGetters('user', ['currentUserRef']),
   },
   methods: {
     addTag() {
@@ -80,10 +100,11 @@ export default {
         this.tags.splice(index, 1);
       }
     },
+    subscribeTo() {
+      this.currentUserRef.update({
+        subscribedTags: firebase.firestore.FieldValue.arrayUnion(...this.tags)
+      })
+    },
   }
 }
 </script>
-
-<style scoped>
-
-</style>

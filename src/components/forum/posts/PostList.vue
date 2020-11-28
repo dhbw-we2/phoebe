@@ -1,24 +1,5 @@
 <template>
   <div>
-    <tag-creator-bar v-if="tagFilter"
-                     ref="searchBar"
-                     v-bind:tags="tags"
-                     placeholder="Filter Tags"
-                     icon="eva-funnel-outline">
-    </tag-creator-bar>
-    <q-card-actions align="right">
-      <div class="q-gutter-sm">
-        <q-btn
-          color='negative'
-          unelevated rounded filled
-          icon-right="eva-plus-outline"
-          v-on:click="subscribeTo()"
-          v-if="tags.length > 0"
-          label="SUBSCRIBE"
-          class="q-mb-sm q-pa-xs">
-        </q-btn>
-      </div>
-    </q-card-actions>
     <template v-if="!loadingSkeleton && posts.length">
       <post-view v-for="post in posts"
                  :key="post.id"
@@ -29,7 +10,7 @@
                  :user-ref="post.user"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
-                 @tag-clicked="tags = [$event]">
+                 @tag-clicked="tags.length = 0; tags.push($event)">
       </post-view>
     </template>
     <template v-else-if="!loadingSkeleton && !posts.length">
@@ -49,6 +30,7 @@ import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import {postCollection} from "src/services/firebase/db";
 
+
 export default {
   name: 'PostList',
   components: {TagCreatorBar, PostView, PostSkeleton},
@@ -58,21 +40,25 @@ export default {
       posts: [],
       loadingSkeleton: true,
       initialUpdate: true,
-      tags: [],
       pendingPosts: [],
       postQuery: Function,
       newPostsNotify: Function,
       canShowNewPostsNotify: true,
-      newestSnapshot: Function
+      newestSnapshot: Function,
     }
   },
   props: {
-    tagFilter: Boolean,
     userFilter: Object,
+    tags: {
+      type: Array,
+      default: function (){ return [] }
+    },
   },
   watch: {
     tags: function () {
+      this.$emit("tags-changed",this.tags)
       this.updateQuery();
+
     }
   },
   methods: {
@@ -137,9 +123,7 @@ export default {
       this.postQuery()
       this.newPostsNotify()
     },
-    subscribeTo(){
 
-    },
     buildQuery() {
       let query = postCollection().orderBy("date", "desc")
       if (this.userFilter) {
