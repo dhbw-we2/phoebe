@@ -30,7 +30,7 @@
               </q-item-section>
             </q-item>
             <div class="text-h5 q-pa-sm">{{ caption }}</div>
-            <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary"/>
+            <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary post-content"/>
           </q-card-section>
         </q-card-section>
       </q-card-section>

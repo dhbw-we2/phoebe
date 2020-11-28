@@ -156,6 +156,12 @@ body.body--dark
     text-decoration: none
     color: $primary
 
+.post-content
+  img
+    max-width: 90%
+    @media (min-width: $breakpoint-md-min)
+      max-width: 500px
+
 .emoji-picker-color-override
   --ep-color-bg: #{rgba($dark, 0.6)} !important
   --ep-color-sbg: #{rgba($dark, 0.3)} !important
