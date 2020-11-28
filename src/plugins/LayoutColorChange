@@ -3,7 +3,7 @@ const LayoutColorChange = {
     // 1. add global method or property
     Vue.prototype.$changeLayoutColor = function (className) {
       Vue.nextTick(function () {
-        document.getElementById('page-layout').classList = `page-background ${className}`
+        document.getElementById('background-gradient').classList = `background-gradient ${className}`
       })
     }
   }

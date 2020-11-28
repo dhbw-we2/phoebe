@@ -1,17 +1,19 @@
 <template>
-  <q-layout view="hHh LpR fFf" class="page-background" id="page-layout">
+  <q-layout view="hHh LpR fFf">
+    <div class="background-gradient" id="background-gradient"/>
+    <div class="background-gradient-darken"/>
     <q-header class="header-background" id="header">
       <q-toolbar>
         <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
 
-        <router-link to="/">
-          <q-avatar square size="55px" class="logo">
-            <img src="~assets/spreddit-logo.svg" alt="Logo">
-          </q-avatar>
-        </router-link>
         <q-toolbar-title>
-          <router-link to="/" class="logo-text" style="display: inline-block">
-            <div>spreddit</div>
+          <router-link to="/" class="logo-text-link" >
+            <div class="flex flex-inline no-wrap q-gutter-sm logo">
+              <q-avatar square size="55px">
+                <img src="~assets/spreddit-logo.svg" alt="Logo">
+              </q-avatar>
+              <div class="self-center logo-text">spreddit</div>
+            </div>
           </router-link>
         </q-toolbar-title>
 
@@ -111,7 +113,7 @@
               @mouseout="miniState = true"
               :width="200"
               :breakpoint="500"
-              >
+    >
       <q-scroll-area class="fit">
         <q-list padding class="menu-list">
           <q-item clickable v-ripple
@@ -172,23 +174,6 @@
   </q-layout>
 </template>
 
-<style lang="sass">
-.q-toolbar__title
-  font-size: 30px
-  @media (max-width: $breakpoint-xs-max)
-    text-align: center
-
-.q-toolbar
-  @media (min-width: $breakpoint-xs-min)
-    height: 70px
-
-.items-center-centered
-  display: flex
-  justify-content: center
-  align-items: center
-</style>
-
-
 <script>
 import {mapActions, mapGetters} from "vuex";
 
@@ -196,10 +181,9 @@ import {mapActions, mapGetters} from "vuex";
 window.onscroll = function () {
   const header = document.getElementById('header');
   "use strict";
-  if (document.body.scrollTop >= 50 || document.documentElement.scrollTop >= 50 ) {
+  if (document.body.scrollTop >= 50 || document.documentElement.scrollTop >= 50) {
     header.classList.add("scroll");
-  }
-  else {
+  } else {
     header.classList.remove("scroll");
   }
 };
