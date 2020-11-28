@@ -1,12 +1,15 @@
 <template>
-  <div class="q-pl-md">
+  <div>
     <q-card-section horizontal>
-      <q-card-actions vertical class="justify-center">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
-        <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
+      <q-card-actions vertical class="justify-center q-pa-none">
+        <q-icon name="eva-corner-down-right-outline" size="2em"/>
+      </q-card-actions>
+      <q-card-actions vertical class="justify-center q-pa-none q-mr-md q-ml-md" style="min-width: 4em">
+        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+        <span v-html="2000" class="text-center text-h6"></span>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
       </q-card-actions>
 
-      <q-separator vertical inset="true"/>
       <q-card-section vertical class="q-pa-sm">
         <q-card-section horizontal>
           <q-item class="q-pa-sm q-pb-md" vertical>
@@ -62,7 +65,7 @@
       </q-card-actions>
     </q-card-section>
     <q-card-section
-      class="q-pa-sm">
+      class="q-pa-none">
       <comment-list
         v-if="hasSubComments"
         :post="post"

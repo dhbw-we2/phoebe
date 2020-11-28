@@ -1,6 +1,6 @@
  <template>
   <q-slide-transition>
-    <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
+    <q-card class="card-post-text q-mb-md" flat v-show="visible">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
             <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
@@ -33,8 +33,6 @@
           </q-card-section>
         </q-card-section>
       </q-card-section>
-
-      <q-separator/>
 
       <q-card-actions align="stretch">
         <q-btn flat round icon="eva-heart-outline"/>

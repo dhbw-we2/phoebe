@@ -1,10 +1,10 @@
 <template>
   <div class="constrain q-pa-md">
-    <q-card class="card-post-text q-mb-md" flat bordered>
+    <q-card class="card-post-text q-mb-md" flat>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
         <div class="q-pa-md q-gutter-md">
           <q-input filled dark v-model="captionInput" placeholder="Catchy Caption">
@@ -17,11 +17,11 @@
           </tag-creator-bar>
         </div>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
         <spotify-search-bar class="q-pa-md"/>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
@@ -77,7 +77,7 @@ export default {
      * @returns {string}
      */
     getTitle() {
-      return this.isEdit ? 'Edit Post' : 'Create a Post'
+      return this.isEdit ? 'Edit Post' : 'New Post'
     },
     /**
      *

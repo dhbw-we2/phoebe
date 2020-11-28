@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="q-pl-lg">
       <comment-view
         v-for="comment in comments"
         :key="comment.id"
