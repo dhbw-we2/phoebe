@@ -1,14 +1,13 @@
 <template>
   <q-card class="card-post-text q-mb-md" flat bordered>
     <q-card-section horizontal>
-      <q-card-actions vertical class="justify-center">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
-        <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
+      <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
+        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+        <q-skeleton type="text" class="text-h5" height="1.5em"/>
+        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
       </q-card-actions>
 
-      <q-separator vertical inset="true"/>
-
-      <q-card-section vertical class="col-11 q-pa-sm">
+      <q-card-section vertical class="col-11 q-pa-none q-pb-sm q-pt-sm">
         <q-card-section vertical class="q-pa-sm">
           <q-item class="q-pa-sm q-pb-md">
             <q-item-section avatar>

@@ -1,16 +1,15 @@
-<template>
+ <template>
   <q-slide-transition>
     <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
       <q-card-section horizontal>
-        <q-card-actions vertical class="justify-center">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
+        <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
+            <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+            <span v-html="score" class="text-center text-h5"></span>
+            <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
         </q-card-actions>
 
-        <q-separator vertical inset="true"/>
-
-        <q-card-section vertical class="q-pa-sm">
-          <q-card-section class="q-pa-sm">
+        <q-card-section vertical class="q-pa-none q-pb-sm q-pt-sm">
+          <q-card-section class="q-pa-none">
             <q-item class="q-pa-sm q-pb-md">
               <q-item-section avatar>
                 <q-avatar v-if="avatar" size="50px">
@@ -106,7 +105,15 @@ export default {
     date: Number,
     dateEdited: Number,
     userRef: Object,
-    preview: Boolean
+    preview: Boolean,
+    upvotes: {
+      type: Array,
+      default: function () { return [] },
+    },
+    downvotes: {
+      type: Array,
+      default: function () { return [] },
+    },
   },
   data() {
     return {
@@ -120,6 +127,7 @@ export default {
       commentsShown: false,
       commentsLoading: false,
       submittingComment: false,
+      score: 200,
     }
   },
   computed: {
@@ -222,6 +230,8 @@ export default {
         }
       })
     }
+    this.score = this.upvotes.length - this.downvotes.length
+
   },
 }
 </script>
