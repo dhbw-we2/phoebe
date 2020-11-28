@@ -10,7 +10,7 @@
         <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
       </q-card-actions>
 
-      <q-card-section vertical class="q-pa-sm">
+      <q-card-section vertical class="q-pa-sm full-width">
         <q-card-section horizontal>
           <q-item class="q-pa-sm q-pb-md" vertical>
             <q-item-section avatar>
@@ -26,16 +26,16 @@
             </q-item-section>
           </q-item>
           <q-space/>
-          <q-card-actions class="text-right">
-            <q-btn flat round
-                   icon="eva-message-square-outline"
-                   @click="replyToComment"
-                   v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
-            />
+          <q-card-actions>
             <q-btn flat round
                    icon="eva-trash-2-outline"
                    v-if="postedByCurrentUser()"
-                   v-on:click="deleteComment"/>
+                   @click="deleteComment"/>
+            <q-btn flat rounded label="REPLY"
+                   icon="eva-message-circle-outline"
+                   @click="replyToComment"
+                   v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
+            />
           </q-card-actions>
         </q-card-section>
         <q-card-section v-html="(text ? text : '[removed]')" class="q-pa-sm q-pb-md links-primary"/>
@@ -48,13 +48,13 @@
         placeholderText="Very interesting Comment"
         :text-input.sync="commentInput">
       </text-editor>
-      <q-card-actions align="stretch">
+      <q-card-actions class="q-pr-none">
         <q-space/>
         <q-btn
           unelevated rounded
           color=positive
-          label="REPLY"
-          icon="eva-message-circle-outline"
+          label="SEND"
+          icon="eva-paper-plane-outline"
           type="submit"
           @click="AddReply"
           :loading="submittingReply">

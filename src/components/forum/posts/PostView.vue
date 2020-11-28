@@ -23,8 +23,9 @@
                   <span v-for="tag in tags" class="text-primary cursor-pointer"
                         @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
-                <q-item-label class="text-overline">
-                  Posted by u/{{ username }} {{ timeSincePostCreated }} ago
+                <q-item-label class="text-overline inline-block">
+                  <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
+                  <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -35,19 +36,13 @@
       </q-card-section>
 
       <q-card-actions align="stretch">
-        <q-btn flat round icon="eva-heart-outline"/>
-        <q-btn flat round
-               v-on:click="showHideComments"
-               icon="eva-message-square-outline"
-               :loading="commentsLoading"/>
-        <q-btn flat round
-               icon="eva-save-outline"/>
-        <q-btn flat round
-               icon="eva-more-horizontal-outline"/>
+        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" @click="deletePost"/>
+        <q-btn flat round icon="eva-edit-outline" v-if="postedByCurrentUser() && !preview" @click="editPost"/>
         <q-space/>
-        <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
+        <q-btn flat round icon="eva-message-square-outline"
+               @click="showHideComments"
+               :loading="commentsLoading"/>
+        <q-btn flat round icon="eva-bookmark-outline"/>
       </q-card-actions>
       <q-slide-transition appear :duration=300>
         <div v-if="commentsActive" v-show="commentsShown">
@@ -63,8 +58,8 @@
               <q-btn
                 unelevated rounded
                 color=positive
-                label="POST COMMENT"
-                icon="eva-message-circle-outline"
+                label="SEND"
+                icon="eva-paper-plane-outline"
                 type="submit"
                 @click="addComment($event);"
                 :loading="submittingComment">

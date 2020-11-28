@@ -25,10 +25,9 @@
     </q-card-section>
 
     <q-card-actions align="stretch">
-      <q-btn flat round icon="eva-heart-outline"/>
-      <q-btn flat round icon="eva-message-square-outline"/>
-      <q-btn flat round icon="eva-save-outline"/>
-      <q-btn flat round icon="eva-more-horizontal-outline"/>
+      <q-space/>
+      <q-btn flat round icon="eva-message-square-outline" disable/>
+      <q-btn flat round icon="eva-bookmark-outline" disable/>
     </q-card-actions>
   </q-card>
 </template>
