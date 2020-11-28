@@ -7,8 +7,8 @@
         <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
       </q-card-actions>
 
-      <q-card-section vertical class="col-11 q-pa-none q-pb-sm q-pt-sm">
-        <q-card-section vertical class="q-pa-sm">
+      <q-card-section vertical class="col-10 q-pa-none q-pb-sm q-pt-sm">
+        <q-card-section vertical class="q-pa-none">
           <q-item class="q-pa-sm q-pb-md">
             <q-item-section avatar>
               <q-skeleton type="QAvatar" size="50px"/>
