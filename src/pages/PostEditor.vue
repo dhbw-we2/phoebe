@@ -19,7 +19,7 @@
       </q-card-section>
       <q-separator/>
       <q-card-section>
-        <spotify-search-bar class="q-pa-md" />
+        <spotify-search-bar class="q-pa-md"/>
       </q-card-section>
       <q-separator/>
       <q-card-section>
@@ -235,6 +235,7 @@ export default {
         this.$router.push({name: 'newPost'})
       }
     }
+    this.$changeLayoutColor('posteditor')
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form

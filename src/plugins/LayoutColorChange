@@ -1,0 +1,12 @@
+const LayoutColorChange = {
+  install(Vue) {
+    // 1. add global method or property
+    Vue.prototype.$changeLayoutColor = function (className) {
+      Vue.nextTick(function () {
+        document.getElementById('page-layout').classList = `page-background ${className}`
+      })
+    }
+  }
+}
+
+export default LayoutColorChange

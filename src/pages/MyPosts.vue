@@ -25,5 +25,8 @@ export default {
     this.$refs.postList.clearQuery()
     next();
   },
+  created() {
+    this.$changeLayoutColor('myposts')
+  }
 }
 </script>

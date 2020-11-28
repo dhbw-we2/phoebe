@@ -1,7 +1,6 @@
 <template>
-  <q-layout view="hHh LpR fFf">
-
-    <q-header elevated class="bg-dark">
+  <q-layout view="hHh LpR fFf" class="page-background" id="page-layout">
+    <q-header class="header-background" id="header">
       <q-toolbar>
         <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
 
@@ -111,7 +110,8 @@
               @mouseover="miniState = false"
               @mouseout="miniState = true"
               :width="200"
-              :breakpoint="500">
+              :breakpoint="500"
+              >
       <q-scroll-area class="fit">
         <q-list padding class="menu-list">
           <q-item clickable v-ripple
@@ -188,8 +188,21 @@
   align-items: center
 </style>
 
+
 <script>
 import {mapActions, mapGetters} from "vuex";
+
+// Scroll event handler to change the header opacity
+window.onscroll = function () {
+  const header = document.getElementById('header');
+  "use strict";
+  if (document.body.scrollTop >= 50 || document.documentElement.scrollTop >= 50 ) {
+    header.classList.add("scroll");
+  }
+  else {
+    header.classList.remove("scroll");
+  }
+};
 
 export default {
   data() {
