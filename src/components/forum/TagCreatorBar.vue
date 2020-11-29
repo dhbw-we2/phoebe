@@ -99,6 +99,7 @@ export default {
       if (index !== -1) {
         this.tags.splice(index, 1);
       }
+
     },
     subscribeTo() {
       this.currentUserRef.update({
