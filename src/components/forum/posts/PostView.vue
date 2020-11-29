@@ -9,27 +9,27 @@
         </q-card-actions>
         <div class="full-width">
           <q-card-section vertical class="q-pl-none q-pb-none">
-              <q-item class="q-pl-none q-pr-none q-pb-md">
-                <q-item-section avatar>
-                  <q-avatar v-if="avatar" size="50px">
-                    <q-img :src="avatar" alt="Avatar"/>
-                  </q-avatar>
-                  <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
-                </q-item-section>
+            <q-item class="q-pl-none q-pr-none q-pb-md">
+              <q-item-section avatar>
+                <q-avatar v-if="avatar" size="60px">
+                  <q-img :src="avatar" alt="Avatar"/>
+                </q-avatar>
+                <q-avatar size="60px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+              </q-item-section>
 
-                <q-item-section>
-                  <q-item-label>
+              <q-item-section>
+                <q-item-label>
                   <span v-for="tag in tags" class="text-primary cursor-pointer"
                         @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
-                  </q-item-label>
-                  <q-item-label class="text-overline inline-block">
-                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
-                    <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <div class="text-h5 q-pb-sm">{{ caption }}</div>
-              <q-card-section v-html="text" class="q-pa-none q-pb-md links-primary post-content"/>
+                </q-item-label>
+                <q-item-label class="text-overline inline-block">
+                  <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
+                  <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <div class="text-h5 q-pb-sm">{{ caption }}</div>
+            <q-card-section v-html="text" class="q-pa-none links-primary post-content"/>
           </q-card-section>
           <q-card-actions class="full-width">
             <q-space/>
@@ -43,17 +43,16 @@
         </div>
 
       </q-card-section>
-
       <q-slide-transition appear :duration=300>
         <div v-if="commentsActive" v-show="commentsShown">
-          <q-separator/>
+          <q-separator inset="true"/>
           <q-card-section v-if="$store.state.auth.isAuthenticated">
             <text-editor
               class="relative-position"
               placeholderText="Very interesting Comment"
               :text-input.sync="commentInput">
             </text-editor>
-            <q-card-actions align="stretch">
+            <q-card-actions class="q-pr-none">
               <q-space/>
               <q-btn
                 unelevated rounded
@@ -69,7 +68,7 @@
               </q-btn>
             </q-card-actions>
           </q-card-section>
-          <q-card-section class="q-pt-none">
+          <q-card-section class="q-pa-none">
             <comment-list ref="commentList"
                           :post="id"
                           @comments-loaded="commentsLoaded"/>

@@ -1,78 +1,88 @@
 <template>
-  <div>
-    <q-card-section horizontal>
-      <q-card-actions vertical class="justify-center q-pa-none">
-        <q-icon name="eva-corner-down-right-outline" size="2em"/>
-      </q-card-actions>
-      <q-card-actions vertical class="justify-center q-pa-none q-mr-md q-ml-md" style="min-width: 4em">
-        <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
-        <span v-html="2000" class="text-center text-h6"></span>
-        <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
-      </q-card-actions>
 
-      <q-card-section vertical class="q-pa-sm full-width">
-        <q-card-section horizontal>
-          <q-item class="q-pa-sm q-pb-md" vertical>
-            <q-item-section avatar>
-              <q-avatar v-if="avatar" size="50px">
-                <q-img :src="avatar" alt="Avatar"/>
-              </q-avatar>
-              <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }} ago
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-space/>
-          <q-card-actions>
-            <q-btn flat round
-                   icon="eva-trash-2-outline"
-                   v-if="postedByCurrentUser()"
-                   @click="deleteComment"/>
-            <q-btn flat rounded label="REPLY"
-                   icon="eva-message-circle-outline"
-                   @click="replyToComment"
-                   v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
-            />
-          </q-card-actions>
+  <q-slide-transition appear :duration=300>
+
+    <div>
+      <q-card-section horizontal>
+        <q-card-actions vertical class="justify-center">
+          <q-icon name="eva-corner-down-right-outline" size="2em"/>
+        </q-card-actions>
+        <q-separator vertical inset="true"/>
+        <q-card-section class="full-width q-pa-none">
+          <q-card-section horizontal>
+            <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
+              <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+              <span v-html="0" class="text-center text-h6"></span>
+              <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+            </q-card-actions>
+
+            <q-card-section vertical class="q-pa-none full-width">
+              <q-card-section horizontal>
+                <q-item class="q-pa-none q-pt-sm" vertical>
+                  <q-item-section avatar>
+                    <q-avatar v-if="avatar" size="50px">
+                      <q-img :src="avatar" alt="Avatar"/>
+                    </q-avatar>
+                    <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-caption">
+                      Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }} ago
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-space/>
+                <q-card-actions>
+                  <q-btn flat round
+                         icon="eva-trash-2-outline"
+                         v-if="postedByCurrentUser()"
+                         @click="deleteComment"/>
+                  <q-btn flat rounded label="REPLY"
+                         icon="eva-message-circle-outline"
+                         @click="replyToComment"
+                         v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
+                  />
+                </q-card-actions>
+              </q-card-section>
+              <q-card-section v-html="(text ? text : '[removed]')" class="q-pl-none links-primary"/>
+            </q-card-section>
+          </q-card-section>
+          <q-separator/>
         </q-card-section>
-        <q-card-section v-html="(text ? text : '[removed]')" class="q-pa-sm q-pb-md links-primary"/>
       </q-card-section>
-    </q-card-section>
-    <q-separator/>
-    <q-card-section v-if="replying">
-      <text-editor
-        class="relative-position"
-        placeholderText="Very interesting Comment"
-        :text-input.sync="commentInput">
-      </text-editor>
-      <q-card-actions class="q-pr-none">
-        <q-space/>
-        <q-btn
-          unelevated rounded
-          color=positive
-          label="SEND"
-          icon="eva-paper-plane-outline"
-          type="submit"
-          @click="AddReply"
-          :loading="submittingReply">
-          <template v-slot:loading>
-            <q-spinner-dots/>
-          </template>
-        </q-btn>
-      </q-card-actions>
-    </q-card-section>
-    <q-card-section
-      class="q-pa-none">
-      <comment-list
-        v-if="hasSubComments"
-        :post="post"
-        :comment-id="id"
-        :inherited-comments="allComments"/>
-    </q-card-section>
-  </div>
+
+      <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
+        <text-editor
+          class="relative-position"
+          placeholderText="Very interesting Comment"
+          :text-input.sync="commentInput">
+        </text-editor>
+        <q-card-actions class="q-pr-none">
+          <q-space/>
+          <q-btn
+            unelevated rounded
+            color=positive
+            label="SEND"
+            icon="eva-paper-plane-outline"
+            type="submit"
+            @click="AddReply"
+            :loading="submittingReply">
+            <template v-slot:loading>
+              <q-spinner-dots/>
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-card-section>
+      <q-card-section
+        class="q-pa-none">
+        <comment-list
+          v-if="hasSubComments"
+          :post="post"
+          :comment-id="id"
+          :inherited-comments="allComments"/>
+      </q-card-section>
+    </div>
+  </q-slide-transition>
 </template>
 
 <script>
@@ -140,9 +150,9 @@ export default {
         text: this.sanitizedComment,
         parentComment: commentRef(this.id),
         post: postRef(this.post)
-      }).then(()=> {
+      }).then(() => {
         this.commentInput = ''
-      }).catch((error) =>  {
+      }).catch((error) => {
         console.error("Error adding comment to firebase: ", error);
         this.replying = true
       }).finally(() => {
