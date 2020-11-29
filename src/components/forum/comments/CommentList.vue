@@ -67,7 +67,7 @@ export default {
       })
       this.allComments = comments;
       this.loadTopLevelComments()
-      this.$emit('comments-loaded')
+      this.$emit('comments-received')
     },
     loadTopLevelComments() {
       this.comments = []

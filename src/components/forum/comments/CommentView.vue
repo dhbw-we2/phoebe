@@ -1,7 +1,5 @@
 <template>
-
-  <q-slide-transition appear :duration=300>
-
+  <q-slide-transition appear :duration=150 @show="onTransitionEnd">
     <div>
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center">
@@ -50,33 +48,34 @@
           <q-separator/>
         </q-card-section>
       </q-card-section>
-
-      <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
-        <text-editor
-          class="relative-position"
-          placeholderText="Very interesting Comment"
-          :text-input.sync="commentInput">
-        </text-editor>
-        <q-card-actions class="q-pr-none">
-          <q-space/>
-          <q-btn
-            unelevated rounded
-            color=positive
-            label="SEND"
-            icon="eva-paper-plane-outline"
-            type="submit"
-            @click="AddReply"
-            :loading="submittingReply">
-            <template v-slot:loading>
-              <q-spinner-dots/>
-            </template>
-          </q-btn>
-        </q-card-actions>
-      </q-card-section>
+      <q-slide-transition appear>
+        <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
+          <text-editor
+            ref="editor"
+            placeholderText="Very interesting Comment"
+            :text-input.sync="commentInput">
+          </text-editor>
+          <q-card-actions class="q-pr-none">
+            <q-space/>
+            <q-btn
+              unelevated rounded
+              color=positive
+              label="SEND"
+              icon="eva-paper-plane-outline"
+              type="submit"
+              @click="AddReply"
+              :loading="submittingReply">
+              <template v-slot:loading>
+                <q-spinner-dots/>
+              </template>
+            </q-btn>
+          </q-card-actions>
+        </q-card-section>
+      </q-slide-transition>
       <q-card-section
-        class="q-pa-none">
+        class="q-pa-none"
+        v-if="hasSubComments && transitionEnded">
         <comment-list
-          v-if="hasSubComments"
           :post="post"
           :comment-id="id"
           :inherited-comments="allComments"/>
@@ -117,6 +116,7 @@ export default {
       uid: null,
       now: new Date().getTime(),
       submittingReply: false,
+      transitionEnded: false,
     }
   },
   computed: {
@@ -134,6 +134,9 @@ export default {
     }
   },
   methods: {
+    onTransitionEnd() {
+      this.transitionEnded = true
+    },
     AddReply() {
       if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
@@ -142,8 +145,8 @@ export default {
         })
         return
       }
+      this.submittingReply = true
       this.replying = false
-      this.submittingReply = true;
       commentCollection().add({
         date: new Date().getTime(),
         user: this.currentUserRef,
@@ -161,6 +164,12 @@ export default {
     },
     replyToComment() {
       this.replying = !this.replying
+      if (this.replying) {
+        // Focus on text input; Using timeout because nothing else works
+        setTimeout(() => {
+          if (this.$refs.editor) this.$refs.editor.$refs.editor.focus()
+        }, 50)
+      }
     },
     deleteComment() {
       this.$q.dialog({

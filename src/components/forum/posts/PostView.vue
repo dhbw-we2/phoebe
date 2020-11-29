@@ -43,12 +43,12 @@
         </div>
 
       </q-card-section>
-      <q-slide-transition appear :duration=300>
-        <div v-if="commentsActive" v-show="commentsShown">
-          <q-separator inset="true"/>
+      <q-slide-transition appear :duration=300 @hide="onCommentsHidden" @show="onCommentsShowTransitionEnd">
+        <div v-show="commentsShown">
           <q-card-section v-if="$store.state.auth.isAuthenticated">
+            <q-separator inset="true"/>
             <text-editor
-              class="relative-position"
+              ref="editor"
               placeholderText="Very interesting Comment"
               :text-input.sync="commentInput">
             </text-editor>
@@ -68,10 +68,10 @@
               </q-btn>
             </q-card-actions>
           </q-card-section>
-          <q-card-section class="q-pa-none">
+          <q-card-section class="q-pa-none" v-if="commentsActive">
             <comment-list ref="commentList"
                           :post="id"
-                          @comments-loaded="commentsLoaded"/>
+                          @comments-received="onCommentsReceived"/>
           </q-card-section>
         </div>
       </q-slide-transition>
@@ -141,7 +141,13 @@ export default {
     }
   },
   methods: {
-    commentsLoaded() {
+    onCommentsShowTransitionEnd() {
+      this.commentsActive = true
+    },
+    onCommentsHidden() {
+      this.commentsActive = false;
+    },
+    onCommentsReceived() {
       this.commentsShown = true
       this.commentsLoading = false
     },
@@ -149,7 +155,13 @@ export default {
       if (!this.commentsShown) {
         if (!this.commentsActive) {
           this.commentsLoading = true
-          this.commentsActive = true
+          this.commentsShown = true
+          // Focus on text input
+          this.$nextTick(() => {
+            if(this.$refs.editor) {
+              this.$refs.editor.$refs.editor.focus()
+            }
+          })
         } else {
           this.commentsShown = true
         }
