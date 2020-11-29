@@ -34,7 +34,7 @@
           icon-right="eva-close-outline"
           color=negative
           label="close"
-          to="/"
+          @click="$router.go(-1)"
         />
         <q-btn
           unelevated rounded
@@ -171,7 +171,7 @@ export default {
           text: this.sanitizedText,
           dateEdited: new Date().getTime()
         }).then(() => {
-          this.$router.push('/')
+          this.$router.go(-1)
         }).catch((err) => {
           this.$q.notify({
             message: err,
