@@ -6,6 +6,7 @@
                 :placeholder=placeholderText
                 :dense="$q.screen.lt.md"
                 @paste.native="evt => pasteCapture(evt)"
+                @drop.prevent
                 content-class="links-primary"
                 :toolbar="
                 [
