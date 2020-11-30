@@ -166,9 +166,12 @@ export default {
       this.replying = !this.replying
       if (this.replying) {
         this.$refs.commentView.scrollIntoView({block: 'start', behavior: 'smooth'});
-        setTimeout(() => {
-          if (this.$refs.editor) this.$refs.editor.$refs.editor.focus()
-        }, 500)
+        //Focus text editor if device is non-touch
+        if (!this.$q.platform.has.touch) {
+          setTimeout(() => {
+            if (this.$refs.editor) this.$refs.editor.$refs.editor.focus()
+          }, 500)
+        }
       }
     },
     deleteComment() {
