@@ -8,11 +8,22 @@
       </template>
       <template v-slot:append>
         <q-btn
+          v-if="!changeToSubscribe"
           unelevated rounded
-          label="Add Tag"
           icon="eva-plus-outline"
           type="submit"
+          label="ADD TAG"
+          ref="AddTagLabel"
           v-on:click="addTag"
+        />
+        <q-btn
+          v-if="changeToSubscribe"
+          unelevated rounded
+          icon="eva-person-add-outline"
+          type="submit"
+          label="SUBSCRIBE TO TAG"
+          ref="AddTagLabel"
+          v-on:click="subscribeTo([...tagInput]); addTag()"
         />
       </template>
     </q-input>
@@ -33,8 +44,8 @@
         <q-btn
           color='negative'
           unelevated rounded filled
-          icon-right="eva-plus-outline"
-          v-on:click="subscribeTo()"
+          icon-right="eva-person-add-outline"
+          v-on:click="subscribeTo(tags)"
           v-if="tags.length > 0"
           label="SUBSCRIBE"
           class="q-pa-xs">
@@ -56,6 +67,7 @@ export default {
     }
   },
   props: {
+    changeToSubscribe: Boolean,
     placeholder: String,
     icon: {
       default: 'eva-hash-outline',
@@ -99,13 +111,13 @@ export default {
       if (index !== -1) {
         this.tags.splice(index, 1);
       }
-
+      this.$emit('remove-tag', tag)
     },
-    subscribeTo() {
+    subscribeTo(tags) {
       this.currentUserRef.update({
-        subscribedTags: firebase.firestore.FieldValue.arrayUnion(...this.tags)
+        subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tags)
       })
     },
-  }
+  },
 }
 </script>

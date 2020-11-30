@@ -2,6 +2,7 @@
   <q-page class="constrain q-pa-md">
     <tag-creator-bar
       :tags="tags"
+      change-to-subscribe
       placeholder="Filter Tags"
       icon="eva-funnel-outline"
       @remove-tag="removeTag($event)"/>
@@ -13,7 +14,6 @@
 </template>
 
 <script>
-import {postCollection} from "src/services/firebase/db";
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import PostList from "components/forum/posts/PostList";
 import {mapGetters} from "vuex";
@@ -32,24 +32,20 @@ export default {
   },
   methods: {
     getSubscriptionTags() {
-      this.tags = this.currentUser.subscribedTags
-    },
-    showPosts(){
-      let query = postCollection().orderBy("date", "asc")
-      if(this.tags.length > 0){
-        query = query.where("tags", "array-contains-any", this.tags )
-      }
+      this.tags = [...this.currentUser.subscribedTags]
     },
     removeTag(tag){
-      console.log('hey')
       this.currentUserRef.update({
-        subscribedTags: firebase.firestore.FieldValue.arrayRemove(...tag)
+        subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
       })
     },
   },
   created() {
     this.getSubscriptionTags()
-    this.showPosts()
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$refs.postList.clearQuery()
+    next();
   },
 }
 
