@@ -19,8 +19,8 @@
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags" class="text-primary cursor-pointer"
-                        @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                      <span v-for="tag in tags" class="text-primary cursor-pointer text-subtitle1"
+                            @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
                 <q-item-label class="text-overline inline-block">
                   <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
@@ -158,7 +158,7 @@ export default {
           this.commentsShown = true
           // Focus on text input
           this.$nextTick(() => {
-            if(this.$refs.editor) {
+            if (this.$refs.editor) {
               this.$refs.editor.$refs.editor.focus()
             }
           })
