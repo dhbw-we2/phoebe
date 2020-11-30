@@ -45,7 +45,7 @@
           color=positive
           label="submit"
           @click="submitPost"
-          :disable="postSubmitted"
+          :loading="postSubmitted"
         />
       </q-card-actions>
     </q-card>
@@ -179,6 +179,7 @@ export default {
             message: err,
             type: 'negative'
           })
+          this.postSubmitted = false
         })
       } else {
         //Submit new post
@@ -189,12 +190,13 @@ export default {
           date: new Date().getTime(),
           user: this.currentUserRef,
         }).then(() => {
-          this.$router.push('/')
+          this.$router.push({name: 'forum'})
         }).catch((err) => {
           this.$q.notify({
             message: err,
             type: 'negative'
           })
+          this.postSubmitted = false
         })
       }
     },
