@@ -3,11 +3,12 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {path: '', redirect: 'home'},
-      {path: 'home', component: () => import('pages/PageHome.vue')},
-      {path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true}},
-      {path: 'error', component: () => import('pages/Error404')},
-      {path: 'profile', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
+      {path: '', redirect: 'MyFeed'},
+      {path: 'home',    component: () => import('pages/PageHome.vue')},
+      {path: 'myPosts', component: () => import('pages/MyPosts.vue'),   meta: {requiresAuth: true}},
+      {path: 'error',   component: () => import('pages/Error404')},
+      {path: 'profile', component: () => import('pages/UserProfile'),   meta: {requiresAuth: true}},
+      {path: 'MyFeed',  component: () => import('pages/MyFeed'),        meta: {requiresAuth: true}},
     ]
   },
   {

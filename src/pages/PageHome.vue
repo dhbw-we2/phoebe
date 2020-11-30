@@ -1,7 +1,16 @@
 <template>
   <q-page class="constrain q-pa-md">
-    <PostList ref="postList"
-              tag-filter/>
+    <tag-creator-bar
+      :tags="tags"
+      placeholder="Filter Tags"
+      icon="eva-funnel-outline"
+      allow-subscribe/>
+    <PostList
+      ref="postList"
+      :tags="tags"
+      @tags-changed="tags = $event"
+    />
+
   </q-page>
 </template>
 
@@ -14,7 +23,9 @@ export default {
   components: {PostList, TagCreatorBar},
 
   data() {
-    return {}
+    return {
+      tags: [],
+    }
   },
   beforeRouteLeave(to, from, next) {
     this.$refs.postList.clearQuery()

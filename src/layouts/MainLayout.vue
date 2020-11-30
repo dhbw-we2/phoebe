@@ -116,10 +116,19 @@
               @mouseover="miniState = false"
               @mouseout="miniState = true"
               :width="200"
-              :breakpoint="500"
-    >
+              :breakpoint="500">
       <q-scroll-area class="fit">
         <q-list padding class="menu-list">
+          <q-item clickable v-ripple
+                  to="/myFeed">
+            <q-item-section avatar>
+              <q-icon name="eva-home-outline"/>
+            </q-item-section>
+            <q-item-section>
+              My Feed
+            </q-item-section>
+          </q-item>
+
           <q-item clickable v-ripple
                   to="/home">
             <q-item-section avatar>
@@ -159,14 +168,6 @@
             </q-item-section>
           </q-item>
 
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="eva-bell-outline"/>
-            </q-item-section>
-            <q-item-section>
-              Notifications
-            </q-item-section>
-          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>

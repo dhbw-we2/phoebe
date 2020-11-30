@@ -230,7 +230,7 @@ export default {
     if (this.isEdit) {
       if (this.$route.params.id) {
         this.$q.loading.show()
-        this.restoreIfEdit();
+        this.restoreIfEdit()
       } else {
         this.$router.push({name: 'newPost'})
       }

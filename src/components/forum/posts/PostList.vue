@@ -1,12 +1,5 @@
 <template>
   <div>
-    <tag-creator-bar v-if="tagFilter"
-                     ref="searchBar"
-                     v-bind:tags="tags"
-                     placeholder="Filter Tags"
-                     icon="eva-funnel-outline"
-                     class="q-pb-md">
-    </tag-creator-bar>
     <template v-if="!loadingSkeleton && posts.length">
       <post-view v-for="post in posts"
                  :key="post.id"
@@ -19,7 +12,7 @@
                  :date-edited="post.dateEdited"
                  :upvotes="post.upvotes"
                  :downvotes="post.downvotes"
-                 @tag-clicked="tags = [$event]">
+                 @tag-clicked="tags.length = 0; tags.push($event)">
       </post-view>
     </template>
     <template v-else-if="!loadingSkeleton && !posts.length">
@@ -48,20 +41,23 @@ export default {
       posts: [],
       loadingSkeleton: true,
       initialUpdate: true,
-      tags: [],
       pendingPosts: [],
       postQuery: Function,
       newPostsNotify: Function,
       canShowNewPostsNotify: true,
-      newestSnapshot: Function
+      newestSnapshot: Function,
     }
   },
   props: {
-    tagFilter: Boolean,
     userFilter: Object,
+    tags: {
+      type: Array,
+      default: function (){ return [] }
+    },
   },
   watch: {
     tags: function () {
+      this.$emit("tags-changed",this.tags)
       this.updateQuery();
     }
   },
