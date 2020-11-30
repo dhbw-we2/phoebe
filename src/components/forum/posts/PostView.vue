@@ -150,11 +150,14 @@ export default {
         this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
       }
       this.commentsActive = true
-      setTimeout(() => {
-        if (this.$refs.editor) {
-          this.$refs.editor.$refs.editor.focus()
-        }
-      }, 500)
+      //Focus text editor if device is non-touch
+      if(!this.$q.platform.has.touch) {
+        setTimeout(() => {
+          if (this.$refs.editor) {
+            this.$refs.editor.$refs.editor.focus()
+          }
+        }, 500)
+      }
     },
     onCommentsHidden() {
       this.commentsActive = false;
