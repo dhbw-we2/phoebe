@@ -8,21 +8,19 @@
       </template>
       <template v-slot:append>
         <q-btn
-          v-if="!allowSubscribe"
+          v-if="!subscriptionBox"
           unelevated rounded
           icon="eva-plus-outline"
           type="submit"
           label="ADD TAG"
-          ref="AddTagLabel"
           @click="addTag"
         />
         <q-btn
-          v-if="allowSubscribe"
+          v-if="subscriptionBox"
           unelevated rounded
           icon="eva-person-add-outline"
           type="submit"
           label="SUBSCRIBE TO TAG"
-          ref="AddTagLabel"
           @click="addTag"
         />
       </template>
@@ -39,6 +37,16 @@
         {{ tag }}
       </q-btn>
     </div>
+    <q-card-actions align="right" v-if="allowSubscribe && tags.length > 0">
+        <q-btn
+          color='negative'
+          unelevated rounded filled
+          icon-right="eva-person-add-outline"
+          @click="subscribeButton"
+          :loading="subscribing"
+          label="SUBSCRIBE">
+        </q-btn>
+    </q-card-actions>
   </div>
 </template>
 
@@ -51,6 +59,7 @@ export default {
   data() {
     return {
       tagInput: '',
+      subscribing: false
     }
   },
   props: {
@@ -63,6 +72,7 @@ export default {
       type: Array
     },
     allowSubscribe: Boolean,
+    subscriptionBox: Boolean,
   },
   watch: {
     tagInput: function () {
@@ -82,7 +92,7 @@ export default {
           const index = this.tags.indexOf(newTag);
           if (index === -1) {
             this.tags.push(newTag);
-            if(this.allowSubscribe)
+            if(this.subscriptionBox)
             this.subscribeTo([newTag]);
           }
         }
@@ -101,8 +111,8 @@ export default {
       }
       this.$emit('remove-tag', tag)
     },
-    subscribeTo(tag) {
-      this.currentUserRef.update({
+    async subscribeTo(tag) {
+      await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tag)
       })
     },
@@ -111,9 +121,25 @@ export default {
         this.tags.push(...this.currentUser.subscribedTags)
       }
     },
+    async subscribeButton() {
+      this.subscribing = true
+      try{
+        await this.subscribeTo(this.tags)
+        this.$q.notify({
+          type: 'positive',
+          message: 'Subscription added'
+        })
+      } catch (err) {
+        this.$q.notify({
+          type: 'negative',
+          message: `Could not add subscription: ${err}`
+        })
+      }
+      this.subscribing = false
+    }
   },
   created() {
-    if(this.allowSubscribe){
+    if(this.subscriptionBox){
       this.getSubscriptions()
     }
   }
