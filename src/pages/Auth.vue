@@ -179,9 +179,11 @@ export default {
           }
         })
       })
-
     }
   },
+  created() {
+    this.$changeBackgroundColor('auth')
+  }
 }
 </script>
 

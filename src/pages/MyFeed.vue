@@ -42,7 +42,7 @@ export default {
     },
   },
   created() {
-    this.$changeBackgroundColor('forum')
+    this.$changeBackgroundColor('feed')
   },
   beforeRouteLeave(to, from, next) {
     if(this.$refs.postList){
