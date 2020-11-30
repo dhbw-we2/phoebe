@@ -1,10 +1,10 @@
 <template>
   <div class="constrain q-pa-md">
-    <q-card class="card-post-text q-mb-md" flat bordered>
+    <q-card class="card-post-text q-mb-md" flat>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
         <div class="q-pa-md q-gutter-md">
           <q-input filled dark v-model="captionInput" placeholder="Catchy Caption">
@@ -17,11 +17,11 @@
           </tag-creator-bar>
         </div>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar class="q-pa-md" />
+        <spotify-search-bar class="q-pa-md"/>
       </q-card-section>
-      <q-separator/>
+      <q-separator inset="true"/>
       <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
@@ -34,7 +34,7 @@
           icon-right="eva-close-outline"
           color=negative
           label="close"
-          to="/"
+          @click="$router.go(-1)"
         />
         <q-btn
           unelevated rounded
@@ -77,7 +77,7 @@ export default {
      * @returns {string}
      */
     getTitle() {
-      return this.isEdit ? 'Edit Post' : 'Create a Post'
+      return this.isEdit ? 'Edit Post' : 'New Post'
     },
     /**
      *
@@ -171,7 +171,7 @@ export default {
           text: this.sanitizedText,
           dateEdited: new Date().getTime()
         }).then(() => {
-          this.$router.push('/')
+          this.$router.go(-1)
         }).catch((err) => {
           this.$q.notify({
             message: err,
@@ -235,6 +235,7 @@ export default {
         this.$router.push({name: 'newPost'})
       }
     }
+    this.$changeBackgroundColor('post-editor')
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form

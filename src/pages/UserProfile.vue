@@ -1,7 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
     <div>
-      <q-card class="my-card">
+      <q-card flat class="my-card" >
         <q-card-section>
           <p class="text-center text-h4 no-margin">User Profile</p>
         </q-card-section>
@@ -230,6 +230,7 @@ export default {
     },
   },
   created() {
+    this.$changeBackgroundColor('user-profile')
     this.updateSpotifyUsername()
   }
 }
