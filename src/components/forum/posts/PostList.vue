@@ -17,6 +17,8 @@
                  :user-ref="post.user"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
+                 :upvotes="post.upvotes"
+                 :downvotes="post.downvotes"
                  @tag-clicked="tags = [$event]">
       </post-view>
     </template>

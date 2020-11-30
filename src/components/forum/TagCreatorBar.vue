@@ -1,21 +1,22 @@
 <template>
   <div>
-    <q-input filled bottom-slots dark v-model="tagInput"
-             :placeholder="placeholder"
-             v-on:keypress.space.enter.prevent="addTag">
-      <template v-slot:prepend>
-        <q-icon :name="icon"/>
-      </template>
-      <template v-slot:append>
-        <q-btn
-          unelevated rounded
-          label="Add Tag"
-          icon="eva-plus-outline"
-          type="submit"
-          v-on:click="addTag"
-        />
-      </template>
-    </q-input>
+      <q-input filled bottom-slots
+               v-model="tagInput"
+               :placeholder="placeholder"
+               v-on:keypress.space.enter.prevent="addTag">
+        <template v-slot:prepend>
+          <q-icon :name="icon"/>
+        </template>
+        <template v-slot:append>
+          <q-btn
+            unelevated rounded
+            label="Add Tag"
+            icon="eva-plus-outline"
+            type="submit"
+            v-on:click="addTag"
+          />
+        </template>
+      </q-input>
     <div class="q-gutter-sm">
       <q-btn
         color='positive'
@@ -83,7 +84,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

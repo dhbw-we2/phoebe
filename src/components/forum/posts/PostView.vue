@@ -1,73 +1,64 @@
 <template>
   <q-slide-transition>
-    <q-card class="card-post-text q-mb-md" flat bordered v-show="visible">
+    <q-card class="card-post-text q-mb-md" flat v-show="visible">
       <q-card-section horizontal>
-        <q-card-actions vertical class="justify-center">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline" class="q-mb-lg"/>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline" class="q-mt-lg"/>
+        <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
+          <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+          <span v-html="score" class="text-center text-h5"></span>
+          <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
         </q-card-actions>
-
-        <q-separator vertical inset="true"/>
-
-        <q-card-section vertical class="q-pa-sm">
-          <q-card-section class="q-pa-sm">
-            <q-item class="q-pa-sm q-pb-md">
+        <div class="full-width">
+          <q-card-section vertical class="q-pl-none q-pb-none">
+            <q-item class="q-pl-none q-pr-none q-pb-md">
               <q-item-section avatar>
-                <q-avatar v-if="avatar" size="50px">
+                <q-avatar v-if="avatar" size="60px">
                   <q-img :src="avatar" alt="Avatar"/>
                 </q-avatar>
-                <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+                <q-avatar size="60px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
               </q-item-section>
 
               <q-item-section>
                 <q-item-label>
-                  <span v-for="tag in tags" class="text-primary cursor-pointer"
-                        @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                      <span v-for="tag in tags" class="text-primary cursor-pointer text-subtitle1"
+                            @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                 </q-item-label>
-                <q-item-label class="text-overline">
-                  Posted by u/{{ username }} {{ timeSincePostCreated }} ago
+                <q-item-label class="text-overline inline-block">
+                  <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
+                  <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
                 </q-item-label>
               </q-item-section>
             </q-item>
-            <div class="text-h5 q-pa-sm">{{ caption }}</div>
-            <q-card-section v-html="text" class="q-pa-sm q-pb-md links-primary"/>
+            <div class="text-h5 q-pb-sm">{{ caption }}</div>
+            <q-card-section v-html="text" class="q-pa-none links-primary post-content"/>
           </q-card-section>
-        </q-card-section>
+          <q-card-actions class="full-width">
+            <q-space/>
+            <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" @click="deletePost"/>
+            <q-btn flat round icon="eva-edit-outline" v-if="postedByCurrentUser() && !preview" @click="editPost"/>
+            <q-btn flat round icon="eva-message-square-outline"
+                   @click="showHideComments"
+                   :loading="commentsLoading"/>
+            <q-btn flat round icon="eva-bookmark-outline"/>
+          </q-card-actions>
+        </div>
+
       </q-card-section>
-
-      <q-separator/>
-
-      <q-card-actions align="stretch">
-        <q-btn flat round icon="eva-heart-outline"/>
-        <q-btn flat round
-               v-on:click="showHideComments"
-               icon="eva-message-square-outline"
-               :loading="commentsLoading"/>
-        <q-btn flat round
-               icon="eva-save-outline"/>
-        <q-btn flat round
-               icon="eva-more-horizontal-outline"/>
-        <q-space/>
-        <div v-if="dateEdited" class="text-overline"> (edited {{ timeSincePostEdited }} ago)</div>
-        <q-btn flat round icon="eva-edit-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="editPost"/>
-        <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview" v-on:click="deletePost"/>
-      </q-card-actions>
-      <q-slide-transition appear :duration=300>
-        <div v-if="commentsActive" v-show="commentsShown">
-          <q-separator/>
+      <q-slide-transition appear :duration=300 @hide="onCommentsHidden" @show="onCommentsShowTransitionEnd">
+        <div v-show="commentsShown">
           <q-card-section v-if="$store.state.auth.isAuthenticated">
+            <q-separator inset="true"/>
             <text-editor
-              class="relative-position"
+              ref="editor"
               placeholderText="Very interesting Comment"
               :text-input.sync="commentInput">
             </text-editor>
-            <q-card-actions align="stretch">
+            <q-card-actions class="q-pr-none">
               <q-space/>
               <q-btn
                 unelevated rounded
                 color=positive
-                label="POST COMMENT"
-                icon="eva-message-circle-outline"
+                label="SEND"
+                icon="eva-paper-plane-outline"
                 type="submit"
                 @click="addComment($event);"
                 :loading="submittingComment">
@@ -77,10 +68,10 @@
               </q-btn>
             </q-card-actions>
           </q-card-section>
-          <q-card-section class="q-pt-none">
+          <q-card-section class="q-pa-none" v-if="commentsActive">
             <comment-list ref="commentList"
                           :post="id"
-                          @comments-loaded="commentsLoaded"/>
+                          @comments-received="onCommentsReceived"/>
           </q-card-section>
         </div>
       </q-slide-transition>
@@ -106,7 +97,19 @@ export default {
     date: Number,
     dateEdited: Number,
     userRef: Object,
-    preview: Boolean
+    preview: Boolean,
+    upvotes: {
+      type: Array,
+      default: function () {
+        return []
+      },
+    },
+    downvotes: {
+      type: Array,
+      default: function () {
+        return []
+      },
+    },
   },
   data() {
     return {
@@ -120,6 +123,7 @@ export default {
       commentsShown: false,
       commentsLoading: false,
       submittingComment: false,
+      score: 200,
     }
   },
   computed: {
@@ -132,12 +136,18 @@ export default {
     timeSincePostEdited() {
       return getFormattedTimeBetween(this.dateEdited, this.now)
     },
-    sanitizedComment(){
+    sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
     }
   },
   methods: {
-    commentsLoaded() {
+    onCommentsShowTransitionEnd() {
+      this.commentsActive = true
+    },
+    onCommentsHidden() {
+      this.commentsActive = false;
+    },
+    onCommentsReceived() {
       this.commentsShown = true
       this.commentsLoading = false
     },
@@ -145,7 +155,13 @@ export default {
       if (!this.commentsShown) {
         if (!this.commentsActive) {
           this.commentsLoading = true
-          this.commentsActive = true
+          this.commentsShown = true
+          // Focus on text input
+          this.$nextTick(() => {
+            if (this.$refs.editor) {
+              this.$refs.editor.$refs.editor.focus()
+            }
+          })
         } else {
           this.commentsShown = true
         }
@@ -185,7 +201,7 @@ export default {
       }
     },
     addComment() {
-      if(!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
+      if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
           type: 'negative',
           message: `Cannot post empty comment`
@@ -222,6 +238,8 @@ export default {
         }
       })
     }
+    this.score = this.upvotes.length - this.downvotes.length
+
   },
 }
 </script>

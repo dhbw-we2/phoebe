@@ -24,31 +24,150 @@
   text-align: right
   padding: 5px
 
+// Overall app theme //
 body
   font-family: 'Open Sans', sans-serif
 
 html
-  //Force scrollbar visible at all times
+  // Force scrollbar visible at all times
   overflow-y: scroll
-.logo
-  cursor: pointer
 
-.logo-text
+// Override default dark body background
+body.body--dark
+  background-color: $dark
+
+// Override default dark card background
+.q-card--dark
+  background-color: rgba($dark, 0.3)
+//background-color: $dark
+
+// Override default dark editor background
+.q-editor--dark
+  background-color: rgba($dark, 0.3)
+
+// Override default dark editor background
+.q-dialog-plugin--dark
+  background-color: rgba($dark, 0.9)
+
+// Prepare background for color switching using transparent gradients
+.background
+  content: ''
+  display: block
+  position: fixed
+  left: 0
+  top: 0
+  height: 100vh
+  width: 100vw
+
+.background.gradient-color
+  z-index: -2000
+  background-size: 130% 100%
+  animation: breathing 10s infinite ease
+
+@keyframes breathing
+  0%
+    background-position: 0 0
+  50%
+    background-position: 100% 0
+  100%
+    background-position: 0 0
+
+.background.gradient-darken
+  z-index: -1000
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), #090707)
+
+// Configure color schemes for BackgroundGradient.js plugin //
+
+.background.gradient-color.forum
+  background-image: linear-gradient(90deg, #2c5e92 0%, #552f6d 80%)
+
+.background.gradient-color.post-editor
+  background-image: linear-gradient(60deg, #208ea2, #9ebf38)
+
+.background.gradient-color.user-profile
+  background-image: linear-gradient(120deg, #537895 0%, #09203f 74%)
+
+.background.gradient-color.my-posts
+  background-image: linear-gradient(130deg, #b74f4f, #c39848)
+
+.background.gradient-color.fun
+  background-image: linear-gradient(90deg, #cf5c5c, #c19b4a, #def2a0, #c6ee4a,#42eca6,#64b3d9,#208ea2,#498ada,#5b73df,#897ed3,#cf5c5c,#c19b4a)
+  background-size: 1100% 100%
+  animation: animateBg 5s linear infinite
+
+@keyframes animateBg
+  0%
+    background-position: 0 0
+  100%
+    background-position: 100% 0
+
+// Gradient transition animation //
+.background.gradient-color.transition
+  opacity: 0
+  animation: fadeIn 1s ease forwards
+
+@keyframes fadeIn
+  0%
+    opacity: 0
+  100%
+    opacity: 1
+
+// MainLayout styling //
+
+.q-toolbar__title
+  font-size: 30px
   font-family: 'Montserrat', sans-serif
   font-weight: 500
+  color: white
+
+.q-toolbar
+  @media (min-width: $breakpoint-xs-min)
+    height: 70px
+
+.logo
+  @media (min-width: 415px)
+    align-items: center
+    justify-content: center
+
+.logo-text
+  @media (max-width: 414px)
+    display: none
+
+.logo-text-link
   color: white
   text-decoration: none
 
 .menu-list .q-item
   border-radius: 0 32px 32px 0
 
+.header-background
+  background-color: rgba($dark, 0.0)
+  transition: background-color 300ms ease
+
+.header-background.scroll
+  background-color: rgba($dark, 0.7)
+
+.q-drawer--dark
+  background-color: rgba($dark, 0)
+
+.q-drawer--dark.q-drawer--mobile
+  background-color: $dark
+
+
+// Miscellaneous styles //
+
 .links-primary
   a, a:active, a:hover, a:visited
     text-decoration: none
     color: $primary
 
+.post-content
+  img
+    max-width: 90%
+    @media (min-width: $breakpoint-md-min)
+      max-width: 500px
 
 .emoji-picker-color-override
-  --ep-color-bg: #{$dark} !important
-  --ep-color-sbg: #{$dark} !important
+  --ep-color-bg: #{rgba($dark, 0.6)} !important
+  --ep-color-sbg: #{rgba($dark, 0.3)} !important
   --ep-color-active: #{$primary} !important

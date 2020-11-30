@@ -19,6 +19,9 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.$refs.postList.clearQuery()
     next();
+  },
+  created() {
+    this.$changeBackgroundColor('forum')
   }
 }
 </script>
