@@ -7,8 +7,8 @@
     <q-btn
       color="primary"
       style="width:200px;"
-      to="/"
-      label="Home"
+      @click="$router.go(-1)"
+      label="Go Back"
     />
   </div>
 </template>

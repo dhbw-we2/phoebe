@@ -62,7 +62,7 @@
                   flat
                   icon="eva-person-outline"
                   label="My Profile"
-                  to="/profile"
+                  :to="{name:'profile'}"
                   v-close-popup
                 />
                 <q-btn
@@ -120,7 +120,7 @@
       <q-scroll-area class="fit">
         <q-list padding class="menu-list">
           <q-item clickable v-ripple
-                  to="/myFeed">
+                  :to="{name: 'feed'}">
             <q-item-section avatar>
               <q-icon name="eva-home-outline"/>
             </q-item-section>
@@ -130,7 +130,7 @@
           </q-item>
 
           <q-item clickable v-ripple
-                  to="/home">
+                  :to="{name: 'forum'}">
             <q-item-section avatar>
               <q-icon name="eva-message-circle-outline"/>
             </q-item-section>
@@ -150,7 +150,7 @@
           </q-item>
 
           <q-item clickable v-ripple
-                  to="/myPosts">
+                  :to="{name: 'myPosts'}">
             <q-item-section avatar>
               <q-icon name="eva-person-outline"/>
             </q-item-section>
