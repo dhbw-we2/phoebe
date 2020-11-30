@@ -1,5 +1,5 @@
 <template>
-  <div ref="postView" class="scroll-margin-navbar">
+  <div ref="postView" class="scroll-margin-navbar overflow-wrap">
     <q-slide-transition>
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
