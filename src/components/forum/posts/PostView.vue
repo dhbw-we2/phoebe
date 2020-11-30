@@ -145,7 +145,15 @@ export default {
   },
   methods: {
     onCommentsShowTransitionEnd() {
+      if (!this.isInViewport()) {
+        this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
+      }
       this.commentsActive = true
+      setTimeout(() => {
+        if (this.$refs.editor) {
+          this.$refs.editor.$refs.editor.focus()
+        }
+      }, 500)
     },
     onCommentsHidden() {
       this.commentsActive = false;
@@ -159,21 +167,22 @@ export default {
         if (!this.commentsActive) {
           this.commentsLoading = true
           this.commentsShown = true
-          // Focus on text input
-          this.$nextTick(() => {
-            this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
-            setTimeout(() => {
-              if (this.$refs.editor) {
-                this.$refs.editor.$refs.editor.focus()
-              }
-            }, 500)
-          })
+          this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
         } else {
           this.commentsShown = true
         }
       } else {
         this.commentsShown = false;
       }
+    },
+    isInViewport() {
+      const bounding = this.$refs.postView.getBoundingClientRect();
+      return (
+        bounding.top >= 0 &&
+        bounding.left >= 0 &&
+        bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
+      )
     },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
