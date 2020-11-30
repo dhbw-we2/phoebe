@@ -10,7 +10,7 @@
 
         <q-toolbar-title>
           <router-link to="/" class="logo-text-link" >
-            <div class="flex flex-inline no-wrap q-gutter-sm logo">
+            <div class="flex no-wrap q-gutter-x-sm logo">
               <q-avatar square size="55px">
                 <img src="~assets/spreddit-logo.svg" alt="Logo">
               </q-avatar>

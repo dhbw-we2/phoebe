@@ -3,7 +3,7 @@
     <q-slide-transition>
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
-          <q-card-actions vertical class="q-pa-none q-ma-md" style="min-width: 5em">
+          <q-card-actions vertical class="q-ma-md-sm q-px-xs-none q-px-md-sm" style="min-width: 5em">
             <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
             <span v-html="score" class="text-center text-h5"></span>
             <q-btn flat round icon="eva-arrow-ios-downward-outline"/>

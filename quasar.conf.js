@@ -101,6 +101,7 @@ module.exports = function (/* ctx */) {
       config: {
         dark: true
       },
+      cssAddon: true
     },
 
     // animations: 'all', // --- includes all animations

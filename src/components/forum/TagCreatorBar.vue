@@ -20,7 +20,7 @@
           unelevated rounded
           icon="eva-person-add-outline"
           type="submit"
-          label="SUBSCRIBE TO TAG"
+          label="SUBSCRIBE"
           @click="addTag"
         />
       </template>
