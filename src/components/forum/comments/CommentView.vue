@@ -1,6 +1,6 @@
 <template>
   <q-slide-transition appear :duration=150 @show="onTransitionEnd">
-    <div>
+    <div ref="commentView" class="scroll-margin-navbar">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center">
           <q-icon name="eva-corner-down-right-outline" size="2em"/>
@@ -165,10 +165,10 @@ export default {
     replyToComment() {
       this.replying = !this.replying
       if (this.replying) {
-        // Focus on text input; Using timeout because nothing else works
+        this.$refs.commentView.scrollIntoView({block: 'start', behavior: 'smooth'});
         setTimeout(() => {
           if (this.$refs.editor) this.$refs.editor.$refs.editor.focus()
-        }, 50)
+        }, 500)
       }
     },
     deleteComment() {

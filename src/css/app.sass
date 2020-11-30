@@ -122,7 +122,7 @@ body.body--dark
 
 .q-toolbar
   @media (min-width: $breakpoint-xs-min)
-    height: 70px
+    height: $navbar-height
 
 .logo
   @media (min-width: 415px)
@@ -171,3 +171,6 @@ body.body--dark
   --ep-color-bg: #{rgba($dark, 0.6)} !important
   --ep-color-sbg: #{rgba($dark, 0.3)} !important
   --ep-color-active: #{$primary} !important
+
+.scroll-margin-navbar
+  scroll-margin-top: $navbar-height + 10px
