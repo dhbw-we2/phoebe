@@ -10,7 +10,7 @@ import {mapGetters} from "vuex";
 export default {
   name: 'Home',
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('user', ['currentUser']),
   },
   created() {
     if (this.$store.state.auth.isAuthenticated) {

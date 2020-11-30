@@ -2,9 +2,8 @@
   <q-page class="constrain q-pa-md">
     <tag-creator-bar
       :tags="tags"
-      allow-subscribe
-      placeholder="Filter Tags"
-      icon="eva-funnel-outline"
+      subscription-box
+      placeholder="Add Tag Subscription"
       @remove-tag="removeTag($event)"
       class="q-pb-md"/>
     <post-list

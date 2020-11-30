@@ -90,6 +90,7 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
   if (!currentUser && initialAuthState) {
     await store.dispatch('auth/routeUserToHome')
     await store.dispatch('user/clearCurrentUser')
+    await store.commit('user/setReady', false)
   }
 }
 

@@ -1,6 +1,7 @@
 <template>
   <q-page class="constrain q-pa-md">
     <tag-creator-bar
+      allow-subscribe
       :tags="tags"
       placeholder="Filter Tags"
       icon="eva-funnel-outline">
