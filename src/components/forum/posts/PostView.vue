@@ -47,8 +47,8 @@
         </q-card-section>
         <q-slide-transition appear :duration=300 @hide="onCommentsHidden" @show="onCommentsShowTransitionEnd">
           <div v-show="commentsShown" ref="commentsSection">
+            <q-separator inset="true"/>
             <q-card-section v-if="$store.state.auth.isAuthenticated">
-              <q-separator inset="true"/>
               <text-editor
                 ref="editor"
                 placeholderText="Very interesting Comment"
