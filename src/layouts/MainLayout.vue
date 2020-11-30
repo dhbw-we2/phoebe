@@ -185,7 +185,7 @@ import {mapActions, mapGetters} from "vuex";
 window.onscroll = function () {
   const header = document.getElementById('header');
   "use strict";
-  if (document.body.scrollTop >= 50 || document.documentElement.scrollTop >= 50) {
+  if (document.body.scrollTop >= 25 || document.documentElement.scrollTop >= 25) {
     header.classList.add("scroll");
   } else {
     header.classList.remove("scroll");
