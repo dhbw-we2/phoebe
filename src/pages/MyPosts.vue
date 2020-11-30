@@ -1,8 +1,14 @@
 <template>
   <q-page class="constrain q-pa-md">
+    <tag-creator-bar
+      :tags="tags"
+      placeholder="Filter Tags"
+      icon="eva-funnel-outline">
+    </tag-creator-bar>
     <PostList ref="postList"
-              tag-filter
-              :user-filter="currentUserRef"/>
+              :tags="tags"
+              :user-filter="currentUserRef"
+              @tags-changed="tags = $event"/>
   </q-page>
 </template>
 
@@ -16,7 +22,9 @@ export default {
   components: {PostList, TagCreatorBar},
 
   data() {
-    return {}
+    return {
+      tags:[],
+    }
   },
   computed: {
     ...mapGetters('user', ['currentUserRef']),

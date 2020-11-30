@@ -3,11 +3,11 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {path: '', redirect: 'home'},
-      {path: 'home', component: () => import('pages/PageHome.vue')},
-      {path: 'myPosts', component: () => import('pages/MyPosts.vue'), meta: {requiresAuth: true}},
-      {path: 'error', component: () => import('pages/Error404')},
-      {path: 'profile', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
+      {path: '', component: () => import('pages/Home.vue')},
+      {path: 'forum', name: 'forum',  component: () => import('pages/Forum.vue')},
+      {path: 'error', name: 'error',  component: () => import('pages/Error404')},
+      {path: 'profile', name: 'profile', component: () => import('pages/UserProfile'), meta: {requiresAuth: true}},
+      {path: 'feed', name: 'feed', component: () => import('pages/MyFeed'), meta: {requiresAuth: true}},
     ]
   },
   {
@@ -16,6 +16,7 @@ const routes = [
     children: [
       {path: 'new', name: 'newPost', component: () => import('pages/PostEditor')},
       {path: 'edit', name: 'editPost', component: () => import('pages/PostEditor')},
+      {path: 'my', name: 'myPosts', component: () => import('pages/MyPosts.vue')},
     ]
   },
   {
