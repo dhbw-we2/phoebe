@@ -1,7 +1,7 @@
 <template>
   <q-card class="card-post-text q-mb-md" flat>
     <q-card-section horizontal>
-      <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
+      <q-card-actions vertical class="q-pa-none q-ma-md" style="min-width: 5em">
         <q-btn flat round icon="eva-arrow-ios-upward-outline" disable/>
         <q-skeleton type="text" class="text-h5" height="1.5em"/>
         <q-btn flat round icon="eva-arrow-ios-downward-outline" disable/>

@@ -10,7 +10,7 @@
 
         <q-toolbar-title>
           <router-link to="/" class="logo-text-link" >
-            <div class="flex flex-inline no-wrap q-gutter-sm logo">
+            <div class="flex no-wrap q-gutter-x-sm logo">
               <q-avatar square size="55px">
                 <img src="~assets/spreddit-logo.svg" alt="Logo">
               </q-avatar>
@@ -18,24 +18,6 @@
             </div>
           </router-link>
         </q-toolbar-title>
-
-        <q-btn-dropdown
-          v-if="$store.state.auth.isAuthenticated"
-          icon="eva-bell-outline"
-          flat
-          style="height:100%"
-          padding="5px">
-          <div class="row no-wrap q-pa-md">
-            <div class="column">
-              <div class="text-h6 q-mb-md">Notifications</div>
-              <q-list bordered separator>
-                <q-item>
-                  <q-item-section>Hier könnten achievements oder notifications stehen</q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </div>
-        </q-btn-dropdown>
 
         <q-btn-dropdown
           flat

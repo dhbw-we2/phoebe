@@ -3,7 +3,7 @@
     <tag-creator-bar
       :tags="tags"
       subscription-box
-      placeholder="Add Tag Subscription"
+      placeholder="Add Tag"
       @remove-tag="removeTag($event)"
       class="q-pb-md"/>
     <post-list

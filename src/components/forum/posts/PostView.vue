@@ -3,11 +3,12 @@
     <q-slide-transition>
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
-          <q-card-actions vertical class="justify-center q-pa-none q-ma-md" style="min-width: 5em">
+          <q-card-actions vertical class="q-ma-md-sm q-px-xs-none q-px-md-sm" style="min-width: 5em">
             <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
             <span v-html="score" class="text-center text-h5"></span>
             <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
           </q-card-actions>
+          <q-space/>
           <div class="full-width">
             <q-card-section vertical class="q-pl-none q-pb-none">
               <q-item class="q-pl-none q-pr-none q-pb-md">
@@ -47,8 +48,8 @@
         </q-card-section>
         <q-slide-transition appear :duration=300 @hide="onCommentsHidden" @show="onCommentsShowTransitionEnd">
           <div v-show="commentsShown" ref="commentsSection">
+            <q-separator inset="true"/>
             <q-card-section v-if="$store.state.auth.isAuthenticated">
-              <q-separator inset="true"/>
               <text-editor
                 ref="editor"
                 placeholderText="Very interesting Comment"
@@ -145,7 +146,15 @@ export default {
   },
   methods: {
     onCommentsShowTransitionEnd() {
+      if (!this.isInViewport()) {
+        this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
+      }
       this.commentsActive = true
+      setTimeout(() => {
+        if (this.$refs.editor) {
+          this.$refs.editor.$refs.editor.focus()
+        }
+      }, 500)
     },
     onCommentsHidden() {
       this.commentsActive = false;
@@ -159,21 +168,22 @@ export default {
         if (!this.commentsActive) {
           this.commentsLoading = true
           this.commentsShown = true
-          // Focus on text input
-          this.$nextTick(() => {
-            this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
-            setTimeout(() => {
-              if (this.$refs.editor) {
-                this.$refs.editor.$refs.editor.focus()
-              }
-            }, 500)
-          })
+          this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
         } else {
           this.commentsShown = true
         }
       } else {
         this.commentsShown = false;
       }
+    },
+    isInViewport() {
+      const bounding = this.$refs.postView.getBoundingClientRect();
+      return (
+        bounding.top >= 0 &&
+        bounding.left >= 0 &&
+        bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
+      )
     },
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
