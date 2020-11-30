@@ -20,24 +20,6 @@
         </q-toolbar-title>
 
         <q-btn-dropdown
-          v-if="$store.state.auth.isAuthenticated"
-          icon="eva-bell-outline"
-          flat
-          style="height:100%"
-          padding="5px">
-          <div class="row no-wrap q-pa-md">
-            <div class="column">
-              <div class="text-h6 q-mb-md">Notifications</div>
-              <q-list bordered separator>
-                <q-item>
-                  <q-item-section>Hier könnten achievements oder notifications stehen</q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </div>
-        </q-btn-dropdown>
-
-        <q-btn-dropdown
           flat
           :ripple="false"
           dropdown-icon="eva-chevron-down-outline"
