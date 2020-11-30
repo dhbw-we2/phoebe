@@ -1,5 +1,5 @@
 <template>
-  <div class="q-mb-sm">
+  <div>
     <q-input filled bottom-slots v-model="tagInput"
              :placeholder="placeholder"
              @keypress.space.enter.prevent="addTag">
@@ -8,7 +8,7 @@
       </template>
       <template v-slot:append>
         <q-btn
-          v-if="!changeToSubscribe"
+          v-if="!allowSubscribe"
           unelevated rounded
           icon="eva-plus-outline"
           type="submit"
@@ -17,13 +17,13 @@
           @click="addTag"
         />
         <q-btn
-          v-if="changeToSubscribe"
+          v-if="allowSubscribe"
           unelevated rounded
           icon="eva-person-add-outline"
           type="submit"
           label="SUBSCRIBE TO TAG"
           ref="AddTagLabel"
-          @click="subscribeTo([...tagInput]); addTag()"
+          @click="addTag"
         />
       </template>
     </q-input>
@@ -39,19 +39,6 @@
         {{ tag }}
       </q-btn>
     </div>
-    <q-card-actions align="right" v-if="allowSubscribe">
-      <div class="q-gutter-sm">
-        <q-btn
-          color='negative'
-          unelevated rounded filled
-          icon-right="eva-person-add-outline"
-          v-on:click="subscribeTo(tags)"
-          v-if="tags.length > 0"
-          label="SUBSCRIBE"
-          class="q-pa-xs">
-        </q-btn>
-      </div>
-    </q-card-actions>
   </div>
 </template>
 
@@ -67,7 +54,6 @@ export default {
     }
   },
   props: {
-    changeToSubscribe: Boolean,
     placeholder: String,
     icon: {
       default: 'eva-hash-outline',
@@ -86,7 +72,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
     addTag() {
@@ -96,6 +82,8 @@ export default {
           const index = this.tags.indexOf(newTag);
           if (index === -1) {
             this.tags.push(newTag);
+            if(this.allowSubscribe)
+            this.subscribeTo([newTag]);
           }
         }
       } else {
@@ -113,11 +101,21 @@ export default {
       }
       this.$emit('remove-tag', tag)
     },
-    subscribeTo(tags) {
+    subscribeTo(tag) {
       this.currentUserRef.update({
-        subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tags)
+        subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tag)
       })
     },
+    getSubscriptions() {
+      if(this.currentUser.subscribedTags) {
+        this.tags.push(...this.currentUser.subscribedTags)
+      }
+    },
+  },
+  created() {
+    if(this.allowSubscribe){
+      this.getSubscriptions()
+    }
   }
 }
 </script>

@@ -4,13 +4,11 @@
       :tags="tags"
       placeholder="Filter Tags"
       icon="eva-funnel-outline"
-      allow-subscribe/>
+      class="q-pb-md"/>
     <PostList
       ref="postList"
       :tags="tags"
-      @tags-changed="tags = $event"
-    />
-
+      @tags-changed="tags = $event"/>
   </q-page>
 </template>
 

@@ -16,7 +16,7 @@
       </post-view>
     </template>
     <template v-else-if="!loadingSkeleton && !posts.length">
-      <h5 class="text-center text-grey">Nothing to see here.</h5>
+      <h5 class="text-center text-grey-4">Nothing to see here.</h5>
     </template>
     <template v-else>
       <post-skeleton/>

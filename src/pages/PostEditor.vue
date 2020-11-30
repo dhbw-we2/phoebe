@@ -6,8 +6,10 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <div class="q-pa-md q-gutter-md">
-          <q-input filled dark v-model="captionInput" placeholder="Catchy Caption">
+        <div class="q-gutter-md">
+          <q-input filled dark class=""
+                   v-model="captionInput"
+                   placeholder="Catchy Caption">
             <template v-slot:prepend>
               <q-icon name="eva-edit-outline"/>
             </template>
@@ -19,7 +21,7 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar class="q-pa-md"/>
+        <spotify-search-bar/>
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>

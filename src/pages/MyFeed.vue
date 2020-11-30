@@ -2,14 +2,19 @@
   <q-page class="constrain q-pa-md">
     <tag-creator-bar
       :tags="tags"
-      change-to-subscribe
+      allow-subscribe
       placeholder="Filter Tags"
       icon="eva-funnel-outline"
-      @remove-tag="removeTag($event)"/>
+      @remove-tag="removeTag($event)"
+      class="q-pb-md"/>
     <post-list
       ref="postList"
+      v-if="currentUser.subscribedTags && currentUser.subscribedTags.length > 0"
       :tags="tags"
       @tags-changed="tags = $event" />
+    <template v-else>
+      <h5 class="text-center text-grey-4">You have no tag subscriptions</h5>
+    </template>
   </q-page>
 </template>
 
@@ -31,9 +36,6 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
-    getSubscriptionTags() {
-      this.tags = [...this.currentUser.subscribedTags]
-    },
     removeTag(tag){
       this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
@@ -41,14 +43,13 @@ export default {
     },
   },
   created() {
-    this.getSubscriptionTags()
+    this.$changeBackgroundColor('forum')
   },
   beforeRouteLeave(to, from, next) {
-    this.$refs.postList.clearQuery()
+    if(this.$refs.postList){
+      this.$refs.postList.clearQuery()
+    }
     next();
   },
 }
-
-
 </script>
-
