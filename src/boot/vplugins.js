@@ -1,4 +1,9 @@
 import Vue from 'vue'
-import LayoutColorChange from '../plugins/LayoutColorChange'
+import BackgroundGradient from '../plugins/BackgroundGradient'
 
-LayoutColorChange.install(Vue)
+BackgroundGradient.install(Vue, {
+  backgroundBaseClass: 'background',
+  gradientDivID: 'background-gradient',
+  customGradientClass: 'gradient-color',
+  transitionClass: 'transition'
+})

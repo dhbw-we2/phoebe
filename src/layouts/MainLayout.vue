@@ -1,7 +1,9 @@
 <template>
   <q-layout view="hHh LpR fFf">
-    <div class="background-gradient" id="background-gradient"/>
-    <div class="background-gradient-darken"/>
+    <div id="background-container">
+      <div class="background gradient-color" id="background-gradient"/>
+      <div class="background gradient-darken"/>
+    </div>
     <q-header class="header-background" id="header">
       <q-toolbar>
         <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
@@ -93,7 +95,8 @@
               flat
               icon="eva-sun-outline"
               label="Light Mode"
-              @click="toggleDarkMode"
+              @click="rainbowColors"
+              v-close-popup
             />
             <q-btn
               v-else
@@ -101,6 +104,7 @@
               icon="eva-moon-outline"
               label="Dark Mode"
               @click="toggleDarkMode"
+              v-close-popup
             />
           </div>
         </q-btn-dropdown>
@@ -223,6 +227,14 @@ export default {
     },
     toggleDarkMode() {
       this.$q.dark.toggle()
+    },
+    rainbowColors() {
+      this.$q.notify({
+        color: 'negative',
+        position: 'top',
+        message: 'Who in the world needs light mode?!'
+      })
+      this.$changeBackgroundColor('fun')
     }
   },
   created() {

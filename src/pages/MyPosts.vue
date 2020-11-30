@@ -26,7 +26,7 @@ export default {
     next();
   },
   created() {
-    this.$changeLayoutColor('myposts')
+    this.$changeBackgroundColor('my-posts')
   }
 }
 </script>

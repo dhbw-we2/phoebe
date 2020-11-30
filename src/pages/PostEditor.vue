@@ -235,7 +235,7 @@ export default {
         this.$router.push({name: 'newPost'})
       }
     }
-    this.$changeLayoutColor('posteditor')
+    this.$changeBackgroundColor('post-editor')
   },
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form

@@ -230,7 +230,7 @@ export default {
     },
   },
   created() {
-    this.$changeLayoutColor('userprofile')
+    this.$changeBackgroundColor('user-profile')
     this.updateSpotifyUsername()
   }
 }

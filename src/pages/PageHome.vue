@@ -21,7 +21,7 @@ export default {
     next();
   },
   created() {
-    this.$changeLayoutColor('forum')
+    this.$changeBackgroundColor('forum')
   }
 }
 </script>
