@@ -32,11 +32,11 @@
               </q-item>
               <div class="text-h5 q-pb-sm">{{ caption }}</div>
               <q-card-section class="q-pa-none">
-                <div ref="postContent" id='test' v-html="text"
+                <div ref="postContent" v-html="text"
                      class="links-primary post-content overflow-hidden post-shortened"/>
                 <div class="q-mt-sm">
                   <q-btn outline rounded size="sm"
-                         v-if="isLongPost() && !postExpanded"
+                         v-if="longPost && !postExpanded"
                          @click="togglePostExpanded">
                     READ MORE
                   </q-btn>
@@ -144,6 +144,7 @@ export default {
       commentsLoading: false,
       submittingComment: false,
       score: 200,
+      longPost: false,
       postExpanded: false,
     }
   },
@@ -170,7 +171,7 @@ export default {
       }
       this.postExpanded = !this.postExpanded
     },
-    isLongPost() {
+    checkForLongPost() {
       // Check whether  post content is overflowing
       const postContent = this.$refs.postContent
       if (postContent) {
@@ -279,7 +280,6 @@ export default {
   },
   created() {
     // this.scheduleUpdateNow();
-
     if (this.userRef) {
       this.userRef.get().then(doc => {
         if (doc.exists) {
@@ -291,7 +291,9 @@ export default {
       })
     }
     this.score = this.upvotes.length - this.downvotes.length
-
   },
+  mounted() {
+    this.longPost = this.checkForLongPost()
+  }
 }
 </script>
