@@ -63,9 +63,10 @@ export default {
           this.uploading = false
         })
         .catch(err => {
+          console.error(err)
           this.$q.notify({
             color: 'negative',
-            message: `One or more of your files failed to upload. ${err}`
+            message: `One or more of your files failed to upload.`
           })
         })
     },
@@ -87,9 +88,10 @@ export default {
             this.updateComponent(index, snapshot)
           },
           (err) => {
+            console.error(err)
             this.$q.notify({
               color: 'negative',
-              message: `There was a problem with the upload. ${err}`
+              message: `There was a problem with the upload`
             })
             this.updateComponent(index, 0, 'failed')
             reject()

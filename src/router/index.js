@@ -62,6 +62,7 @@ export default function (/* { store, ssrContext } */) {
         next()
       }
     } catch (err) {
+      console.error(err)
       Notify.create({
         message: `${err}`,
         type: 'negative'

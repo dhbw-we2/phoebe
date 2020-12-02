@@ -85,8 +85,9 @@ export default {
         }
 
       }, (err) => {
+        console.error(err)
         this.$q.notify({
-          message: `Firebase Connection Failed! ${err}`,
+          message: `Firebase Connection Failed!`,
           type: 'negative'
         })
       })

@@ -265,10 +265,11 @@ export default {
         user: this.currentUserRef,
         text: this.sanitizedComment,
         post: postRef(this.id)
-      }).catch(reason => {
+      }).catch(err => {
+        console.error(err)
         this.$q.notify({
           type: 'negative',
-          message: `Failed to post comment: ${reason}`
+          message: `Failed to post comment!`
         })
       }).finally(() => {
         this.submittingComment = false

@@ -130,9 +130,10 @@ export default {
           message: 'Subscription added'
         })
       } catch (err) {
+        console.error(err)
         this.$q.notify({
           type: 'negative',
-          message: `Could not add subscription: ${err}`
+          message: `Failed to add subscription!`
         })
       }
       this.subscribing = false
