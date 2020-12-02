@@ -40,8 +40,9 @@ export default {
       this.clearQuery()
       let query = this.buildQuery();
       this.commentsQuery = query.onSnapshot(snapshot => this.onSnapshot(snapshot), (err) => {
+        console.error(err)
         this.$q.notify({
-          message: `Firebase Connection Failed! ${err}`,
+          message: `Firebase Connection Failed!`,
           type: 'negative'
         })
       })

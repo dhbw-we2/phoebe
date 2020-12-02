@@ -155,8 +155,12 @@ export default {
         post: postRef(this.post)
       }).then(() => {
         this.commentInput = ''
-      }).catch((error) => {
-        console.error("Error adding comment to firebase: ", error);
+      }).catch(err => {
+        console.error(err)
+        this.$q.notify({
+          type: 'negative',
+          message: `Failed to post comment!`
+        })
         this.replying = true
       }).finally(() => {
         this.submittingReply = false;

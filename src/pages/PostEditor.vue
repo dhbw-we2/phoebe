@@ -175,10 +175,11 @@ export default {
           dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
-        }).catch((err) => {
+        }).catch(err => {
+          console.error(err)
           this.$q.notify({
-            message: err,
-            type: 'negative'
+            type: 'negative',
+            message: `Failed to submit edited post!`
           })
           this.postSubmitted = false
         })
@@ -192,10 +193,11 @@ export default {
           user: this.currentUserRef,
         }).then(() => {
           this.$router.push({name: 'forum'})
-        }).catch((err) => {
+        }).catch(err => {
+          console.error(err)
           this.$q.notify({
-            message: err,
-            type: 'negative'
+            type: 'negative',
+            message: `Failed to submit post!`
           })
           this.postSubmitted = false
         })
@@ -213,7 +215,8 @@ export default {
         this.captionInput = post.caption;
         this.date = post.date;
       })
-        .catch(() => {
+        .catch(err => {
+          console.error(err)
           this.$q.notify({
             message: 'Failed to read post!',
             type: 'negative'

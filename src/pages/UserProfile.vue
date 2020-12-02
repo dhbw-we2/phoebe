@@ -211,8 +211,9 @@ export default {
           spotifyRefreshToken: firebase.firestore.FieldValue.delete(),
         })
       } catch (err) {
+        console.error(err)
         this.$q.notify({
-          message: `Failed to unlink your Spotify account! ${err}`,
+          message: `Failed to unlink your Spotify account!`,
           color: 'negative'
         })
       } finally {
