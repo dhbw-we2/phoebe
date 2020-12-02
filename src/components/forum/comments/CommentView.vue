@@ -1,5 +1,5 @@
 <template>
-  <q-slide-transition appear :duration=150 @show="onTransitionEnd">
+  <q-slide-transition ref="test" :duration=150 @show="onTransitionEnd">
     <div ref="commentView" class="scroll-margin-navbar">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center">
@@ -25,7 +25,7 @@
                   </q-item-section>
                   <q-item-section>
                     <q-item-label class="text-caption">
-                      Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }} ago
+                      Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }}
                     </q-item-label>
                   </q-item-section>
                 </q-item>
