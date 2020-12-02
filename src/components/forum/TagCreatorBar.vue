@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-input filled bottom-slots v-model="tagInput"
+    <q-input filled v-model="tagInput"
              :placeholder="placeholder"
              @keypress.space.enter.prevent="addTag">
       <template v-slot:prepend>
@@ -25,7 +25,7 @@
         />
       </template>
     </q-input>
-    <div class="q-gutter-sm">
+    <div class="q-gutter-sm q-pt-md" v-if="tags.length > 0">
       <q-btn
         color='positive'
         unelevated rounded

@@ -4,7 +4,8 @@
       allow-subscribe
       :tags="tags"
       placeholder="Filter Tags"
-      icon="eva-funnel-outline">
+      icon="eva-funnel-outline"
+      class="q-pb-md">
     </tag-creator-bar>
     <PostList ref="postList"
               :tags="tags"
