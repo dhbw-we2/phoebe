@@ -25,8 +25,8 @@
                             @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                   </q-item-label>
                   <q-item-label class="text-overline inline-block">
-                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
-                    <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
+                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }}</span>
+                    <span v-if="dateEdited"> (edited {{ timeSincePostEdited }})</span>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -99,11 +99,12 @@
 </template>
 
 <script>
-import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
+import {getTimeSincePostText} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
 import {commentCollection, postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
+import {firestore} from "firebase/app";
 
 export default {
   name: "PostView",
@@ -113,8 +114,8 @@ export default {
     caption: String,
     tags: Array,
     text: String,
-    date: Number,
-    dateEdited: Number,
+    date: [Number, firestore.Timestamp],
+    dateEdited: [Number, firestore.Timestamp],
     userRef: Object,
     preview: Boolean,
     upvotes: {
@@ -133,7 +134,7 @@ export default {
   data() {
     return {
       visible: true,
-      now: new Date().getTime(),
+      now: firestore.Timestamp.now(),
       username: null,
       uid: null,
       avatar: null,
@@ -150,11 +151,11 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSincePostCreated() {
-      return getFormattedTimeBetween(this.date, this.now)
+      return getTimeSincePostText(this.date, this.now)
     },
     // Display the Time since this post was edited
     timeSincePostEdited() {
-      return getFormattedTimeBetween(this.dateEdited, this.now)
+      return getTimeSincePostText(this.dateEdited, this.now)
     },
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
@@ -239,7 +240,7 @@ export default {
       })
     },
     updateNow() {
-      this.now = new Date().getTime();
+      this.now = firestore.Timestamp.now();
       this.scheduleUpdateNow();
     },
     scheduleUpdateNow() {
@@ -260,7 +261,7 @@ export default {
       }
       this.submittingComment = true
       commentCollection().add({
-        date: new Date().getTime(),
+        date: firestore.FieldValue.serverTimestamp(),
         user: this.currentUserRef,
         text: this.sanitizedComment,
         post: postRef(this.id)
@@ -276,7 +277,7 @@ export default {
     },
   },
   created() {
-    this.scheduleUpdateNow();
+    // this.scheduleUpdateNow();
 
     if (this.userRef) {
       this.userRef.get().then(doc => {
