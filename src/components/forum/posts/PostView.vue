@@ -31,7 +31,22 @@
                 </q-item-section>
               </q-item>
               <div class="text-h5 q-pb-sm">{{ caption }}</div>
-              <q-card-section v-html="text" class="q-pa-none links-primary post-content"/>
+              <q-card-section class="q-pa-none">
+                <div ref="postContent" id='test' v-html="text"
+                     class="links-primary post-content overflow-hidden post-shortened"/>
+                <div class="q-mt-sm">
+                  <q-btn outline rounded size="sm"
+                         v-if="isLongPost() && !postExpanded"
+                         @click="togglePostExpanded">
+                    READ MORE
+                  </q-btn>
+                  <q-btn outline rounded size="sm"
+                         v-if="postExpanded"
+                         @click="togglePostExpanded">
+                    COLLAPSE
+                  </q-btn>
+                </div>
+              </q-card-section>
             </q-card-section>
             <q-card-actions class="full-width">
               <q-space/>
@@ -128,6 +143,7 @@ export default {
       commentsLoading: false,
       submittingComment: false,
       score: 200,
+      postExpanded: false,
     }
   },
   computed: {
@@ -142,16 +158,32 @@ export default {
     },
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
-    }
+    },
   },
   methods: {
+    togglePostExpanded() {
+      if (this.postExpanded) {
+        this.$refs.postContent.classList.add('post-shortened')
+      } else {
+        this.$refs.postContent.classList.remove('post-shortened')
+      }
+      this.postExpanded = !this.postExpanded
+    },
+    isLongPost() {
+      // Check whether  post content is overflowing
+      const postContent = this.$refs.postContent
+      if (postContent) {
+        return postContent.scrollHeight > postContent.clientHeight || postContent.scrollWidth > postContent.clientWidth;
+      }
+      return false
+    },
     onCommentsShowTransitionEnd() {
       if (!this.isInViewport()) {
         this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
       }
       this.commentsActive = true
       //Focus text editor if device is non-touch
-      if(!this.$q.platform.has.touch) {
+      if (!this.$q.platform.has.touch) {
         setTimeout(() => {
           if (this.$refs.editor) {
             this.$refs.editor.$refs.editor.focus()
