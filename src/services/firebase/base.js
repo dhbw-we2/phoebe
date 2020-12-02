@@ -46,14 +46,14 @@ export const ensureUserDataIsInitialized = (store) => {
     let unwatch = store.watch((state) => {
       return state.user.isReady
     }, (isReady) => {
-      if(isReady){
+      if (isReady) {
         resolve()
         unwatch()
       }
     })
     setTimeout(() => {
       reject("User Data Timeout")
-    },5000)
+    }, 5000)
   })
 }
 
@@ -62,7 +62,20 @@ export const ensureUserDataIsInitialized = (store) => {
  * @return {Object} App
  */
 export const fBInit = (config) => {
-  return firebase.initializeApp(config)
+  // Initialize App //
+  const fb = firebase.initializeApp(config)
+
+  // Enable Firestore Persistence //
+  firebase.firestore().settings({
+    // Set cache size to 100 MB //
+    cacheSizeBytes: 100000000
+  })
+  firebase.firestore().enablePersistence({synchronizeTabs: true})
+    .catch(err => {
+      console.error(err)
+    })
+
+  return fb
 }
 
 /** Handle the auth state of the user and
