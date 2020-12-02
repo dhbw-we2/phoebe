@@ -87,8 +87,8 @@
 <script>
 import {mapGetters} from "vuex";
 import {commentCollection, commentRef, postRef} from "src/services/firebase/db";
-import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
-import * as firebase from 'firebase/app';
+import {getTimeSincePostText} from "src/helpers/TimeHelper";
+import {firestore} from "firebase/app";
 
 export default {
   name: "CommentView",
@@ -100,7 +100,7 @@ export default {
     id: String,
     text: String,
     userRef: Object,
-    date: Number,
+    date: [Number, firestore.Timestamp],
     dateEdited: undefined,
     allComments: Array,
     post: String,
@@ -114,7 +114,7 @@ export default {
       avatar: null,
       username: null,
       uid: null,
-      now: new Date().getTime(),
+      now: firestore.Timestamp.now(),
       submittingReply: false,
       transitionEnded: false,
     }
@@ -123,11 +123,11 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSinceCommentCreated() {
-      return getFormattedTimeBetween(this.date, this.now)
+      return getTimeSincePostText(this.date, this.now)
     },
     // Display the Time since this post was edited
     timeSinceCommentEdited() {
-      return getFormattedTimeBetween(this.dateEdited, this.now)
+      return getTimeSincePostText(this.dateEdited, this.now)
     },
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
@@ -148,7 +148,7 @@ export default {
       this.submittingReply = true
       this.replying = false
       commentCollection().add({
-        date: new Date().getTime(),
+        date: firestore.FieldValue.serverTimestamp(),
         user: this.currentUserRef,
         text: this.sanitizedComment,
         parentComment: commentRef(this.id),
@@ -187,9 +187,10 @@ export default {
           commentCollection().where('parentComment', '==', commentRef(this.id)).get().then(querySnapshot => {
             if (querySnapshot.size > 0) {
               commentRef(this.id).update({
-                user: firebase.firestore.FieldValue.delete(),
-                text: firebase.firestore.FieldValue.delete(),
-                dateEdited: firebase.firestore.FieldValue.delete(),
+                user: firestore.FieldValue.delete(),
+                text: firestore.FieldValue.delete(),
+                dateEdited: firestore.FieldValue.delete(),
+                removed: true
               })
             }
           })
@@ -254,7 +255,7 @@ export default {
     }
   },
   created() {
-    this.scheduleUpdateNow()
+    // this.scheduleUpdateNow()
     this.updateUserData()
     this.checkForSubComments()
   },

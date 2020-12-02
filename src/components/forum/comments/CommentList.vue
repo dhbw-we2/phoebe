@@ -61,7 +61,7 @@ export default {
     onSnapshot(snapshot) {
       let comments = []
       snapshot.forEach((doc) => {
-        let comment = doc.data();
+        let comment = doc.data({serverTimestamps: 'estimate'});
         comment.id = doc.id
         comments.push(comment)
       })

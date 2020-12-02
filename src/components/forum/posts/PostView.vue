@@ -25,13 +25,28 @@
                             @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                   </q-item-label>
                   <q-item-label class="text-overline inline-block">
-                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }} ago</span>
-                    <span v-if="dateEdited"> (edited {{ timeSincePostEdited }} ago)</span>
+                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }}</span>
+                    <span v-if="dateEdited"> (edited {{ timeSincePostEdited }})</span>
                   </q-item-label>
                 </q-item-section>
               </q-item>
               <div class="text-h5 q-pb-sm">{{ caption }}</div>
-              <q-card-section v-html="text" class="q-pa-none links-primary post-content"/>
+              <q-card-section class="q-pa-none">
+                <div ref="postContent" id='test' v-html="text"
+                     class="links-primary post-content overflow-hidden post-shortened"/>
+                <div class="q-mt-sm">
+                  <q-btn outline rounded size="sm"
+                         v-if="isLongPost() && !postExpanded"
+                         @click="togglePostExpanded">
+                    READ MORE
+                  </q-btn>
+                  <q-btn outline rounded size="sm"
+                         v-if="postExpanded"
+                         @click="togglePostExpanded">
+                    COLLAPSE
+                  </q-btn>
+                </div>
+              </q-card-section>
             </q-card-section>
             <q-card-actions class="full-width">
               <q-space/>
@@ -84,11 +99,12 @@
 </template>
 
 <script>
-import {getFormattedTimeBetween} from "src/helpers/TimeHelper";
+import {getTimeSincePostText} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
 import {commentCollection, postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
+import {firestore} from "firebase/app";
 
 export default {
   name: "PostView",
@@ -98,8 +114,8 @@ export default {
     caption: String,
     tags: Array,
     text: String,
-    date: Number,
-    dateEdited: Number,
+    date: [Number, firestore.Timestamp],
+    dateEdited: [Number, firestore.Timestamp],
     userRef: Object,
     preview: Boolean,
     upvotes: {
@@ -118,7 +134,7 @@ export default {
   data() {
     return {
       visible: true,
-      now: new Date().getTime(),
+      now: firestore.Timestamp.now(),
       username: null,
       uid: null,
       avatar: null,
@@ -128,30 +144,47 @@ export default {
       commentsLoading: false,
       submittingComment: false,
       score: 200,
+      postExpanded: false,
     }
   },
   computed: {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
     // Display the Time since this post was created
     timeSincePostCreated() {
-      return getFormattedTimeBetween(this.date, this.now)
+      return getTimeSincePostText(this.date, this.now)
     },
     // Display the Time since this post was edited
     timeSincePostEdited() {
-      return getFormattedTimeBetween(this.dateEdited, this.now)
+      return getTimeSincePostText(this.dateEdited, this.now)
     },
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
-    }
+    },
   },
   methods: {
+    togglePostExpanded() {
+      if (this.postExpanded) {
+        this.$refs.postContent.classList.add('post-shortened')
+      } else {
+        this.$refs.postContent.classList.remove('post-shortened')
+      }
+      this.postExpanded = !this.postExpanded
+    },
+    isLongPost() {
+      // Check whether  post content is overflowing
+      const postContent = this.$refs.postContent
+      if (postContent) {
+        return postContent.scrollHeight > postContent.clientHeight || postContent.scrollWidth > postContent.clientWidth;
+      }
+      return false
+    },
     onCommentsShowTransitionEnd() {
       if (!this.isInViewport()) {
         this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
       }
       this.commentsActive = true
       //Focus text editor if device is non-touch
-      if(!this.$q.platform.has.touch) {
+      if (!this.$q.platform.has.touch) {
         setTimeout(() => {
           if (this.$refs.editor) {
             this.$refs.editor.$refs.editor.focus()
@@ -207,7 +240,7 @@ export default {
       })
     },
     updateNow() {
-      this.now = new Date().getTime();
+      this.now = firestore.Timestamp.now();
       this.scheduleUpdateNow();
     },
     scheduleUpdateNow() {
@@ -228,7 +261,7 @@ export default {
       }
       this.submittingComment = true
       commentCollection().add({
-        date: new Date().getTime(),
+        date: firestore.FieldValue.serverTimestamp(),
         user: this.currentUserRef,
         text: this.sanitizedComment,
         post: postRef(this.id)
@@ -244,7 +277,7 @@ export default {
     },
   },
   created() {
-    this.scheduleUpdateNow();
+    // this.scheduleUpdateNow();
 
     if (this.userRef) {
       this.userRef.get().then(doc => {

@@ -1,6 +1,10 @@
 import {date} from "quasar";
+import {firestore} from "firebase/app";
 
-export function getFormattedTimeBetween(startTime, finishTime) {
+export function getTimeSincePostText(startTime, finishTime) {
+  if (startTime instanceof firestore.Timestamp) startTime = startTime.toMillis()
+  if (finishTime instanceof firestore.Timestamp) finishTime = finishTime.toMillis()
+
   let unit = "";
   let result = finishTime - startTime;
 
@@ -12,5 +16,13 @@ export function getFormattedTimeBetween(startTime, finishTime) {
   else if (result < 31536000000) unit = 'months';
   else if (result >= 31536000000) unit = 'years';
 
-  return date.getDateDiff(finishTime, startTime, unit) + " " + unit
+  if(result < 10000 && result > -10000)
+    return 'just now'
+  else {
+    const timeDiffStr = `${date.getDateDiff(finishTime, startTime, unit)} ${unit}`
+    if(result > 0)
+      return `${timeDiffStr} ago`
+    else
+      return `in ${timeDiffStr}`
+  }
 }

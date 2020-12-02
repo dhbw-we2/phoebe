@@ -69,6 +69,7 @@ import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar"
 import SpotifySearchBar from "components/forum/SpotifySearchBar"
 import {postCollection} from "src/services/firebase/db";
+import {firestore} from "firebase/app";
 
 export default {
   components: {TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
@@ -171,7 +172,7 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          dateEdited: new Date().getTime()
+          dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
         }).catch((err) => {
@@ -187,7 +188,7 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          date: new Date().getTime(),
+          date: firestore.FieldValue.serverTimestamp(),
           user: this.currentUserRef,
         }).then(() => {
           this.$router.push({name: 'forum'})

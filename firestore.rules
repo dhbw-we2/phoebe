@@ -6,15 +6,15 @@ service cloud.firestore {
       allow read: if true;
     }
     match /posts/{post}/{document=**} {
-      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid));
-      allow update, delete: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid;
+      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && request.resource.data.date == request.time;
+      allow update: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid && request.resource.data.dateEdited == request.time;
+      allow delete: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid;
       allow read: if true;
     }
     match /comments/{comment}/{document=**} {
-      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid));
-      allow update: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid;
+      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && request.resource.data.date == request.time;
+      allow update: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid && (request.resource.data.dateEdited == request.time || request.resource.data.removed == true);
       allow delete: if request.auth != null && (!('user' in resource.data) || get(resource.data.user).data.uid == request.auth.uid);
       allow read: if true;
     }
   }
-}
