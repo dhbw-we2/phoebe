@@ -50,13 +50,12 @@
       </q-card-actions>
     </q-card>
 
-    <post-view disabled
-              :caption="sanitizedCaption"
-              :date="date"
-              :text="sanitizedText"
-              :user="currentUser"
-              :tags="tags"
-              preview>
+    <post-view :caption="sanitizedCaption"
+               :date="date"
+               :text="sanitizedText"
+               :user="currentUser"
+               :tags="tags"
+               preview>
     </post-view>
 
   </div>

@@ -4,9 +4,9 @@
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
           <q-card-actions vertical class="q-ma-md-sm q-px-xs-none q-px-md-sm" style="min-width: 5em">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
+            <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="preview"/>
             <span v-html="score" class="text-center text-h5"></span>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
+            <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="preview"/>
           </q-card-actions>
           <q-space/>
           <div class="full-width">
@@ -54,13 +54,20 @@
             </q-card-section>
             <q-card-actions class="full-width">
               <q-space/>
-              <q-btn flat round icon="eva-trash-2-outline" v-if="postedByCurrentUser() && !preview"
-                     @click="deletePost"/>
-              <q-btn flat round icon="eva-edit-outline" v-if="postedByCurrentUser() && !preview" @click="editPost"/>
+              <q-btn flat round icon="eva-trash-2-outline"
+                     v-if="postedByCurrentUser()"
+                     @click="deletePost"
+                     :disable="preview"/>
+              <q-btn flat round icon="eva-edit-outline"
+                     v-if="postedByCurrentUser()"
+                     @click="editPost"
+                     :disable="preview"/>
               <q-btn flat round icon="eva-message-square-outline"
                      @click="showHideComments"
-                     :loading="commentsLoading"/>
-              <q-btn flat round icon="eva-bookmark-outline"/>
+                     :loading="commentsLoading"
+                     :disable="preview"/>
+              <q-btn flat round icon="eva-bookmark-outline"
+                     :disable="preview"/>
             </q-card-actions>
           </div>
 
