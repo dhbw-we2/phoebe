@@ -234,7 +234,7 @@ export default {
       this.hasSubComments = subComments
     },
     updateNow() {
-      this.now = new Date().getTime();
+      this.now = firestore.Timestamp.now();
       this.scheduleUpdateNow();
     },
     scheduleUpdateNow() {
@@ -248,7 +248,7 @@ export default {
     },
   },
   created() {
-    // this.scheduleUpdateNow()
+    this.scheduleUpdateNow()
     this.checkForSubComments()
   },
   watch: {

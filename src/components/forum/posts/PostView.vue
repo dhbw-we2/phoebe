@@ -292,7 +292,7 @@ export default {
     },
   },
   created() {
-    // this.scheduleUpdateNow();
+    this.scheduleUpdateNow();
     this.score = this.upvotes.length - this.downvotes.length
   },
   mounted() {
