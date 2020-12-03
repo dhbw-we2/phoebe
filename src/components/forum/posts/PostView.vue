@@ -170,6 +170,11 @@ export default {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
     },
   },
+  watch: {
+    text() {
+      this.checkForLongPost()
+    }
+  },
   methods: {
     togglePostExpanded() {
       if (this.postExpanded) {
@@ -183,9 +188,8 @@ export default {
       // Check whether  post content is overflowing
       const postContent = this.$refs.postContent
       if (postContent) {
-        return postContent.scrollHeight > postContent.clientHeight || postContent.scrollWidth > postContent.clientWidth;
+        this.longPost = postContent.scrollHeight > postContent.clientHeight
       }
-      return false
     },
     onCommentsShowTransitionEnd() {
       if (!this.isInViewport()) {
@@ -292,7 +296,7 @@ export default {
     this.score = this.upvotes.length - this.downvotes.length
   },
   mounted() {
-    this.longPost = this.checkForLongPost()
+    this.checkForLongPost()
   }
 }
 </script>
