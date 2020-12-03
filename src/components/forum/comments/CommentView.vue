@@ -40,7 +40,7 @@
                          icon="eva-trash-2-outline"
                          v-if="postedByCurrentUser()"
                          @click="deleteComment"/>
-                  <q-btn flat rounded label="REPLY"
+                  <q-btn flat rounded :label="$q.screen.xs ? '' : 'REPLY'"
                          icon="eva-message-circle-outline"
                          @click="replyToComment"
                          v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
