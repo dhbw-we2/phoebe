@@ -1,5 +1,5 @@
 <template>
-  <q-slide-transition ref="test" :duration=150 @show="onTransitionEnd">
+  <q-slide-transition appear ref="test" :duration=150 @show="onTransitionEnd">
     <div ref="commentView" class="scroll-margin-navbar">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center">
