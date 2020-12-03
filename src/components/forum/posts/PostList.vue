@@ -7,7 +7,8 @@
                  :caption="post.caption"
                  :date="post.date"
                  :text="post.text"
-                 :user-ref="post.user"
+                 :user="userData[post.user.id]"
+                 :uid="post.user.id"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
                  :upvotes="post.upvotes"
@@ -31,6 +32,7 @@ import PostSkeleton from "components/forum/posts/PostSkeleton";
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import {postCollection} from "src/services/firebase/db";
+import {firestore} from "firebase/app"
 
 export default {
   name: 'PostList',
@@ -46,18 +48,21 @@ export default {
       newPostsNotify: Function,
       canShowNewPostsNotify: true,
       newestSnapshot: Function,
+      userData: [],
     }
   },
   props: {
     userFilter: Object,
     tags: {
       type: Array,
-      default: function (){ return [] }
+      default: function () {
+        return []
+      }
     },
   },
   watch: {
     tags: function () {
-      this.$emit("tags-changed",this.tags)
+      this.$emit("tags-changed", this.tags)
       this.updateQuery();
     }
   },
@@ -97,14 +102,25 @@ export default {
         throw new Error('empty response');
       }
       this.posts = []
+      const userRefs = []
       snapshot.forEach((doc) => {
         const post = doc.data()
         post.id = doc.id
-        if(typeof(post.user) !== 'object'){
-          post.user = null
+        if (post.user instanceof firestore.DocumentReference) {
+          if ((userRefs.findIndex(user => user.id === post.user.id) === -1) &&
+            (this.userData.findIndex(user => user.uid === post.user.id) === -1)) {
+            userRefs.push(post.user)
+          }
         }
         this.posts.push(post)
       })
+      // Load all user information into userData object //
+      userRefs.forEach(userRef => {
+        userRef.get().then(doc => {
+          this.$set(this.userData, userRef.id, doc.data())
+        })
+      })
+      // Hide the loading skeletons to reveal the posts  //
       this.loadingSkeleton = false
     },
     showNewPostsNotification() {

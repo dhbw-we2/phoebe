@@ -50,14 +50,14 @@
       </q-card-actions>
     </q-card>
 
-    <PostView disabled
+    <post-view disabled
               :caption="sanitizedCaption"
               :date="date"
               :text="sanitizedText"
-              :user-ref="currentUserRef"
+              :user="currentUser"
               :tags="tags"
               preview>
-    </PostView>
+    </post-view>
 
   </div>
 </template>
@@ -74,7 +74,7 @@ import {firestore} from "firebase/app";
 export default {
   components: {TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
   computed: {
-    ...mapGetters('user', ['currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
     /**
      * Returns
      * @returns {string}

@@ -1,5 +1,5 @@
 <template>
-  <q-slide-transition appear ref="test" :duration=150 @show="onTransitionEnd">
+  <q-slide-transition appear :duration=150 @show="onTransitionEnd">
     <div ref="commentView" class="scroll-margin-navbar">
       <q-card-section horizontal>
         <q-card-actions vertical class="justify-center">
@@ -18,14 +18,19 @@
               <q-card-section horizontal>
                 <q-item class="q-pa-none q-pt-sm" vertical>
                   <q-item-section avatar>
-                    <q-avatar v-if="avatar" size="50px">
-                      <q-img :src="avatar" alt="Avatar"/>
+                    <q-skeleton v-if="!user" type="QAvatar" size="50px"/>
+                    <q-avatar v-else-if="user.profilePicture" size="50px">
+                      <q-img :src="user.profilePicture" alt="Avatar"/>
                     </q-avatar>
-                    <q-avatar size="50px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+                    <q-avatar v-else size="50px" color="primary" icon="eva-person-outline" text-color="white"/>
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label class="text-caption">
-                      Posted by u/{{ (username ? username : '[deleted]') }} {{ timeSinceCommentCreated }}
+                    <q-item-label class="text-overline inline-block">
+                      <span>Posted by u/</span>
+                      <q-skeleton v-if="!user" type="rect" width="4em" height="1em" class="inline-block vertical-middle"/>
+                      <span v-else>{{ user.username ? user.username : '[deleted]' }}</span>
+                      <span> {{ timeSinceCommentCreated }}</span>
+                      <span v-if="dateEdited"> (edited {{ timeSinceCommentEdited }})</span>
                     </q-item-label>
                   </q-item-section>
                 </q-item>
@@ -78,7 +83,8 @@
         <comment-list
           :post="post"
           :comment-id="id"
-          :inherited-comments="allComments"/>
+          :inherited-comments="allComments"
+          :all-user-data="allUserData"/>
       </q-card-section>
     </div>
   </q-slide-transition>
@@ -99,21 +105,19 @@ export default {
   props: {
     id: String,
     text: String,
-    userRef: Object,
+    user: Object,
     date: [Number, firestore.Timestamp],
     dateEdited: undefined,
     allComments: Array,
     post: String,
     parentComment: Object,
+    allUserData: Array
   },
   data() {
     return {
       hasSubComments: false,
       replying: false,
       commentInput: "",
-      avatar: null,
-      username: null,
-      uid: null,
       now: firestore.Timestamp.now(),
       submittingReply: false,
       transitionEnded: false,
@@ -237,36 +241,19 @@ export default {
       setTimeout(this.updateNow, 1000);
     },
     postedByCurrentUser() {
-      if (this.currentUser) {
-        return this.uid === this.currentUser.uid;
+      if (this.currentUser && this.user) {
+        return this.user.uid === this.currentUser.uid;
       }
+      return false
     },
-    updateUserData() {
-      if (this.userRef) {
-        this.userRef.get().then(doc => {
-          if (doc.exists) {
-            const data = doc.data()
-            this.username = data.username
-            this.avatar = data.profilePicture
-            this.uid = data.uid
-          }
-        })
-      } else {
-        this.username = null
-        this.avatar = null
-        this.uid = null
-      }
-    }
   },
   created() {
     // this.scheduleUpdateNow()
-    this.updateUserData()
     this.checkForSubComments()
   },
   watch: {
     allComments() {
       this.checkForSubComments()
-      this.updateUserData()
     },
     currentUser() {
       if (!this.currentUser) {

@@ -13,10 +13,11 @@
             <q-card-section vertical class="q-pl-none q-pb-none">
               <q-item class="q-pl-none q-pr-none q-pb-md">
                 <q-item-section avatar>
-                  <q-avatar v-if="avatar" size="60px">
-                    <q-img :src="avatar" alt="Avatar"/>
+                  <q-skeleton v-if="!user" type="QAvatar" size="60px"/>
+                  <q-avatar v-else-if="user.profilePicture" size="60px">
+                    <q-img :src="user.profilePicture" alt="Avatar"/>
                   </q-avatar>
-                  <q-avatar size="60px" v-else round color="primary" icon="eva-person-outline" text-color="white"/>
+                  <q-avatar v-else size="60px" color="primary" icon="eva-person-outline" text-color="white"/>
                 </q-item-section>
 
                 <q-item-section>
@@ -25,7 +26,10 @@
                             @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
                   </q-item-label>
                   <q-item-label class="text-overline inline-block">
-                    <span>Posted by u/{{ username }} {{ timeSincePostCreated }}</span>
+                    <span>Posted by u/</span>
+                    <q-skeleton v-if="!user" type="rect" width="4em" height="1em" class="inline-block vertical-middle"/>
+                    <span v-else>{{ user.username ? user.username : 'NaU' }}</span>
+                    <span> {{ timeSincePostCreated }}</span>
                     <span v-if="dateEdited"> (edited {{ timeSincePostEdited }})</span>
                   </q-item-label>
                 </q-item-section>
@@ -116,7 +120,7 @@ export default {
     text: String,
     date: [Number, firestore.Timestamp],
     dateEdited: [Number, firestore.Timestamp],
-    userRef: Object,
+    user: Object,
     preview: Boolean,
     upvotes: {
       type: Array,
@@ -135,15 +139,12 @@ export default {
     return {
       visible: true,
       now: firestore.Timestamp.now(),
-      username: null,
-      uid: null,
-      avatar: null,
       commentsActive: false,
       commentInput: '',
       commentsShown: false,
       commentsLoading: false,
       submittingComment: false,
-      score: 200,
+      score: 0,
       longPost: false,
       postExpanded: false,
     }
@@ -248,9 +249,10 @@ export default {
       setTimeout(this.updateNow, 1000);
     },
     postedByCurrentUser() {
-      if (this.currentUser) {
-        return this.uid === this.currentUser.uid;
+      if (this.currentUser && this.user) {
+        return this.user.uid === this.currentUser.uid;
       }
+      return false
     },
     addComment() {
       if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
@@ -280,16 +282,6 @@ export default {
   },
   created() {
     // this.scheduleUpdateNow();
-    if (this.userRef) {
-      this.userRef.get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data()
-          this.username = data.username
-          this.avatar = data.profilePicture
-          this.uid = data.uid
-        }
-      })
-    }
     this.score = this.upvotes.length - this.downvotes.length
   },
   mounted() {

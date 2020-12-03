@@ -1,22 +1,25 @@
 <template>
-    <div class="q-pl-lg">
-      <comment-view
-        v-for="comment in comments"
-        :key="comment.id"
-        :id="comment.id"
-        :text="comment.text"
-        :user-ref="comment.user"
-        :date="comment.date"
-        :all-comments="allComments"
-        :post="post"
-        :parent-comment="comment.parentComment"
-      />
-    </div>
+  <div class="q-pl-lg">
+    <comment-view
+      v-for="comment in comments"
+      :key="comment.id"
+      :id="comment.id"
+      :text="comment.text"
+      :user="comment.user ? userData[comment.user.id] : {}"
+      :date="comment.date"
+      :all-comments="allComments"
+      :post="post"
+      :parent-comment="comment.parentComment"
+      :all-user-data="userData"
+    />
+  </div>
 </template>
 
 <script>
 
 import {commentCollection, postRef} from "src/services/firebase/db";
+import {firestore} from "firebase/app";
+
 export default {
   name: "CommentList",
   components: {
@@ -26,6 +29,7 @@ export default {
     post: String,
     commentId: String,
     inheritedComments: Array,
+    allUserData: Array
   },
 
   data() {
@@ -33,6 +37,7 @@ export default {
       comments: [],
       commentsQuery: Function,
       allComments: [],
+      userData: [],
     }
   },
   methods: {
@@ -61,10 +66,23 @@ export default {
     },
     onSnapshot(snapshot) {
       let comments = []
+      const userRefs = []
       snapshot.forEach((doc) => {
         let comment = doc.data({serverTimestamps: 'estimate'});
         comment.id = doc.id
+        if (comment.user instanceof firestore.DocumentReference) {
+          if ((userRefs.findIndex(user => user.id === comment.user.id) === -1) &&
+            (this.userData.findIndex(user => user.uid === comment.user.id) === -1)) {
+            userRefs.push(comment.user)
+          }
+        }
         comments.push(comment)
+      })
+      // Load all user information into userData object //
+      userRefs.forEach(userRef => {
+        userRef.get().then(doc => {
+          this.$set(this.userData, userRef.id, doc.data())
+        })
       })
       this.allComments = comments;
       this.loadTopLevelComments()
@@ -95,6 +113,7 @@ export default {
       this.createQuery()
     } else {
       // Is nested list
+      this.userData = this.allUserData
       this.loadSubComments()
     }
   },
