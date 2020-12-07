@@ -31,7 +31,7 @@
 import PostSkeleton from "components/forum/posts/PostSkeleton";
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
-import {postCollection} from "src/services/firebase/db";
+import {postCollection, userCollection} from "src/services/firebase/db";
 import {firestore} from "firebase/app"
 
 export default {
@@ -102,24 +102,31 @@ export default {
         throw new Error('empty response');
       }
       this.posts = []
-      const userRefs = []
+      const userIDs = []
       snapshot.forEach((doc) => {
         const post = doc.data()
         post.id = doc.id
+        // Populate userIDs with all users visible in post list //
         if (post.user instanceof firestore.DocumentReference) {
-          if ((userRefs.findIndex(user => user.id === post.user.id) === -1) &&
+          if ((userIDs.findIndex(userID => userID === post.user.id) === -1) &&
             (this.userData.findIndex(user => user.uid === post.user.id) === -1)) {
-            userRefs.push(post.user)
+            userIDs.push(post.user.id)
           }
         }
+        // Populate posts array //
         this.posts.push(post)
       })
+
       // Load all user information into userData object //
-      userRefs.forEach(userRef => {
-        userRef.get().then(doc => {
-          this.$set(this.userData, userRef.id, doc.data())
+      while(userIDs.length > 0){
+        const userRefsPart = userIDs.splice(0, 10)
+        userCollection().where(firestore.FieldPath.documentId(), "in", userRefsPart).get().then(snapshot => {
+          snapshot.forEach(doc => {
+            this.$set(this.userData, doc.id, doc.data())
+          })
         })
-      })
+      }
+
       // Hide the loading skeletons to reveal the posts  //
       this.loadingSkeleton = false
     },
