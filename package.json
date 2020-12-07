@@ -12,6 +12,7 @@
     "deploy": "firebase use default && cross-env QENV=production quasar build && firebase deploy"
   },
   "dependencies": {
+    "vue": "^2.6.12",
     "@firebase/firestore-types": "^2.0.0",
     "@quasar/extras": "^1.9.10",
     "axios": "^0.18.1",
@@ -22,6 +23,7 @@
     "quasar": "^1.14.3",
     "spotify-web-api-node": "^5.0.0",
     "v-emoji-picker": "^2.3.1",
+    "vue-check-view": "^0.3.0",
     "vuex": "^3.5.1",
     "vuexfire": "^3.2.4"
   },

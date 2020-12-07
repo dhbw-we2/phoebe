@@ -164,16 +164,6 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 
-// Scroll event handler to change the header opacity
-window.onscroll = function () {
-  const header = document.getElementById('header');
-  "use strict";
-  if (document.body.scrollTop >= 25 || document.documentElement.scrollTop >= 25) {
-    header.classList.add("scroll");
-  } else {
-    header.classList.remove("scroll");
-  }
-};
 
 export default {
   data() {
@@ -211,6 +201,16 @@ export default {
     toggleDarkMode() {
       this.$q.dark.toggle()
     },
+    // Scroll event handler to change the header opacity
+    handleScroll() {
+      const header = document.getElementById('header');
+      "use strict";
+      if (document.body.scrollTop >= 25 || document.documentElement.scrollTop >= 25) {
+        header.classList.add("scroll");
+      } else {
+        header.classList.remove("scroll");
+      }
+    },
     rainbowColors() {
       this.$q.notify({
         color: 'negative',
@@ -221,6 +221,10 @@ export default {
     }
   },
   created() {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  destroyed() {
+    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>
