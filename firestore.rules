@@ -76,9 +76,6 @@ service cloud.firestore {
     function userRef(id) {
     return /databases/$(database)/documents/users/$(id)
     }
-    function postRef(id) {
-    return /databases/$(database)/documents/posts/$(id)
-    }
     function ratingRef(type) {
     return /databases/$(database)/documents/$("ratings-" + type)/$(request.auth.uid + '_' + resource.id)
     }
