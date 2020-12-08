@@ -1,95 +1,95 @@
 <template>
   <q-slide-transition appear :duration=150 @show="onTransitionEnd">
     <div ref="commentView" class="scroll-margin-navbar">
-      <q-card-section horizontal>
-        <q-card-actions vertical class="justify-center">
-          <q-icon name="eva-corner-down-right-outline" size="2em"/>
-        </q-card-actions>
-        <q-separator vertical inset="true"/>
-        <q-card-section class="full-width q-pa-none">
-          <q-card-section horizontal>
-            <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
-              <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="rating.disabled || downvoteLoading"
-                     :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
-                     @click="vote(true)">
+        <q-card-section horizontal>
+          <q-card-actions vertical class="justify-center">
+            <q-icon name="eva-corner-down-right-outline" size="2em"/>
+          </q-card-actions>
+          <q-separator vertical inset="true"/>
+          <q-card-section class="full-width q-pa-none">
+            <q-card-section horizontal>
+              <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
+                <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="rating.disabled || downvoteLoading"
+                       :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
+                       @click="vote(true)">
+                  <template v-slot:loading>
+                    <q-spinner-puff color="white"/>
+                  </template>
+                </q-btn>
+                <span v-html="score" class="text-center text-h6"></span>
+                <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="rating.disabled || upvoteLoading"
+                       :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
+                       @click="vote(false)">
+                  <template v-slot:loading>
+                    <q-spinner-puff color="white"/>
+                  </template>
+                </q-btn>
+              </q-card-actions>
+
+              <q-card-section vertical class="q-pa-none full-width">
+                <q-card-section horizontal>
+                  <q-item class="q-pa-none q-pt-sm" vertical>
+                    <q-item-section avatar>
+                      <q-skeleton v-if="!user" type="QAvatar" size="50px"/>
+                      <q-avatar v-else-if="user.profilePicture" size="50px">
+                        <q-img :src="user.profilePicture" alt="Avatar"/>
+                      </q-avatar>
+                      <q-avatar v-else size="50px" color="primary" icon="eva-person-outline" text-color="white"/>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-overline inline-block">
+                        <span>Posted by u/</span>
+                        <q-skeleton v-if="!user" type="rect" width="4em" height="1em"
+                                    class="inline-block vertical-middle"/>
+                        <span v-else>{{ user.username ? user.username : '[deleted]' }}</span>
+                        <span> {{ timeSinceCommentCreated }}</span>
+                        <span v-if="dateEdited"> (edited {{ timeSinceCommentEdited }})</span>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-space/>
+                  <q-card-actions>
+                    <q-btn flat round
+                           icon="eva-trash-2-outline"
+                           v-if="postedByCurrentUser()"
+                           @click="deleteComment"/>
+                    <q-btn flat rounded :label="$q.screen.xs ? '' : 'REPLY'"
+                           icon="eva-message-circle-outline"
+                           @click="replyToComment"
+                           v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
+                    />
+                  </q-card-actions>
+                </q-card-section>
+                <q-card-section v-html="(text ? text : '[removed]')" class="q-pl-none links-primary"/>
+              </q-card-section>
+            </q-card-section>
+            <q-separator/>
+          </q-card-section>
+        </q-card-section>
+        <q-slide-transition appear>
+          <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
+            <text-editor
+              ref="editor"
+              placeholderText="Very interesting Comment"
+              :text-input.sync="commentInput">
+            </text-editor>
+            <q-card-actions class="q-pr-none">
+              <q-space/>
+              <q-btn
+                unelevated rounded
+                color=positive
+                label="SEND"
+                icon="eva-paper-plane-outline"
+                type="submit"
+                @click="AddReply"
+                :loading="submittingReply">
                 <template v-slot:loading>
-                  <q-spinner-puff color="white"/>
-                </template>
-              </q-btn>
-              <span v-html="score" class="text-center text-h6"></span>
-              <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="rating.disabled || upvoteLoading"
-                     :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
-                     @click="vote(false)">
-                <template v-slot:loading>
-                  <q-spinner-puff color="white"/>
+                  <q-spinner-dots/>
                 </template>
               </q-btn>
             </q-card-actions>
-
-            <q-card-section vertical class="q-pa-none full-width">
-              <q-card-section horizontal>
-                <q-item class="q-pa-none q-pt-sm" vertical>
-                  <q-item-section avatar>
-                    <q-skeleton v-if="!user" type="QAvatar" size="50px"/>
-                    <q-avatar v-else-if="user.profilePicture" size="50px">
-                      <q-img :src="user.profilePicture" alt="Avatar"/>
-                    </q-avatar>
-                    <q-avatar v-else size="50px" color="primary" icon="eva-person-outline" text-color="white"/>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline inline-block">
-                      <span>Posted by u/</span>
-                      <q-skeleton v-if="!user" type="rect" width="4em" height="1em"
-                                  class="inline-block vertical-middle"/>
-                      <span v-else>{{ user.username ? user.username : '[deleted]' }}</span>
-                      <span> {{ timeSinceCommentCreated }}</span>
-                      <span v-if="dateEdited"> (edited {{ timeSinceCommentEdited }})</span>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-space/>
-                <q-card-actions>
-                  <q-btn flat round
-                         icon="eva-trash-2-outline"
-                         v-if="postedByCurrentUser()"
-                         @click="deleteComment"/>
-                  <q-btn flat rounded :label="$q.screen.xs ? '' : 'REPLY'"
-                         icon="eva-message-circle-outline"
-                         @click="replyToComment"
-                         v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
-                  />
-                </q-card-actions>
-              </q-card-section>
-              <q-card-section v-html="(text ? text : '[removed]')" class="q-pl-none links-primary"/>
-            </q-card-section>
           </q-card-section>
-          <q-separator/>
-        </q-card-section>
-      </q-card-section>
-      <q-slide-transition appear>
-        <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
-          <text-editor
-            ref="editor"
-            placeholderText="Very interesting Comment"
-            :text-input.sync="commentInput">
-          </text-editor>
-          <q-card-actions class="q-pr-none">
-            <q-space/>
-            <q-btn
-              unelevated rounded
-              color=positive
-              label="SEND"
-              icon="eva-paper-plane-outline"
-              type="submit"
-              @click="AddReply"
-              :loading="submittingReply">
-              <template v-slot:loading>
-                <q-spinner-dots/>
-              </template>
-            </q-btn>
-          </q-card-actions>
-        </q-card-section>
-      </q-slide-transition>
+        </q-slide-transition>
       <q-card-section
         class="q-pa-none"
         v-if="hasSubComments && transitionEnded">
