@@ -7,13 +7,13 @@ service cloud.firestore {
     }
     match /posts/{post}/{document=**} {
       allow create: if authenticated() && userExists() && verifyDate();
-      allow update: if authenticated() && (isAuthor() && verifyDateEdited() || updateScoreOnly() && ratingMatchesContent());
+      allow update: if authenticated() && (isAuthor() && verifyDateEdited() || updateScoreOnly() && ratingMatchesContent('posts'));
       allow delete: if authenticated() && isAuthor();
       allow read: 	if true;
     }
     match /comments/{comment}/{document=**} {
       allow create: if authenticated() && userExists() && verifyDate();
-      allow update: if authenticated() && ((isAuthor() && verifyDateEdited()) || request.resource.data.removed == true || updateScoreOnly());
+      allow update: if authenticated() && ((isAuthor() && verifyDateEdited()) || request.resource.data.removed == true || updateScoreOnly() && ratingMatchesContent('comments'));
       allow delete: if authenticated() && (isAuthor() || !('user' in resource.data));
       allow read: 	if true;
     }
@@ -23,6 +23,13 @@ service cloud.firestore {
       allow delete: if authenticated() && isAuthor();
       allow read: 	if authenticated();
     }
+    match /ratings-comments/{rating}/{document=**} {
+      allow create: if authenticated() && ratingIdsMatchContent('comment');
+      allow update: if authenticated() && isAuthor() && ratingIdsMatchContent('comment');
+      allow delete: if authenticated() && isAuthor();
+      allow read: 	if authenticated();
+    }
+
     function authenticated() {
     return request.auth != null;
     }
@@ -42,28 +49,28 @@ service cloud.firestore {
     return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score']);
     }
     function ratingIdsMatchContent(type) {
-    return (userRef(request.resource.id.split('_')[0]) == request.resource.data['user']) && (postRef(request.resource.id.split('_')[1]) == request.resource.data[type]);
+    return (userRef(request.resource.id.split('_')[0]) == request.resource.data['user']) && (/databases/$(database)/documents/$(type + "s")/$(request.resource.id.split('_')[1]) == request.resource.data[type]);
     }
-    function ratingMatchesContent() {
+    function ratingMatchesContent(type) {
     return
-    (!exists(postRatingRef()) && (
-    getAfter(postRatingRef()).data.positive == true
+    (!exists(ratingRef(type)) && (
+    getAfter(ratingRef(type)).data.positive == true
       && (request.resource.data.score == ('score' in resource.data ? resource.data.score + 1 : 1))
-      || getAfter(postRatingRef()).data.positive == false
+      || getAfter(ratingRef(type)).data.positive == false
       && (request.resource.data.score == ('score' in resource.data ? resource.data.score - 1 : -1))
     	)
     )
-    || get(postRatingRef()).data.positive == true
-    && getAfter(postRatingRef()).data.positive == false
+    || get(ratingRef(type)).data.positive == true
+    && getAfter(ratingRef(type)).data.positive == false
     && (request.resource.data.score == resource.data.score - 2)
-    || get(postRatingRef()).data.positive == false
-    && getAfter(postRatingRef()).data.positive == true
+    || get(ratingRef(type)).data.positive == false
+    && getAfter(ratingRef(type)).data.positive == true
     && (request.resource.data.score == resource.data.score + 2)
-    || get(postRatingRef()).data.positive == true
-    && existsAfter(postRatingRef()) == false
+    || get(ratingRef(type)).data.positive == true
+    && existsAfter(ratingRef(type)) == false
     && (request.resource.data.score == resource.data.score - 1)
-    || get(postRatingRef()).data.positive == false
-    && existsAfter(postRatingRef()) == false
+    || get(ratingRef(type)).data.positive == false
+    && existsAfter(ratingRef(type)) == false
     && (request.resource.data.score == resource.data.score + 1)
     }
     function userRef(id) {
@@ -72,8 +79,8 @@ service cloud.firestore {
     function postRef(id) {
     return /databases/$(database)/documents/posts/$(id)
     }
-    function postRatingRef() {
-    return /databases/$(database)/documents/ratings-posts/$(request.auth.uid + '_' + resource.id)
+    function ratingRef(type) {
+    return /databases/$(database)/documents/$("ratings-" + type)/$(request.auth.uid + '_' + resource.id)
     }
   }
 }

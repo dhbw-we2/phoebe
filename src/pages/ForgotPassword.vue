@@ -1,13 +1,12 @@
 <template>
-  <q-page padding="padding">
+  <q-page class="constrain q-pa-md">
     <q-form class="authentication q-gutter-y-md" ref="forgotPasswordForm" @submit="onSubmit">
       <h4 class="q-mb-none">Forgot Password</h4>
       <div class="inst q-mb-lg">Please enter your email and we will send you a link to reset your password.</div>
       <q-input
         v-model="email"
-        outlined
+        filled dark
         autocomplete="email"
-        color="primary"
         data-cy="email"
         for="email"
         label="EMAIL"

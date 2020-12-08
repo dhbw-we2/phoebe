@@ -11,14 +11,18 @@
       :post="post"
       :parent-comment="comment.parentComment"
       :all-user-data="userData"
+      :initial-score="comment.score"
+      :initial-rating="ratingData[comment.id]"
+      :all-rating-data="ratingData"
     />
   </div>
 </template>
 
 <script>
 
-import {commentCollection, postRef} from "src/services/firebase/db";
+import {commentCollection, commentRatingCollection, postRef} from "src/services/firebase/db";
 import {firestore} from "firebase/app";
+import {mapGetters} from "vuex";
 
 export default {
   name: "CommentList",
@@ -29,7 +33,8 @@ export default {
     post: String,
     commentId: String,
     inheritedComments: Array,
-    allUserData: Array
+    allUserData: Array,
+    allRatingData: Array
   },
 
   data() {
@@ -38,9 +43,31 @@ export default {
       commentsQuery: Function,
       allComments: [],
       userData: [],
+      ratingData: [],
     }
   },
+  computed: {
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+  },
   methods: {
+    fetchCurrentUserRatings(commentRefs){
+      while (commentRefs.length > 0) {
+        const commentRefsPart = commentRefs.splice(0, 10)
+        commentRatingCollection().where('user', "==", this.currentUserRef)
+          .where('comment', 'in', commentRefsPart).get().then(snapshot => {
+          snapshot.forEach(doc => {
+            // Set rating according to database //
+            this.$set(this.ratingData, doc.data().comment.id, doc.data())
+            // Remove this post from the temporary list //
+            commentRefsPart.splice(commentRefsPart.findIndex(comment => comment.id === doc.data().comment.id), 1)
+          })
+          // Set all post that don't have a user rating to neutral to get them out of loading state//
+          commentRefsPart.forEach(comment => {
+            this.$set(this.ratingData, comment.id, {neutral: true})
+          })
+        })
+      }
+    },
     createQuery() {
       this.clearQuery()
       let query = this.buildQuery();
@@ -67,6 +94,7 @@ export default {
     onSnapshot(snapshot) {
       let comments = []
       const userRefs = []
+      const commentRefs = []
       snapshot.forEach((doc) => {
         let comment = doc.data({serverTimestamps: 'estimate'});
         comment.id = doc.id
@@ -76,6 +104,9 @@ export default {
             userRefs.push(comment.user)
           }
         }
+        // Populate commentRefs array for fetching ratings //
+        commentRefs.push(doc.ref)
+        // Populate comments array //
         comments.push(comment)
       })
       // Load all user information into userData object //
@@ -84,6 +115,11 @@ export default {
           this.$set(this.userData, userRef.id, doc.data())
         })
       })
+
+      // Get current user ratings for all posts from database //
+      if(this.$store.state.auth.isAuthenticated) {
+        this.fetchCurrentUserRatings(commentRefs)
+      }
       this.allComments = comments;
       this.loadTopLevelComments()
       this.$emit('comments-received')
@@ -114,6 +150,7 @@ export default {
     } else {
       // Is nested list
       this.userData = this.allUserData
+      this.ratingData = this.allRatingData
       this.loadSubComments()
     }
   },
