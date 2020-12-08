@@ -28,7 +28,7 @@
         <q-tab name="album" icon="eva-people-outline" label="Artists" />
         <q-tab name="podcast" icon="eva-mic-outline" label="Podcasts" />
       </q-tabs>
-      <spotify-search-preview v-if="tab == 'track'"     :type="'tracks'"    :tracks="searchData.body.tracks.items" @addItem="addSong($event)" />
+      <spotify-search-preview v-if="tab == 'track'"     :type="'tracks'"    :tracks="searchData.body.tracks.items" v-on="$listeners" />
       <spotify-search-preview v-if="tab == 'playlist'"  :type="'playlists'" :podcasts="searchData.body.playlists.items" />
       <spotify-search-preview v-if="tab == 'album'"     :type="'albums'"    :albums="searchData.body.albums.items" />
       <spotify-search-preview v-if="tab == 'podcast'"   :type="'podcasts'"  :podcasts="searchData.body.shows.items" />
@@ -57,10 +57,6 @@ export default {
     ...mapGetters('user', ['currentUser']),
   },
   methods: {
-    addSong(item){
-      console.log(item)
-      this.$emit('addItemForReal', item)
-    },
     async spotifySearch () {
       this.searching = true
       try {

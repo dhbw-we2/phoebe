@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import { EventBus } from '../../helpers/event-bus'
 
 export default {
 name: "SpotifySearchPreview",
@@ -68,14 +67,15 @@ methods: {
         return item.image[2].url
     }
   },
+  /**
+   * This function triggeres an event to update editor input
+   * @param item
+   */
   addItem(item){
-    console.log(item)
-    EventBus.$emit('addItem', item.name, item.id)
-    //this.$emit('addItem', item.name)
+    this.$emit('add-item', {name: item.name, url: item.external_urls.spotify})
   },
 },
   created() {
-    console.log(this.type)
     switch (this.type) {
       case 'tracks':
         if (this.tracks.length !== 0) {
@@ -98,7 +98,8 @@ methods: {
           return
         }
       default:
-        this.showNothing = true
+          this.showNothing = true
+          break
     }
   },
 

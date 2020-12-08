@@ -37,14 +37,13 @@
         @select="selectEmoji"
         dark="true"
         class="emoji-picker-color-override"
-        @addItem="addSong($event)" />
+         />
     </div>
   </div>
 </template>
 
 <script>
 import {VEmojiPicker} from 'v-emoji-picker';
-import { EventBus } from '../../helpers/event-bus'
 
 export default {
   components: {
@@ -54,9 +53,6 @@ export default {
   props: {
     placeholderText: String,
     textInput: '',
-  },
-  created() {
-    EventBus.$on('addItem', this.addSong);
   },
   computed: {
     textInputProxy: {
@@ -74,10 +70,6 @@ export default {
     }
   },
   methods: {
-    addSong(item) {
-      console.log('event triggered and received', item.id)
-      this.$refs.editor.runCmd('insertText', item.data)
-    },
     toggleEmojiDialog() {
       this.emojiDialog = !this.emojiDialog
       if (this.emojiDialog) {

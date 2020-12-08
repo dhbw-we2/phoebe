@@ -21,13 +21,14 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar/>
+        <spotify-search-bar @add-item="addSong"/>
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
-          :text-input.sync="textInput">
+          :text-input.sync="textInput"
+          ref="textEditor">
         </text-editor>
       </q-card-section>
       <q-card-actions align="right">
@@ -143,6 +144,19 @@ export default {
     }
   },
   methods: {
+    /**
+     * This function gets triggered by click on Item in SpotifySearchPreview
+     * Writes Item name in Editor and automatically adds a whitespace
+     * @Input: name
+     * @Input: url
+     */
+    addSong({name, url}) {
+      this.$refs.textEditor.pasteCapture(name)
+      this.$refs.textEditor.pasteCapture(' (')
+      this.$refs.textEditor.pasteCapture(url)
+      this.$refs.textEditor.pasteCapture(')')
+    },
+
     /**
      * Adds Tag to the Tag-Array if the input field is not empty
      */
