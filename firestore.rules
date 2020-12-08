@@ -2,20 +2,78 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
    match /users/{user}/{document=**} {
-      allow write: if request.auth != null && request.resource.id == request.auth.uid;
-      allow read: if true;
+      allow write: 	if request.auth != null && request.resource.id == request.auth.uid;
+      allow read: 	if true;
     }
     match /posts/{post}/{document=**} {
-      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && request.resource.data.date == request.time;
-      allow update: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid && request.resource.data.dateEdited == request.time;
-      allow delete: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid;
-      allow read: if true;
+      allow create: if authenticated() && userExists() && verifyDate();
+      allow update: if authenticated() && (isAuthor() && verifyDateEdited() || updateScoreOnly() && ratingMatchesContent());
+      allow delete: if authenticated() && isAuthor();
+      allow read: 	if true;
     }
     match /comments/{comment}/{document=**} {
-      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && request.resource.data.date == request.time;
-      allow update: if request.auth != null && get(resource.data.user).data.uid == request.auth.uid && (request.resource.data.dateEdited == request.time || request.resource.data.removed == true);
-      allow delete: if request.auth != null && (!('user' in resource.data) || get(resource.data.user).data.uid == request.auth.uid);
-      allow read: if true;
+      allow create: if authenticated() && userExists() && verifyDate();
+      allow update: if authenticated() && ((isAuthor() && verifyDateEdited()) || request.resource.data.removed == true || updateScoreOnly());
+      allow delete: if authenticated() && (isAuthor() || !('user' in resource.data));
+      allow read: 	if true;
+    }
+    match /ratings-posts/{rating}/{document=**} {
+      allow create: if authenticated() && ratingIdsMatchContent('post');
+      allow update: if authenticated() && isAuthor() && ratingIdsMatchContent('post');
+      allow delete: if authenticated() && isAuthor();
+      allow read: 	if authenticated();
+    }
+    function authenticated() {
+    return request.auth != null;
+    }
+    function userExists() {
+    return exists(userRef(request.auth.uid))
+    }
+    function isAuthor() {
+    return resource.data['user'] == userRef(request.auth.uid)
+    }
+    function verifyDateEdited() {
+    return request.resource.data.dateEdited == request.time;
+    }
+    function verifyDate() {
+    return request.resource.data.date == request.time;
+    }
+    function updateScoreOnly() {
+    return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score']);
+    }
+    function ratingIdsMatchContent(type) {
+    return (userRef(request.resource.id.split('_')[0]) == request.resource.data['user']) && (postRef(request.resource.id.split('_')[1]) == request.resource.data[type]);
+    }
+    function ratingMatchesContent() {
+    return
+    (!exists(postRatingRef()) && (
+    getAfter(postRatingRef()).data.positive == true
+      && (request.resource.data.score == ('score' in resource.data ? resource.data.score + 1 : 1))
+      || getAfter(postRatingRef()).data.positive == false
+      && (request.resource.data.score == ('score' in resource.data ? resource.data.score - 1 : -1))
+    	)
+    )
+    || get(postRatingRef()).data.positive == true
+    && getAfter(postRatingRef()).data.positive == false
+    && (request.resource.data.score == resource.data.score - 2)
+    || get(postRatingRef()).data.positive == false
+    && getAfter(postRatingRef()).data.positive == true
+    && (request.resource.data.score == resource.data.score + 2)
+    || get(postRatingRef()).data.positive == true
+    && existsAfter(postRatingRef()) == false
+    && (request.resource.data.score == resource.data.score - 1)
+    || get(postRatingRef()).data.positive == false
+    && existsAfter(postRatingRef()) == false
+    && (request.resource.data.score == resource.data.score + 1)
+    }
+    function userRef(id) {
+    return /databases/$(database)/documents/users/$(id)
+    }
+    function postRef(id) {
+    return /databases/$(database)/documents/posts/$(id)
+    }
+    function postRatingRef() {
+    return /databases/$(database)/documents/ratings-posts/$(request.auth.uid + '_' + resource.id)
     }
   }
 }
