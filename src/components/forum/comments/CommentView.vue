@@ -187,6 +187,9 @@ export default {
     },
     initialRating() {
       this.rating = this.initialRating
+    },
+    initialScore() {
+      this.score = this.initialScore
     }
   },
   methods: {
