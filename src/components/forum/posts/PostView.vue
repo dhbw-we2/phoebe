@@ -4,7 +4,7 @@
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
           <q-card-actions vertical class="q-ma-md-sm" style="min-width: 5em">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="preview || rating.loading || downvoteLoading"
+            <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="preview || rating.disabled || downvoteLoading"
                    :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
                    @click="vote(true)">
               <template v-slot:loading>
@@ -12,7 +12,7 @@
               </template>
             </q-btn>
             <span v-html="score" class="text-center text-h5"></span>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="preview || rating.loading || upvoteLoading"
+            <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="preview || rating.disabled || upvoteLoading"
                    :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
                    @click="vote(false)">
               <template v-slot:loading>
@@ -159,7 +159,7 @@ export default {
       longPost: false,
       postExpanded: false,
       score: 0,
-      rating: {loading: true},
+      rating: {disabled: true},
       upvoteLoading: false,
       downvoteLoading: false
     }
@@ -178,12 +178,12 @@ export default {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
     },
     alreadyUpvoted() {
-      if (!this.rating.loading && !this.rating.neutral) {
+      if (!this.rating.disabled && !this.rating.neutral) {
         return this.rating.positive
       }
     },
     alreadyDownvoted() {
-      if (!this.rating.loading && !this.rating.neutral) {
+      if (!this.rating.disabled && !this.rating.neutral) {
         return !this.rating.positive
       }
     }

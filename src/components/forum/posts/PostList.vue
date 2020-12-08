@@ -177,7 +177,9 @@ export default {
       }
 
       // Get current user ratings for all posts from database //
-      this.fetchCurrentUserRatings(postRefs)
+      if(this.$store.state.auth.isAuthenticated) {
+        this.fetchCurrentUserRatings(postRefs)
+      }
 
       // Hide the loading skeletons to reveal the posts  //
       this.loadingSkeleton = false
