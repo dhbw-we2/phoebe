@@ -2,7 +2,7 @@
   <div>
     <q-input filled v-model="tagInput"
              :placeholder="placeholder"
-             @keypress.space.enter.prevent="addTag">
+             @keypress.space.enter.prevent="addTagFromInput">
       <template v-slot:prepend>
         <q-icon :name="icon"/>
       </template>
@@ -13,7 +13,7 @@
           icon="eva-plus-outline"
           type="submit"
           label="ADD TAG"
-          @click="addTag"
+          @click="addTagFromInput"
         />
         <q-btn
           v-if="subscriptionBox"
@@ -21,7 +21,7 @@
           icon="eva-person-add-outline"
           type="submit"
           label="SUBSCRIBE"
-          @click="addTag"
+          @click="addTagFromInput"
         />
       </template>
     </q-input>
@@ -38,14 +38,14 @@
       </q-btn>
     </div>
     <q-card-actions align="right" v-if="allowSubscribe && tags.length > 0">
-        <q-btn
-          color='negative'
-          unelevated rounded filled
-          icon-right="eva-person-add-outline"
-          @click="subscribeButton"
-          :loading="subscribing"
-          label="SUBSCRIBE">
-        </q-btn>
+      <q-btn
+        color='negative'
+        unelevated rounded filled
+        icon-right="eva-person-add-outline"
+        @click="subscribeButton"
+        :loading="subscribing"
+        label="SUBSCRIBE">
+      </q-btn>
     </q-card-actions>
   </div>
 </template>
@@ -77,7 +77,7 @@ export default {
   watch: {
     tagInput: function () {
       if (this.tagInput.slice(-1) === ' ') {
-        this.addTag();
+        this.addTagFromInput();
       }
     }
   },
@@ -85,15 +85,22 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
-    addTag() {
+    addTagFromInput() {
+      if (this.addTag(this.tagInput)) {
+        this.tagInput = '';
+      }
+    },
+    addTag(tag) {
       if (this.tags.length < 10) {
-        const newTag = this.tagInput.replace(/\s/g, '').toLowerCase()
+        const newTag = tag.replace(/\s/g, '').toLowerCase()
         if (newTag !== '') {
           const index = this.tags.indexOf(newTag);
           if (index === -1) {
             this.tags.push(newTag);
-            if(this.subscriptionBox)
-            this.subscribeTo([newTag]);
+            if (this.subscriptionBox) {
+              this.subscribe([newTag]);
+            }
+            return true
           }
         }
       } else {
@@ -102,29 +109,36 @@ export default {
           message: 'You can only add up to 10 tags!'
         })
       }
-      this.tagInput = '';
+      return false
     },
     removeTag(tag) {
       const index = this.tags.indexOf(tag);
       if (index !== -1) {
         this.tags.splice(index, 1);
+        if(this.subscriptionBox){
+          this.unsubscribe(tag)
+        }
       }
-      this.$emit('remove-tag', tag)
     },
-    async subscribeTo(tag) {
+    async subscribe(tag) {
       await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tag)
       })
     },
+    async unsubscribe(tag){
+      await this.currentUserRef.update({
+        subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
+      })
+    },
     getSubscriptions() {
-      if(this.currentUser.subscribedTags) {
+      if (this.currentUser.subscribedTags) {
         this.tags.push(...this.currentUser.subscribedTags)
       }
     },
     async subscribeButton() {
       this.subscribing = true
-      try{
-        await this.subscribeTo(this.tags)
+      try {
+        await this.subscribe(this.tags)
         this.$q.notify({
           type: 'positive',
           message: 'Subscription added'
@@ -140,7 +154,7 @@ export default {
     }
   },
   created() {
-    if(this.subscriptionBox){
+    if (this.subscriptionBox) {
       this.getSubscriptions()
     }
   }

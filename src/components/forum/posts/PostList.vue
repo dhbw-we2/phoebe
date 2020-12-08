@@ -13,7 +13,10 @@
                  :date-edited="post.dateEdited"
                  :initial-score="post.score"
                  :initial-rating="ratingData[post.id]"
-                 @tag-clicked="tags.length = 0; tags.push($event)">
+                 @tag-clicked="$emit('tag-clicked', $event)">
+        <template v-slot:tagTooltip="props">
+          <slot name="tagTooltip" :tag="props.tag"/>
+        </template>
       </post-view>
       <post-skeleton v-if="!lastPage" v-view="onLoadMoreInView"/>
       <div v-else class="column items-center">
@@ -74,7 +77,6 @@ export default {
   },
   watch: {
     tags: function () {
-      this.$emit("tags-changed", this.tags)
       this.refreshQuery();
     }
   },

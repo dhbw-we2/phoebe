@@ -9,7 +9,7 @@
     <PostList
       ref="postList"
       :tags="tags"
-      @tags-changed="tags = $event"/>
+      @tag-clicked="tags = [$event]"/>
   </q-page>
 </template>
 

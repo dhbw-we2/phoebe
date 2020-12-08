@@ -4,7 +4,8 @@
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
           <q-card-actions vertical class="q-ma-md-sm" style="min-width: 5em">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="preview || rating.disabled || downvoteLoading"
+            <q-btn flat round icon="eva-arrow-ios-upward-outline"
+                   :disable="preview || rating.disabled || downvoteLoading"
                    :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
                    @click="vote(true)">
               <template v-slot:loading>
@@ -12,7 +13,8 @@
               </template>
             </q-btn>
             <span v-html="score" class="text-center text-h5"></span>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="preview || rating.disabled || upvoteLoading"
+            <q-btn flat round icon="eva-arrow-ios-downward-outline"
+                   :disable="preview || rating.disabled || upvoteLoading"
                    :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
                    @click="vote(false)">
               <template v-slot:loading>
@@ -35,7 +37,10 @@
                 <q-item-section>
                   <q-item-label>
                       <span v-for="tag in tags" class="text-primary cursor-pointer text-subtitle1"
-                            @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                            @click="$emit('tag-clicked', tag)">
+                        #{{ tag }}
+                        <slot name="tagTooltip" v-bind:tag="tag"/>
+                      </span>
                   </q-item-label>
                   <q-item-label class="text-overline inline-block">
                     <span>Posted by u/</span>
@@ -246,7 +251,7 @@ export default {
         await batch.commit()
 
       } catch (e) {
-        if(e.code === 'permission-denied'){
+        if (e.code === 'permission-denied') {
           console.error('Tried to vote with illegal value')
         } else {
           console.error(e)

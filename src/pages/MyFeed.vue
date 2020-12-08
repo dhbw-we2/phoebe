@@ -1,16 +1,24 @@
 <template>
   <q-page class="constrain q-pa-md">
     <tag-creator-bar
+      ref="subscriptionBox"
       :tags="tags"
       subscription-box
       placeholder="Add Tag"
-      @remove-tag="removeTag($event)"
       class="q-pb-md"/>
     <post-list
       ref="postList"
       v-if="currentUser.subscribedTags && currentUser.subscribedTags.length > 0"
       :tags="tags"
-      @tags-changed="tags = $event" />
+      @tag-clicked="$refs.subscriptionBox.addTag($event)">
+      <template v-slot:tagTooltip="props">
+        <q-tooltip anchor="top middle" self="bottom middle" :offset="[5, 5]" :delay="0"
+                   content-class="bg-dark text-subtitle2">
+          <span>Subscribe to </span>
+          <span class="text-primary">#{{ props.tag }}</span>
+        </q-tooltip>
+      </template>
+    </post-list>
     <template v-else>
       <h5 class="text-center text-grey-4">You have no tag subscriptions</h5>
     </template>
@@ -21,7 +29,6 @@
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import PostList from "components/forum/posts/PostList";
 import {mapGetters} from "vuex";
-import * as firebase from 'firebase/app';
 
 export default {
   name: "MyFeed",
@@ -32,14 +39,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
-  },
-  methods: {
-    removeTag(tag){
-      this.currentUserRef.update({
-        subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
-      })
-    },
+    ...mapGetters('user', ['currentUser']),
   },
   created() {
     this.$changeBackgroundColor('feed')
