@@ -139,6 +139,8 @@ export default {
       tagInput: '',
       tags: [],
       textInput: '',
+      itemId: '',
+      itemType: '',
       date: new Date().getTime(),
       postSubmitted: false,
     }
@@ -146,15 +148,18 @@ export default {
   methods: {
     /**
      * This function gets triggered by click on Item in SpotifySearchPreview
-     * Writes Item name in Editor and automatically adds a whitespace
+     * Sets item type and id for database and creates a Notification
+     * @Input: id
+     * @Input: type
      * @Input: name
-     * @Input: url
      */
-    addSong({name, url}) {
-      this.$refs.textEditor.pasteCapture(name)
-      this.$refs.textEditor.pasteCapture(' (')
-      this.$refs.textEditor.pasteCapture(url)
-      this.$refs.textEditor.pasteCapture(')')
+    addSong({ id, type, name}) {
+      this.itemId = id
+      this.itemType = type
+      this.$q.notify({
+        type: 'positive',
+        message: 'You added ' + name + ' to this Post!'
+      })
     },
 
     /**
@@ -185,6 +190,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
+          itemId: this.itemId,
+          itemType: this.itemType,
           dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
@@ -202,6 +209,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
+          itemId: this.itemId,
+          itemType: this.itemType,
           date: firestore.FieldValue.serverTimestamp(),
           user: this.currentUserRef,
         }).then(() => {

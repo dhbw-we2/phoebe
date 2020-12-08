@@ -72,7 +72,7 @@ methods: {
    * @param item
    */
   addItem(item){
-    this.$emit('add-item', {name: item.name, url: item.external_urls.spotify})
+    this.$emit('add-item', {id: item.id, type: item.type, name: item.name})
   },
 },
   created() {
