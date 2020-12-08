@@ -11,8 +11,8 @@
                  :uid="post.user.id"
                  :tags="post.tags"
                  :date-edited="post.dateEdited"
-                 :upvotes="post.upvotes"
-                 :downvotes="post.downvotes"
+                 :initial-score="post.score"
+                 :initial-rating="ratingData[post.id]"
                  @tag-clicked="tags.length = 0; tags.push($event)">
       </post-view>
       <post-skeleton v-if="!lastPage" v-view="onLoadMoreInView"/>
@@ -37,8 +37,9 @@
 import PostSkeleton from "components/forum/posts/PostSkeleton";
 import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
-import {postCollection, userCollection} from "src/services/firebase/db";
+import {postCollection, postRatingCollection, userCollection} from "src/services/firebase/db";
 import {firestore} from "firebase/app"
+import {mapGetters} from "vuex";
 
 export default {
   name: 'PostList',
@@ -55,6 +56,7 @@ export default {
       canShowNewPostsNotify: true,
       newestSnapshot: Function,
       userData: [],
+      ratingData: [],
       lastDocVisible: null,
       pageSize: 10,
       lastPage: false,
@@ -75,6 +77,9 @@ export default {
       this.$emit("tags-changed", this.tags)
       this.refreshQuery();
     }
+  },
+  computed: {
+    ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
     onLoadMoreInView(e) {
@@ -107,9 +112,6 @@ export default {
           let newPosts = false;
           snapshot.docChanges().forEach((change) => {
             switch (change.type) {
-              case 'modified':
-                newPosts = true
-                break
               case 'added':
                 if (change.newIndex !== this.pageSize - 1 && !change.doc.metadata.hasPendingWrites) newPosts = true
                 break
@@ -146,8 +148,10 @@ export default {
       this.lastPage = snapshot.docs.length < this.pageSize;
 
       const userIDs = []
+      const postRefs = []
       snapshot.forEach((doc) => {
         const post = doc.data()
+        // Set document id as field //
         post.id = doc.id
         // Populate userIDs with all users visible in post list //
         if (post.user instanceof firestore.DocumentReference) {
@@ -156,6 +160,8 @@ export default {
             userIDs.push(post.user.id)
           }
         }
+        // Populate postRefs array for fetching ratings //
+        postRefs.push(doc.ref)
         // Populate posts array //
         this.posts.push(post)
       })
@@ -170,8 +176,29 @@ export default {
         })
       }
 
+      // Get current user ratings for all posts from database //
+      this.fetchCurrentUserRatings(postRefs)
+
       // Hide the loading skeletons to reveal the posts  //
       this.loadingSkeleton = false
+    },
+    fetchCurrentUserRatings(postRefs){
+      while (postRefs.length > 0) {
+        const postRefsPart = postRefs.splice(0, 10)
+        postRatingCollection().where('user', "==", this.currentUserRef)
+          .where('post', 'in', postRefsPart).get().then(snapshot => {
+          snapshot.forEach(doc => {
+            // Set rating according to database //
+            this.$set(this.ratingData, doc.data().post.id, doc.data())
+            // Remove this post from the temporary list //
+            postRefsPart.splice(postRefsPart.findIndex(post => post.id === doc.data().post.id), 1)
+          })
+          // Set all post that don't have a user rating to neutral to get them out of loading state//
+          postRefsPart.forEach(post => {
+            this.$set(this.ratingData, post.id, {neutral: true})
+          })
+        })
+      }
     },
     showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({

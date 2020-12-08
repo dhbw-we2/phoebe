@@ -26,12 +26,17 @@ export const postCollection = () => {
 export const postRef = (id) => {
   return firestore().collection('posts').doc(id)
 }
-
 export const commentRef = (id) => {
   return firestore().collection('comments').doc(id)
 }
 export const commentCollection = () => {
   return firestore().collection('comments')
+}
+export const postRatingRef = (id) => {
+  return firestore().collection('ratings-posts').doc(id)
+}
+export const postRatingCollection = () => {
+  return firestore().collection('ratings-posts')
 }
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
