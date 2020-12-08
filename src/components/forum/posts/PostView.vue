@@ -41,7 +41,7 @@
                     <span>Posted by u/</span>
                     <q-skeleton v-if="!user" type="rect" width="4em" height="1em" class="inline-block vertical-middle"/>
                     <span v-else>{{ user.username ? user.username : 'NaU' }}</span>
-                    <span> {{ timeSincePostCreated }}</span>
+                    <span v-if="date"> {{ timeSincePostCreated }}</span>
                     <span v-if="dateEdited"> (edited {{ timeSincePostEdited }})</span>
                   </q-item-label>
                 </q-item-section>
