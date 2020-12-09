@@ -31,10 +31,10 @@
       </q-tabs>
       <q-tab-panels v-model="tab">
         <q-tab-panel name="track" >
-          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners" />
+          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners" @add-item="itemClicked($event)"/>
         </q-tab-panel>
         <q-tab-panel name="album">
-          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners"/>
+          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners" @add-item="itemClicked($event)"/>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -64,6 +64,21 @@ export default {
     ...mapGetters('user', ['currentUser']),
   },
   methods: {
+    /**
+     * Creates event to toggle notification and update Item ID/type
+     * Closes preview
+     * @param item
+     */
+    itemClicked(item) {
+      this.showSearchResults = false
+      this.$emit('add-items', item)
+    },
+    /**
+     * Searches for tracks and albums.
+     * If an invalid access token exception is caught and it's the first time so, the function is called again
+     *
+     * @returns {Promise<void>}
+     */
     async spotifySearch () {
       this.searching = true
       try {
@@ -72,7 +87,7 @@ export default {
         this.searchDataAlbums = result.body.albums.items
         this.searchDataTracks = result.body.tracks.items
         this.showSearchResults = true
-        //console.log(result.body)
+        console.log(result.body)
       } catch (e) {
         if(e.message == "Invalid access token"){
           console.log("exception caught")
