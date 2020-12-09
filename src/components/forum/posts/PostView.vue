@@ -54,7 +54,11 @@
               <div class="text-h5 q-pb-sm">{{ caption }}</div>
 
               <q-card-section>
-                <img href="spotifyItemImg" />
+                <a :href="getSpotifyItemURL" target="_blank" rel="noopener noreferrer">
+                  <q-img width="300px" :src="getSpotifyCoverURL"/>
+                </a>
+                <div>{{ getSpotifyName }}</div>
+                <div>{{ getSpotifyArtist }}</div>
               </q-card-section>
 
               <q-card-section class="q-pa-none">
@@ -154,10 +158,9 @@ export default {
     initialScore: {
       type: Number,
       default: 0,
-    spotifyItemID: String,
-    spotifyItemType: String,
     },
     initialRating: Object,
+    spotifyItem: Object,
   },
   data() {
     return {
@@ -174,9 +177,6 @@ export default {
       rating: {disabled: true},
       upvoteLoading: false,
       downvoteLoading: false,
-      spotifyItemImg: '',
-      spotifyItemArtist: '',
-      spotifyItemName: '',
     }
   },
   computed: {
@@ -201,7 +201,19 @@ export default {
       if (!this.rating.disabled && !this.rating.neutral) {
         return !this.rating.positive
       }
-    }
+    },
+    getSpotifyCoverURL() {
+      if (this.spotifyItem) return this.spotifyItem.coverURL
+    },
+    getSpotifyItemURL() {
+      if (this.spotifyItem) return this.spotifyItem.url
+    },
+    getSpotifyName() {
+      if (this.spotifyItem) return this.spotifyItem.name
+    },
+    getSpotifyArtist() {
+      if (this.spotifyItem) return this.spotifyItem.artist
+    },
   },
   watch: {
     text() {

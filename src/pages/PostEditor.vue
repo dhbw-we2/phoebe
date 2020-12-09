@@ -139,8 +139,8 @@ export default {
       tagInput: '',
       tags: [],
       textInput: '',
-      itemId: '',
-      itemType: '',
+      spotifyItemId: '',
+      spotifyItemType: '',
       date: null,
       postSubmitted: false,
     }
@@ -153,9 +153,9 @@ export default {
      * @Input: type
      * @Input: name
      */
-    addSong({ id, type, name}) {
-      this.itemId = id
-      this.itemType = type
+    addSong({id, type, name}) {
+      this.spotifyItemId = id
+      this.spotifyItemType = type
       this.$q.notify({
         type: 'positive',
         message: 'You added ' + name + ' to this Post!'
@@ -190,8 +190,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          itemId: this.itemId,
-          itemType: this.itemType,
+          spotifyItemId: this.spotifyItemId,
+          spotifyItemType: this.spotifyItemType,
           dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
@@ -209,8 +209,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          itemId: this.itemId,
-          itemType: this.itemType,
+          spotifyItemId: this.spotifyItemId,
+          spotifyItemType: this.spotifyItemType,
           date: firestore.FieldValue.serverTimestamp(),
           user: this.currentUserRef,
         }).then(() => {

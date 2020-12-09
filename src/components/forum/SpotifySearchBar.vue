@@ -87,9 +87,8 @@ export default {
         this.searchDataAlbums = result.body.albums.items
         this.searchDataTracks = result.body.tracks.items
         this.showSearchResults = true
-        console.log(result.body)
       } catch (e) {
-        if(e.message == "Invalid access token"){
+        if(e.message === "Invalid access token"){
           console.log("exception caught")
           if(!this.$spotify.fallback()){
             await this.spotifySearch()

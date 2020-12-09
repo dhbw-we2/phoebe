@@ -1,6 +1,5 @@
 import SpotifyWebApi from "spotify-web-api-node";
 
-
 const _spotify = new SpotifyWebApi()
 
 export const SpotifyInit = () => {
@@ -16,7 +15,6 @@ export const self = () => {
 
 export const searchTracks = (query, types, options, callback) => {
   return _spotify.search(query, types, options, callback)
-
 }
 
 export const setAccessToken = (accessToken) => {
@@ -31,7 +29,13 @@ export const getMe = () => {
   return _spotify.getMe()
 }
 
+export const getTracks = (trackIDs) => {
+  return _spotify.getTracks(trackIDs)
+}
 
+export const getAlbums = (albumIDs) => {
+  return _spotify.getAlbums(albumIDs)
+}
 
 /*
 

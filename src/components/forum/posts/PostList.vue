@@ -13,8 +13,7 @@
                  :date-edited="post.dateEdited"
                  :initial-score="post.score"
                  :initial-rating="ratingData[post.id]"
-                 :spotify-item-i-d="post.itemId"
-                 :spotify-item-type="post.itemType"
+                 :spotify-item="spotifyData[`${post.spotifyItemType}_${post.spotifyItemId}`]"
                  @tag-clicked="$emit('tag-clicked', $event)">
         <template v-slot:tagTooltip="props">
           <slot name="tagTooltip" :tag="props.tag"/>
@@ -62,6 +61,7 @@ export default {
       newestSnapshot: Function,
       userData: [],
       ratingData: [],
+      spotifyData: [],
       lastDocVisible: null,
       pageSize: 10,
       lastPage: false,
@@ -153,11 +153,13 @@ export default {
 
       const userIDs = []
       const postRefs = []
+      const spotifyItems = []
+      // Traverse through query snapshot and extract data //
       snapshot.forEach((doc) => {
         const post = doc.data()
         // Set document id as field //
         post.id = doc.id
-        // Populate userIDs with all users visible in post list //
+        // Populate userIDs with all new users that have not been loaded yet //
         if (post.user instanceof firestore.DocumentReference) {
           if ((userIDs.findIndex(userID => userID === post.user.id) === -1) &&
             (this.userData.findIndex(user => user.uid === post.user.id) === -1)) {
@@ -166,14 +168,21 @@ export default {
         }
         // Populate postRefs array for fetching ratings //
         postRefs.push(doc.ref)
+
+        // Populate spotifyItems with all new items //
+        if ((spotifyItems.findIndex(item => item.id === post.spotifyItemId) === -1) &&
+          (this.spotifyData.findIndex(item => item.id === post.spotifyItemId) === -1)) {
+          spotifyItems.push({id: post.spotifyItemId, type: post.spotifyItemType})
+        }
+
         // Populate posts array //
         this.posts.push(post)
       })
 
       // Load all user information into userData object //
       while (userIDs.length > 0) {
-        const userRefsPart = userIDs.splice(0, 10)
-        userCollection().where(firestore.FieldPath.documentId(), "in", userRefsPart).get().then(snapshot => {
+        const userIDsPart = userIDs.splice(0, 10)
+        userCollection().where(firestore.FieldPath.documentId(), "in", userIDsPart).get().then(snapshot => {
           snapshot.forEach(doc => {
             this.$set(this.userData, doc.id, doc.data())
           })
@@ -181,14 +190,68 @@ export default {
       }
 
       // Get current user ratings for all posts from database //
-      if(this.$store.state.auth.isAuthenticated) {
+      if (this.$store.state.auth.isAuthenticated) {
         this.fetchCurrentUserRatings(postRefs)
+      }
+
+      if (this.currentUser.spotifyAccessToken) {
+        this.fetchSpotifyData(spotifyItems)
       }
 
       // Hide the loading skeletons to reveal the posts  //
       this.loadingSkeleton = false
     },
-    fetchCurrentUserRatings(postRefs){
+    /**
+     * Fetch spotify information and save to spotifyData array
+     * @param spotifyItems
+     */
+    fetchSpotifyData(spotifyItems) {
+      this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
+      const trackIDs = [], albumIDs = []
+      spotifyItems.forEach(item => {
+        switch (item.type) {
+          case 'track':
+            trackIDs.push(item.id)
+            break;
+          case 'album':
+            albumIDs.push(item.id)
+            break;
+        }
+      })
+      while (trackIDs.length > 0) {
+        const trackIDsPart = trackIDs.splice(0, 50)
+        this.$spotify.getTracks(trackIDsPart).then(result => {
+          result.body.tracks.forEach(track => {
+            const artists = track.artists.map(a => a.name)
+            const trackItem = {
+              id: track.id,
+              name: track.name,
+              artist: artists.join(', '),
+              coverURL: track.album.images[1].url,
+              url: track.external_urls.spotify
+            }
+            this.$set(this.spotifyData, `track_${trackItem.id}`, trackItem)
+          })
+        })
+      }
+      while (albumIDs.length > 0) {
+        const albumIDsPart = albumIDs.splice(0, 50)
+        this.$spotify.getAlbums(albumIDsPart).then(result => {
+          result.body.albums.forEach(album => {
+            const artists = album.artists.map(a => a.name)
+            const albumItem = {
+              id: album.id,
+              name: album.name,
+              artist: artists.join(', '),
+              coverURL: album.images[1].url,
+              url: album.external_urls.spotify
+            }
+            this.$set(this.spotifyData, `album_${albumItem.id}`, albumItem)
+          })
+        })
+      }
+    },
+    fetchCurrentUserRatings(postRefs) {
       while (postRefs.length > 0) {
         const postRefsPart = postRefs.splice(0, 10)
         postRatingCollection().where('user', "==", this.currentUserRef)
@@ -205,7 +268,8 @@ export default {
           })
         })
       }
-    },
+    }
+    ,
     showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -221,11 +285,13 @@ export default {
           }
         ]
       })
-    },
+    }
+    ,
     clearQuery() {
       this.postQuery()
       this.newPostsNotify()
-    },
+    }
+    ,
     buildQuery() {
       let query = postCollection().orderBy("date", "desc").limit(this.pageSize)
       if (this.userFilter) {
