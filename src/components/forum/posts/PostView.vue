@@ -3,10 +3,24 @@
     <q-slide-transition>
       <q-card class="card-post-text q-mb-md" flat v-show="visible">
         <q-card-section horizontal>
-          <q-card-actions vertical class="q-ma-md-sm q-px-xs-none q-px-md-sm" style="min-width: 5em">
-            <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="preview"/>
+          <q-card-actions vertical class="q-ma-md-sm" style="min-width: 5em">
+            <q-btn flat round icon="eva-arrow-ios-upward-outline"
+                   :disable="preview || rating.disabled || downvoteLoading"
+                   :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
+                   @click="vote(true)">
+              <template v-slot:loading>
+                <q-spinner-puff color="white"/>
+              </template>
+            </q-btn>
             <span v-html="score" class="text-center text-h5"></span>
-            <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="preview"/>
+            <q-btn flat round icon="eva-arrow-ios-downward-outline"
+                   :disable="preview || rating.disabled || upvoteLoading"
+                   :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
+                   @click="vote(false)">
+              <template v-slot:loading>
+                <q-spinner-puff color="white"/>
+              </template>
+            </q-btn>
           </q-card-actions>
           <q-space/>
           <div class="full-width">
@@ -23,13 +37,16 @@
                 <q-item-section>
                   <q-item-label>
                       <span v-for="tag in tags" class="text-primary cursor-pointer text-subtitle1"
-                            @click="$emit('tag-clicked', tag)"> #{{ tag }}</span>
+                            @click="$emit('tag-clicked', tag)">
+                        #{{ tag }}
+                        <slot name="tagTooltip" v-bind:tag="tag"/>
+                      </span>
                   </q-item-label>
                   <q-item-label class="text-overline inline-block">
                     <span>Posted by u/</span>
                     <q-skeleton v-if="!user" type="rect" width="4em" height="1em" class="inline-block vertical-middle"/>
                     <span v-else>{{ user.username ? user.username : 'NaU' }}</span>
-                    <span> {{ timeSincePostCreated }}</span>
+                    <span v-if="date"> {{ timeSincePostCreated }}</span>
                     <span v-if="dateEdited"> (edited {{ timeSincePostEdited }})</span>
                   </q-item-label>
                 </q-item-section>
@@ -112,7 +129,7 @@
 <script>
 import {getTimeSincePostText} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
-import {commentCollection, postRef} from "src/services/firebase/db";
+import {commentCollection, postRatingCollection, postRatingRef, postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
 import {firestore} from "firebase/app";
@@ -129,18 +146,11 @@ export default {
     dateEdited: [Number, firestore.Timestamp],
     user: Object,
     preview: Boolean,
-    upvotes: {
-      type: Array,
-      default: function () {
-        return []
-      },
+    initialScore: {
+      type: Number,
+      default: 0
     },
-    downvotes: {
-      type: Array,
-      default: function () {
-        return []
-      },
-    },
+    initialRating: Object,
   },
   data() {
     return {
@@ -151,9 +161,12 @@ export default {
       commentsShown: false,
       commentsLoading: false,
       submittingComment: false,
-      score: 0,
       longPost: false,
       postExpanded: false,
+      score: 0,
+      rating: {disabled: true},
+      upvoteLoading: false,
+      downvoteLoading: false
     }
   },
   computed: {
@@ -169,13 +182,89 @@ export default {
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
     },
+    alreadyUpvoted() {
+      if (!this.rating.disabled && !this.rating.neutral) {
+        return this.rating.positive
+      }
+    },
+    alreadyDownvoted() {
+      if (!this.rating.disabled && !this.rating.neutral) {
+        return !this.rating.positive
+      }
+    }
   },
   watch: {
     text() {
       this.checkForLongPost()
+    },
+    initialRating() {
+      this.rating = this.initialRating
+    },
+    initialScore() {
+      this.score = this.initialScore
     }
   },
   methods: {
+    async updateScore() {
+      postRef(this.id).get({source: 'server'}).then(doc => {
+        this.score = doc.data().score
+      })
+      const query = await postRatingCollection().where('user', "==", this.currentUserRef)
+        .where('post', '==', postRef(this.id)).get()
+      if (!query.empty) {
+        this.rating = query.docs[0].data()
+      } else {
+        this.rating = {neutral: true}
+      }
+    },
+    async vote(positive) {
+      if (positive) this.upvoteLoading = true
+      else this.downvoteLoading = true
+
+      try {
+        // Define default values //
+        let voteValue = 1
+        let removeRating = false
+        // Check for current rating and adjust magnitude of vote value //
+        const currentRatingDoc = await postRatingRef(`${this.currentUser.uid}_${this.id}`).get()
+        if (currentRatingDoc.exists) {
+          if (currentRatingDoc.data().positive === positive) {
+            voteValue = -1
+            removeRating = true
+          } else {
+            voteValue = 2
+          }
+        }
+        // Begin transaction to update multiple documents at the same time //
+        const batch = this.$firestore.batch()
+
+        // Update counter in post according to current state //
+        batch.update(postRef(this.id), {score: firestore.FieldValue.increment(positive ? voteValue : -voteValue)})
+        if (removeRating) {
+          batch.delete(postRatingRef(`${this.currentUser.uid}_${this.id}`))
+        } else {
+          batch.set(postRatingRef(`${this.currentUser.uid}_${this.id}`), {
+            post: postRef(this.id),
+            user: this.currentUserRef,
+            positive: positive
+          })
+        }
+
+        // Commit the transaction //
+        await batch.commit()
+
+      } catch (e) {
+        if (e.code === 'permission-denied') {
+          console.error('Tried to vote with illegal value')
+        } else {
+          console.error(e)
+        }
+      } finally {
+        await this.updateScore()
+        this.upvoteLoading = false
+        this.downvoteLoading = false
+      }
+    },
     togglePostExpanded() {
       if (this.postExpanded) {
         this.$refs.postContent.classList.add('post-shortened')
@@ -196,7 +285,7 @@ export default {
         this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
       }
       this.commentsActive = true
-      //Focus text editor if device is non-touch
+      // Focus text editor if device is non-touch
       if (!this.$q.platform.has.touch) {
         setTimeout(() => {
           if (this.$refs.editor) {
@@ -293,7 +382,7 @@ export default {
   },
   created() {
     this.scheduleUpdateNow();
-    this.score = this.upvotes.length - this.downvotes.length
+    this.score = this.initialScore
   },
   mounted() {
     this.checkForLongPost()

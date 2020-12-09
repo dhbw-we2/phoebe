@@ -1,5 +1,5 @@
 <template>
-  <div class="constrain q-pa-md">
+  <q-page class="constrain q-pa-md">
     <q-card class="card-post-text q-mb-md" flat>
       <q-card-section>
         <div class="text-h4">{{ getTitle }}</div>
@@ -27,12 +27,12 @@
       <q-card-section>
         <text-editor
           placeholderText="Very interesting Post"
-          :text-input.sync="textInput"
-          ref="textEditor">
+          :text-input.sync="textInput">
         </text-editor>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
+          padding="sm"
           unelevated rounded
           icon-right="eva-close-outline"
           color=negative
@@ -40,6 +40,7 @@
           @click="$router.go(-1)"
         />
         <q-btn
+          padding="sm"
           unelevated rounded
           ref="submitBtn"
           icon-right="eva-checkmark-outline"
@@ -58,8 +59,7 @@
                :tags="tags"
                preview>
     </post-view>
-
-  </div>
+  </q-page>
 </template>
 <script>
 
@@ -141,7 +141,7 @@ export default {
       textInput: '',
       itemId: '',
       itemType: '',
-      date: new Date().getTime(),
+      date: null,
       postSubmitted: false,
     }
   },

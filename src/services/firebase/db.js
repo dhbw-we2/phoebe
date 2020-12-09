@@ -24,15 +24,30 @@ export const postCollection = () => {
   return firestore().collection('posts')
 }
 export const postRef = (id) => {
-  return firestore().collection('posts').doc(id)
+  return postCollection().doc(id)
 }
 
-export const commentRef = (id) => {
-  return firestore().collection('comments').doc(id)
-}
 export const commentCollection = () => {
   return firestore().collection('comments')
 }
+export const commentRef = (id) => {
+  return commentCollection().doc(id)
+}
+
+export const postRatingCollection = () => {
+  return firestore().collection('ratings-posts')
+}
+export const postRatingRef = (id) => {
+  return postRatingCollection().doc(id)
+}
+
+export const commentRatingCollection = () => {
+  return firestore().collection('ratings-comments')
+}
+export const commentRatingRef = (id) => {
+  return commentRatingCollection().doc(id)
+}
+
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
  */

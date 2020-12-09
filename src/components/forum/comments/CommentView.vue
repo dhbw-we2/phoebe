@@ -1,82 +1,95 @@
 <template>
   <q-slide-transition appear :duration=150 @show="onTransitionEnd">
     <div ref="commentView" class="scroll-margin-navbar">
-      <q-card-section horizontal>
-        <q-card-actions vertical class="justify-center">
-          <q-icon name="eva-corner-down-right-outline" size="2em"/>
-        </q-card-actions>
-        <q-separator vertical inset="true"/>
-        <q-card-section class="full-width q-pa-none">
-          <q-card-section horizontal>
-            <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
-              <q-btn flat round icon="eva-arrow-ios-upward-outline"/>
-              <span v-html="0" class="text-center text-h6"></span>
-              <q-btn flat round icon="eva-arrow-ios-downward-outline"/>
-            </q-card-actions>
-
-            <q-card-section vertical class="q-pa-none full-width">
-              <q-card-section horizontal>
-                <q-item class="q-pa-none q-pt-sm" vertical>
-                  <q-item-section avatar>
-                    <q-skeleton v-if="!user" type="QAvatar" size="50px"/>
-                    <q-avatar v-else-if="user.profilePicture" size="50px">
-                      <q-img :src="user.profilePicture" alt="Avatar"/>
-                    </q-avatar>
-                    <q-avatar v-else size="50px" color="primary" icon="eva-person-outline" text-color="white"/>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline inline-block">
-                      <span>Posted by u/</span>
-                      <q-skeleton v-if="!user" type="rect" width="4em" height="1em" class="inline-block vertical-middle"/>
-                      <span v-else>{{ user.username ? user.username : '[deleted]' }}</span>
-                      <span> {{ timeSinceCommentCreated }}</span>
-                      <span v-if="dateEdited"> (edited {{ timeSinceCommentEdited }})</span>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-space/>
-                <q-card-actions>
-                  <q-btn flat round
-                         icon="eva-trash-2-outline"
-                         v-if="postedByCurrentUser()"
-                         @click="deleteComment"/>
-                  <q-btn flat rounded :label="$q.screen.xs ? '' : 'REPLY'"
-                         icon="eva-message-circle-outline"
-                         @click="replyToComment"
-                         v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
-                  />
-                </q-card-actions>
-              </q-card-section>
-              <q-card-section v-html="(text ? text : '[removed]')" class="q-pl-none links-primary"/>
-            </q-card-section>
-          </q-card-section>
-          <q-separator/>
-        </q-card-section>
-      </q-card-section>
-      <q-slide-transition appear>
-        <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
-          <text-editor
-            ref="editor"
-            placeholderText="Very interesting Comment"
-            :text-input.sync="commentInput">
-          </text-editor>
-          <q-card-actions class="q-pr-none">
-            <q-space/>
-            <q-btn
-              unelevated rounded
-              color=positive
-              label="SEND"
-              icon="eva-paper-plane-outline"
-              type="submit"
-              @click="AddReply"
-              :loading="submittingReply">
-              <template v-slot:loading>
-                <q-spinner-dots/>
-              </template>
-            </q-btn>
+        <q-card-section horizontal>
+          <q-card-actions vertical class="justify-center">
+            <q-icon name="eva-corner-down-right-outline" size="2em"/>
           </q-card-actions>
+          <q-separator vertical inset="true"/>
+          <q-card-section class="full-width q-pa-none">
+            <q-card-section horizontal>
+              <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
+                <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="rating.disabled || downvoteLoading"
+                       :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
+                       @click="vote(true)">
+                  <template v-slot:loading>
+                    <q-spinner-puff color="white"/>
+                  </template>
+                </q-btn>
+                <span v-html="score" class="text-center text-h6"></span>
+                <q-btn flat round icon="eva-arrow-ios-downward-outline" :disable="rating.disabled || upvoteLoading"
+                       :loading="downvoteLoading" :color="alreadyDownvoted ? 'primary' : 'white'"
+                       @click="vote(false)">
+                  <template v-slot:loading>
+                    <q-spinner-puff color="white"/>
+                  </template>
+                </q-btn>
+              </q-card-actions>
+
+              <q-card-section vertical class="q-pa-none full-width">
+                <q-card-section horizontal>
+                  <q-item class="q-pa-none q-pt-sm" vertical>
+                    <q-item-section avatar>
+                      <q-skeleton v-if="!user" type="QAvatar" size="50px"/>
+                      <q-avatar v-else-if="user.profilePicture" size="50px">
+                        <q-img :src="user.profilePicture" alt="Avatar"/>
+                      </q-avatar>
+                      <q-avatar v-else size="50px" color="primary" icon="eva-person-outline" text-color="white"/>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-overline inline-block">
+                        <span>Posted by u/</span>
+                        <q-skeleton v-if="!user" type="rect" width="4em" height="1em"
+                                    class="inline-block vertical-middle"/>
+                        <span v-else>{{ user.username ? user.username : '[deleted]' }}</span>
+                        <span> {{ timeSinceCommentCreated }}</span>
+                        <span v-if="dateEdited"> (edited {{ timeSinceCommentEdited }})</span>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-space/>
+                  <q-card-actions>
+                    <q-btn flat round
+                           icon="eva-trash-2-outline"
+                           v-if="postedByCurrentUser()"
+                           @click="deleteComment"/>
+                    <q-btn flat rounded :label="$q.screen.xs ? '' : 'REPLY'"
+                           icon="eva-message-circle-outline"
+                           @click="replyToComment"
+                           v-if="$store.state.auth.isAuthenticated && (text !== undefined)"
+                    />
+                  </q-card-actions>
+                </q-card-section>
+                <q-card-section v-html="(text ? text : '[removed]')" class="q-pl-none links-primary"/>
+              </q-card-section>
+            </q-card-section>
+            <q-separator/>
+          </q-card-section>
         </q-card-section>
-      </q-slide-transition>
+        <q-slide-transition appear>
+          <q-card-section v-if="replying" class="q-pa-none q-pt-sm">
+            <text-editor
+              ref="editor"
+              placeholderText="Very interesting Comment"
+              :text-input.sync="commentInput">
+            </text-editor>
+            <q-card-actions class="q-pr-none">
+              <q-space/>
+              <q-btn
+                unelevated rounded
+                color=positive
+                label="SEND"
+                icon="eva-paper-plane-outline"
+                type="submit"
+                @click="AddReply"
+                :loading="submittingReply">
+                <template v-slot:loading>
+                  <q-spinner-dots/>
+                </template>
+              </q-btn>
+            </q-card-actions>
+          </q-card-section>
+        </q-slide-transition>
       <q-card-section
         class="q-pa-none"
         v-if="hasSubComments && transitionEnded">
@@ -84,7 +97,8 @@
           :post="post"
           :comment-id="id"
           :inherited-comments="allComments"
-          :all-user-data="allUserData"/>
+          :all-user-data="allUserData"
+          :all-rating-data="allRatingData"/>
       </q-card-section>
     </div>
   </q-slide-transition>
@@ -92,7 +106,12 @@
 
 <script>
 import {mapGetters} from "vuex";
-import {commentCollection, commentRef, postRef} from "src/services/firebase/db";
+import {
+  commentCollection, commentRatingCollection,
+  commentRatingRef,
+  commentRef,
+  postRef
+} from "src/services/firebase/db";
 import {getTimeSincePostText} from "src/helpers/TimeHelper";
 import {firestore} from "firebase/app";
 
@@ -111,7 +130,13 @@ export default {
     allComments: Array,
     post: String,
     parentComment: Object,
-    allUserData: Array
+    allUserData: Array,
+    initialScore: {
+      type: Number,
+      default: 0
+    },
+    initialRating: Object,
+    allRatingData: Array,
   },
   data() {
     return {
@@ -121,6 +146,10 @@ export default {
       now: firestore.Timestamp.now(),
       submittingReply: false,
       transitionEnded: false,
+      score: 0,
+      rating: {disabled: true},
+      upvoteLoading: false,
+      downvoteLoading: false
     }
   },
   computed: {
@@ -135,9 +164,95 @@ export default {
     },
     sanitizedComment() {
       return this.commentInput.replace(/&nbsp;/g, '').trim()
+    },
+    alreadyUpvoted() {
+      if (!this.rating.disabled && !this.rating.neutral) {
+        return this.rating.positive
+      }
+    },
+    alreadyDownvoted() {
+      if (!this.rating.disabled && !this.rating.neutral) {
+        return !this.rating.positive
+      }
+    }
+  },
+  watch: {
+    allComments() {
+      this.checkForSubComments()
+    },
+    currentUser() {
+      if (!this.currentUser) {
+        this.replying = false
+      }
+    },
+    initialRating() {
+      this.rating = this.initialRating
+    },
+    initialScore() {
+      this.score = this.initialScore
     }
   },
   methods: {
+    async updateScore() {
+      commentRef(this.id).get({source: 'server'}).then(doc => {
+        this.score = doc.data().score
+      })
+      const query = await commentRatingCollection().where('user', "==", this.currentUserRef)
+        .where('comment', '==', commentRef(this.id)).get()
+      if (!query.empty) {
+        this.rating = query.docs[0].data()
+      } else {
+        this.rating = {neutral: true}
+      }
+    },
+    async vote(positive) {
+      if (positive) this.upvoteLoading = true
+      else this.downvoteLoading = true
+
+      try {
+        // Define default values //
+        let voteValue = 1
+        let removeRating = false
+        // Check for current rating and adjust magnitude of vote value //
+        const currentRatingDoc = await commentRatingRef(`${this.currentUser.uid}_${this.id}`).get()
+        if (currentRatingDoc.exists) {
+          if (currentRatingDoc.data().positive === positive) {
+            voteValue = -1
+            removeRating = true
+          } else {
+            voteValue = 2
+          }
+        }
+        // Begin transaction to update multiple documents at the same time //
+        const batch = this.$firestore.batch()
+
+        // Update counter in comment according to current state //
+        batch.update(commentRef(this.id), {score: firestore.FieldValue.increment(positive ? voteValue : -voteValue)})
+        if (removeRating) {
+          batch.delete(commentRatingRef(`${this.currentUser.uid}_${this.id}`))
+        } else {
+          batch.set(commentRatingRef(`${this.currentUser.uid}_${this.id}`), {
+            comment: commentRef(this.id),
+            user: this.currentUserRef,
+            positive: positive
+          })
+        }
+
+        // Commit the transaction //
+        await batch.commit()
+
+      } catch (e) {
+        if (e.code === 'permission-denied') {
+          console.error('Tried to vote with illegal value')
+        } else {
+          console.error(e)
+        }
+      } finally {
+        await this.updateScore()
+        this.upvoteLoading = false
+        this.downvoteLoading = false
+      }
+    },
     onTransitionEnd() {
       this.transitionEnded = true
     },
@@ -249,17 +364,8 @@ export default {
   },
   created() {
     this.scheduleUpdateNow()
+    this.score = this.initialScore
     this.checkForSubComments()
-  },
-  watch: {
-    allComments() {
-      this.checkForSubComments()
-    },
-    currentUser() {
-      if (!this.currentUser) {
-        this.replying = false
-      }
-    }
   },
 }
 </script>
