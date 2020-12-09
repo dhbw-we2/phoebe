@@ -23,11 +23,21 @@
         v-model="tab"
         indicator-color="primary"
         active-color="primary">
-        <q-tab name="track" icon="eva-music-outline" label="Tracks" />
-        <q-tab name="album" icon="eva-play-circle-outline" label="Album" />
+        <q-tab name="track" icon="eva-music-outline" label="Tracks">
+
+        </q-tab>
+        <q-tab name="album" icon="eva-play-circle-outline" label="Album"></q-tab>
+
       </q-tabs>
-      <spotify-search-preview v-if="tab == 'track'"     type="tracks"    :tracks="searchData.body.tracks.items" v-on="$listeners" />
-      <spotify-search-preview v-if="tab == 'album'"     type="albums"    :albums="searchData.body.albums.items" v-on="$listeners"/>
+      <q-tab-panels v-model="tab">
+        <q-tab-panel name="track" >
+          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners" />
+        </q-tab-panel>
+        <q-tab-panel name="album">
+          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners"/>
+        </q-tab-panel>
+      </q-tab-panels>
+
     </div>
   </div>
 </template>
@@ -42,11 +52,12 @@ export default {
   components: { SpotifySearchPreview },
   data () {
     return {
-      tab: 'album',
+      tab: 'track',
       showSearchResults: false,
       searching: false,
       searchInput: '',
-      searchData: null,
+      searchDataTracks: null,
+      searchDataAlbums: null,
     }
   },
   computed: {
@@ -58,9 +69,10 @@ export default {
       try {
         this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
         const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], { limit : 5})
-        this.searchData = result
+        this.searchDataAlbums = result.body.albums.items
+        this.searchDataTracks = result.body.tracks.items
         this.showSearchResults = true
-        //console.log(this.searchData.body)
+        //console.log(result.body)
       } catch (e) {
         if(e.message == "Invalid access token"){
           console.log("exception caught")

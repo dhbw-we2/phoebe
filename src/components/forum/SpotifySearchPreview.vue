@@ -5,7 +5,7 @@
         <q-item-label>No search results available</q-item-label>
       </q-item>
     </div>
-    <div v-else v-for="item in tableType" >
+    <div v-else v-for="item in getItemArray" >
       <q-item :key="item.id" clickable @click="addItem(item)">
         <q-item-section>
           <q-img :src="getImage(item)" style="max-width: 50px" class="" />
@@ -39,6 +39,11 @@ data() {
     showNothing: false,
   }
 },
+computed: {
+  getItemArray() {
+    return (this.type == 'tracks')? this.tracks : this.albums
+  }
+},
 methods: {
   getArtists(item) {
     switch (this.type) {
@@ -49,16 +54,16 @@ methods: {
     }
 
   },
+  /**
+   *
+   */
   getImage(item) {
-    console.log(this.type)
-    console.log(item)
-    return item.album.images[1].url
-    /*switch (this.type) {
+    switch (this.type) {
       case 'tracks':
         return item.album.images[1].url;
       case 'albums':
-        return item.album.images[1].url
-    }*/
+        return item.images[1].url
+    }
   },
   /**
    * This function triggeres an event to update editor input
@@ -68,24 +73,6 @@ methods: {
     this.$emit('add-item', {id: item.id, type: item.type, name: item.name})
   },
 },
-  created() {
-    switch (this.type) {
-      case 'tracks':
-        if (this.tracks.length !== 0) {
-          this.tableType = this.tracks
-          return
-        }
-      case 'albums':
-        if (this.albums.length !== 0) {
-          this.tableType = this.albums
-          return
-        }
-      default:
-          this.showNothing = true
-          break
-    }
-  },
-
 }
 </script>
 
