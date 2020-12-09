@@ -13,6 +13,8 @@
                  :date-edited="post.dateEdited"
                  :initial-score="post.score"
                  :initial-rating="ratingData[post.id]"
+                 :spotify-item-i-d="post.itemId"
+                 :spotify-item-type="post.itemType"
                  @tag-clicked="$emit('tag-clicked', $event)">
         <template v-slot:tagTooltip="props">
           <slot name="tagTooltip" :tag="props.tag"/>

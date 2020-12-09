@@ -52,6 +52,11 @@
                 </q-item-section>
               </q-item>
               <div class="text-h5 q-pb-sm">{{ caption }}</div>
+
+              <q-card-section>
+                <img href="spotifyItemImg" />
+              </q-card-section>
+
               <q-card-section class="q-pa-none">
                 <div ref="postContent" v-html="text"
                      class="links-primary post-content overflow-hidden post-shortened"/>
@@ -148,7 +153,9 @@ export default {
     preview: Boolean,
     initialScore: {
       type: Number,
-      default: 0
+      default: 0,
+    spotifyItemID: String,
+    spotifyItemType: String,
     },
     initialRating: Object,
   },
@@ -166,7 +173,10 @@ export default {
       score: 0,
       rating: {disabled: true},
       upvoteLoading: false,
-      downvoteLoading: false
+      downvoteLoading: false,
+      spotifyItemImg: '',
+      spotifyItemArtist: '',
+      spotifyItemName: '',
     }
   },
   computed: {

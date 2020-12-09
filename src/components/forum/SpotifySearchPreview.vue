@@ -31,9 +31,7 @@ name: "SpotifySearchPreview",
     type: String,
 
     tracks: Array,
-    playlists: Array,
     albums: Array,
-    podcasts: Array,
     },
 data() {
   return{
@@ -48,24 +46,19 @@ methods: {
       case 'albums':
         let result = item.artists.map(a => a.name);
         return result.join(', ');
-      case 'playlists':
-        return item.owner.display_name
-      case 'podcasts':
-        return item.publisher
     }
 
   },
   getImage(item) {
-    switch (this.type) {
+    console.log(this.type)
+    console.log(item)
+    return item.album.images[1].url
+    /*switch (this.type) {
       case 'tracks':
         return item.album.images[1].url;
-      case 'playlists':
-        return item.image[0].url
-      case 'podcasts':
       case 'albums':
-        console.log(item.image[2].url)
-        return item.image[2].url
-    }
+        return item.album.images[1].url
+    }*/
   },
   /**
    * This function triggeres an event to update editor input
@@ -85,16 +78,6 @@ methods: {
       case 'albums':
         if (this.albums.length !== 0) {
           this.tableType = this.albums
-          return
-        }
-      case 'playlists':
-        if (this.playlists.length !== 0) {
-          this.tableType = this.playlists
-          return
-        }
-      case 'podcasts':
-        if (this.podcasts.length !== 0){
-          this.tableType = this.podcasts
           return
         }
       default:
