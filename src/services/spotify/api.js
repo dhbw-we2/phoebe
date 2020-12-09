@@ -10,19 +10,26 @@ export const SpotifyInit = () => {
   })
 }
 
-
 export const self = () => {
   return _spotify
 }
 
-
-
-export const searchTracks = async (query, types, options, callback) => {
-  return await _spotify.search(query, types, options, callback)
+export const searchTracks = (query, types, options, callback) => {
+  return _spotify.search(query, types, options, callback)
 
 }
 
+export const setAccessToken = (accessToken) => {
+  return _spotify.setAccessToken(accessToken)
+}
 
+export const setRefreshToken = (accessToken) => {
+  return _spotify.setRefreshToken(accessToken)
+}
+
+export const getMe = () => {
+  return _spotify.getMe()
+}
 
 
 
