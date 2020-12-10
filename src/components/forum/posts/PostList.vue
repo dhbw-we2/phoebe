@@ -218,32 +218,16 @@ export default {
       })
       while (trackIDs.length > 0) {
         const trackIDsPart = trackIDs.splice(0, 50)
-        this.$spotify.getTracks(trackIDsPart).then(result => {
-          result.body.tracks.forEach(track => {
-            const artists = track.artists.map(a => a.name)
-            const trackItem = {
-              id: track.id,
-              name: track.name,
-              artist: artists.join(', '),
-              coverURL: track.album.images[1].url,
-              url: track.external_urls.spotify
-            }
+        this.$spotify.getTracks(trackIDsPart).then(trackItems => {
+          trackItems.forEach(trackItem => {
             this.$set(this.spotifyData, `track_${trackItem.id}`, trackItem)
           })
         })
       }
       while (albumIDs.length > 0) {
         const albumIDsPart = albumIDs.splice(0, 50)
-        this.$spotify.getAlbums(albumIDsPart).then(result => {
-          result.body.albums.forEach(album => {
-            const artists = album.artists.map(a => a.name)
-            const albumItem = {
-              id: album.id,
-              name: album.name,
-              artist: artists.join(', '),
-              coverURL: album.images[1].url,
-              url: album.external_urls.spotify
-            }
+        this.$spotify.getAlbums(albumIDsPart).then(albumItems => {
+          albumItems.forEach(albumItem => {
             this.$set(this.spotifyData, `album_${albumItem.id}`, albumItem)
           })
         })

@@ -52,12 +52,14 @@
       </q-card-actions>
     </q-card>
 
-    <post-view :caption="sanitizedCaption"
+    <post-view preview
+               :caption="sanitizedCaption"
                :date="date"
                :text="sanitizedText"
                :user="currentUser"
                :tags="tags"
-               preview>
+               :initial-score="post ? post.score : 0"
+               :spotify-item="spotifyItemData">
     </post-view>
   </q-page>
 </template>
@@ -111,17 +113,6 @@ export default {
       return this.textInput.replace(/&nbsp;/g, '').trim()
     }
   },
-  watch: {
-    /**
-     *
-     * @param route
-     */
-    '$route.name'(route) {
-      if (route === 'newPost') {
-        this.clearInputs()
-      }
-    }
-  },
   /**
    *
    * @returns tagInput: string
@@ -139,10 +130,28 @@ export default {
       tagInput: '',
       tags: [],
       textInput: '',
-      spotifyItemId: '',
-      spotifyItemType: '',
       date: null,
       postSubmitted: false,
+      post: null,
+      spotifyItem: null,
+      spotifyItemData: null,
+    }
+  },
+  watch: {
+    '$route.name'(route) {
+      if (route === 'newPost') {
+        this.clearInputs()
+      }
+    },
+    async spotifyItem() {
+      switch(this.spotifyItem.type) {
+        case 'track':
+          this.spotifyItemData = await this.$spotify.getTrack(this.spotifyItem.id)
+          break;
+        case 'album':
+          this.spotifyItemData = await this.$spotify.getAlbum(this.spotifyItem.id)
+          break;
+      }
     }
   },
   methods: {
@@ -154,8 +163,10 @@ export default {
      * @Input: name
      */
     addSong({id, type, name}) {
-      this.spotifyItemId = id
-      this.spotifyItemType = type
+      this.spotifyItem = {
+        id: id,
+        type: type
+      }
       this.$q.notify({
         type: 'positive',
         message: 'You added ' + name + ' to this Post!'
@@ -176,7 +187,7 @@ export default {
      *
      */
     submitPost() {
-      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
+      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "") || !this.spotifyItem) {
         this.$q.notify({
           message: 'Not all fields have been filled out',
           type: 'negative'
@@ -190,8 +201,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          spotifyItemId: this.spotifyItemId,
-          spotifyItemType: this.spotifyItemType,
+          spotifyItemId: this.spotifyItem.id,
+          spotifyItemType: this.spotifyItem.type,
           dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
@@ -209,8 +220,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          spotifyItemId: this.spotifyItemId,
-          spotifyItemType: this.spotifyItemType,
+          spotifyItemId: this.spotifyItem.id,
+          spotifyItemType: this.spotifyItem.type,
           date: firestore.FieldValue.serverTimestamp(),
           user: this.currentUserRef,
         }).then(() => {
@@ -232,10 +243,15 @@ export default {
     restoreIfEdit() {
       postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
+        this.post = post
         this.textInput = post.text;
         this.tags = post.tags;
         this.captionInput = post.caption;
         this.date = post.date;
+        this.spotifyItem = {
+          id: post.spotifyItemId,
+          type: post.spotifyItemType
+        }
       })
         .catch(err => {
           console.error(err)

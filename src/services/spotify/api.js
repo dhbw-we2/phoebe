@@ -35,14 +35,65 @@ export const getMe = async () => {
   return ensureTokenValidAndCall(_spotify.getMe())
 }
 
-export const getTracks =  (trackIDs) => {
-  return ensureTokenValidAndCall(_spotify.getTracks(trackIDs))
+export const getTrack = async (trackID) => {
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getTrack(trackID))
+  return buildTrackItem(apiResponse.body)
 }
 
-export const getAlbums = (albumIDs) => {
-  return ensureTokenValidAndCall(_spotify.getAlbums(albumIDs))
+export const getTracks = async (trackIDs) => {
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getTracks(trackIDs))
+  const trackItems = []
+  apiResponse.body.tracks.forEach(apiTrack => {
+      trackItems.push(buildTrackItem(apiTrack))
+    })
+  return trackItems
 }
 
+export const getAlbum = async (albumID) => {
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbum(albumID))
+  return buildAlbumItem(apiResponse.body)
+}
+
+export const getAlbums = async (albumIDs) => {
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbums(albumIDs))
+  const albumItems = []
+  apiResponse.body.albums.forEach(apiAlbum => {
+    albumItems.push(buildAlbumItem(apiAlbum))
+  })
+  return albumItems
+}
+
+/**
+ * Converts a track object from the api into one that only contains relevant information
+ * @param apiTrack
+ * @returns {{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}}
+ */
+const buildTrackItem = (apiTrack) => {
+  const artists = apiTrack.artists.map(a => a.name)
+  return {
+    id: apiTrack.id,
+    name: apiTrack.name,
+    artist: artists.join(', '),
+    coverURL: apiTrack.album.images[1].url,
+    url: apiTrack.external_urls.spotify
+  }
+}
+
+/**
+ * Converts a album object from the api into one that only contains relevant information
+ * @param apiAlbum
+ * @returns {{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}}
+ */
+const buildAlbumItem = (apiAlbum) => {
+  const artists = apiAlbum.artists.map(a => a.name)
+  return {
+    id: apiAlbum.id,
+    name: apiAlbum.name,
+    artist: artists.join(', '),
+    coverURL: apiAlbum.images[1].url,
+    url: apiAlbum.external_urls.spotify
+  }
+}
 /**
  * Calls library function and retry on fail after waiting for token refresh
  * @param apiCall
