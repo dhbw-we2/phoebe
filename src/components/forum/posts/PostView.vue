@@ -225,36 +225,34 @@ export default {
         this.rating = {neutral: true}
       }
     },
-    async vote(positive) {
-      if (positive) this.upvoteLoading = true
+    async vote(ratingPositive) {
+      if (ratingPositive) this.upvoteLoading = true
       else this.downvoteLoading = true
 
       try {
         // Define default values //
         let voteValue = 1
         let removeRating = false
-        // Check for current rating and adjust magnitude of vote value //
-        const currentRatingDoc = await postRatingRef(`${this.currentUser.uid}_${this.id}`).get()
-        if (currentRatingDoc.exists) {
-          if (currentRatingDoc.data().positive === positive) {
-            voteValue = -1
-            removeRating = true
-          } else {
-            voteValue = 2
-          }
+        // Adjust magnitude of vote value according to current vote state
+        if (this.alreadyUpvoted && ratingPositive || this.alreadyDownvoted && !ratingPositive) {
+          voteValue = -1
+          removeRating = true
+        } else if (this.alreadyUpvoted && !ratingPositive || this.alreadyDownvoted && ratingPositive) {
+          voteValue = 2
         }
+
         // Begin transaction to update multiple documents at the same time //
         const batch = this.$firestore.batch()
 
         // Update counter in post according to current state //
-        batch.update(postRef(this.id), {score: firestore.FieldValue.increment(positive ? voteValue : -voteValue)})
+        batch.update(postRef(this.id), {score: firestore.FieldValue.increment(ratingPositive ? voteValue : -voteValue)})
         if (removeRating) {
           batch.delete(postRatingRef(`${this.currentUser.uid}_${this.id}`))
         } else {
           batch.set(postRatingRef(`${this.currentUser.uid}_${this.id}`), {
             post: postRef(this.id),
             user: this.currentUserRef,
-            positive: positive
+            positive: ratingPositive
           })
         }
 
@@ -263,7 +261,7 @@ export default {
 
       } catch (e) {
         if (e.code === 'permission-denied') {
-          console.error('Tried to vote with illegal value')
+          console.warn('Tried to vote with illegal value')
         } else {
           console.error(e)
         }
