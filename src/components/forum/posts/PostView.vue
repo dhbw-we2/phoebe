@@ -24,8 +24,8 @@
           </q-card-actions>
           <q-space/>
           <div class="full-width">
-            <q-card-section vertical class="q-pl-none q-pb-none">
-              <q-item class="q-pl-none q-pr-none q-pb-md">
+            <q-card-section vertical class="q-pa-none q-pt-md">
+              <q-item class="q-pl-none">
                 <q-item-section avatar>
                   <q-skeleton v-if="!user" type="QAvatar" size="60px"/>
                   <q-avatar v-else-if="user.profilePicture" size="60px">
@@ -51,55 +51,27 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-card-section v-if="spotifyItem" class="q-pa-none">
-                <q-card flat style="width: fit-content">
-                  <q-card-section :horizontal="!$q.screen.xs">
-                    <q-card-section class="text-center">
-                      <q-img :width="$q.screen.width > 375 ? '200px' : '150px'" :src="getSpotifyItemCoverURL" v-ripple="{early: true, color: 'white'}"
-                             class="cursor-pointer"
-                             @click="openSpotifyLink">
-                      </q-img>
-                    </q-card-section>
-                    <q-separator :vertical="!$q.screen.xs" inset="true"/>
-                    <q-card-section class="column justify-between">
-                      <q-list>
-                        <q-item>
-                          <q-item-section>
-                            <q-item-label overline> {{ getSpotifyItemType }}</q-item-label>
-                            <q-item-label> {{ getSpotifyName }}</q-item-label>
-                          </q-item-section>
-                        </q-item>
-                        <q-item>
-                          <q-item-section>
-                            <q-item-label overline>Artist</q-item-label>
-                            <q-item-label> {{ getSpotifyArtist }}</q-item-label>
-                          </q-item-section>
-                        </q-item>
-                      </q-list>
-                      <q-item>
-                        <q-btn rounded icon="eva-play-circle-outline" color="primary"
-                               @click="openSpotifyLink"/>
-                      </q-item>
-                    </q-card-section>
-                  </q-card-section>
-                </q-card>
-              </q-card-section>
-              <q-card-section class="q-pr-none">
-                <div class="text-h5 q-pb-md">{{ caption }}</div>
-                <div ref="postContent" v-html="text"
-                     class="links-primary post-content overflow-hidden post-shortened"/>
-                <div class="q-mt-sm">
-                  <q-btn outline rounded size="sm"
-                         v-if="longPost && !postExpanded"
-                         @click="togglePostExpanded">
-                    READ MORE
-                  </q-btn>
-                  <q-btn outline rounded size="sm"
-                         v-if="postExpanded"
-                         @click="togglePostExpanded">
-                    COLLAPSE
-                  </q-btn>
-                </div>
+              <q-card-section :horizontal="!$q.screen.xs && !$q.screen.sm" class="q-pa-none">
+                <q-card-section class="col-6 q-pl-none q-pb-none" v-if="hasSpotifyItem">
+                  <spotify-item-display :spotify-item="spotifyItem"/>
+                </q-card-section>
+                <q-card-section class="q-pb-none">
+                  <div class="text-h5 q-pb-md">{{ caption }}</div>
+                  <div ref="postContent" v-html="text"
+                       class="links-primary post-content overflow-hidden post-shortened"/>
+                  <div class="q-mt-sm">
+                    <q-btn outline rounded size="sm"
+                           v-if="longPost && !postExpanded"
+                           @click="togglePostExpanded">
+                      READ MORE
+                    </q-btn>
+                    <q-btn outline rounded size="sm"
+                           v-if="postExpanded"
+                           @click="togglePostExpanded">
+                      COLLAPSE
+                    </q-btn>
+                  </div>
+                </q-card-section>
               </q-card-section>
             </q-card-section>
             <q-card-actions class="full-width">
@@ -166,10 +138,11 @@ import {commentCollection, postRatingCollection, postRatingRef, postRef} from "s
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
 import {firestore} from "firebase/app";
+import SpotifyItemDisplay from "components/forum/SpotifyItemDisplay";
 
 export default {
   name: "PostView",
-  components: {CommentList, TextEditor},
+  components: {SpotifyItemDisplay, CommentList, TextEditor},
   props: {
     id: String,
     caption: String,
@@ -185,6 +158,7 @@ export default {
     },
     initialRating: Object,
     spotifyItem: Object,
+    hasSpotifyItem: Boolean,
   },
   data() {
     return {
@@ -226,25 +200,6 @@ export default {
         return !this.rating.positive
       }
     },
-    getSpotifyItemType() {
-      if (this.spotifyItem) {
-        switch (this.spotifyItem.type) {
-          case 'track':
-            return 'Track'
-          case 'album':
-            return 'Album'
-        }
-      }
-    },
-    getSpotifyItemCoverURL() {
-      if (this.spotifyItem) return this.spotifyItem.coverURL
-    },
-    getSpotifyName() {
-      if (this.spotifyItem) return this.spotifyItem.name
-    },
-    getSpotifyArtist() {
-      if (this.spotifyItem) return this.spotifyItem.artist
-    },
   },
   watch: {
     text() {
@@ -258,9 +213,6 @@ export default {
     }
   },
   methods: {
-    openSpotifyLink() {
-      window.open(this.spotifyItem.url, '_blank');
-    },
     async updateScore() {
       postRef(this.id).get({source: 'server'}).then(doc => {
         this.score = doc.data().score
@@ -273,36 +225,34 @@ export default {
         this.rating = {neutral: true}
       }
     },
-    async vote(positive) {
-      if (positive) this.upvoteLoading = true
+    async vote(ratingPositive) {
+      if (ratingPositive) this.upvoteLoading = true
       else this.downvoteLoading = true
 
       try {
         // Define default values //
         let voteValue = 1
         let removeRating = false
-        // Check for current rating and adjust magnitude of vote value //
-        const currentRatingDoc = await postRatingRef(`${this.currentUser.uid}_${this.id}`).get()
-        if (currentRatingDoc.exists) {
-          if (currentRatingDoc.data().positive === positive) {
-            voteValue = -1
-            removeRating = true
-          } else {
-            voteValue = 2
-          }
+        // Adjust magnitude of vote value according to current vote state
+        if (this.alreadyUpvoted && ratingPositive || this.alreadyDownvoted && !ratingPositive) {
+          voteValue = -1
+          removeRating = true
+        } else if (this.alreadyUpvoted && !ratingPositive || this.alreadyDownvoted && ratingPositive) {
+          voteValue = 2
         }
+
         // Begin transaction to update multiple documents at the same time //
         const batch = this.$firestore.batch()
 
         // Update counter in post according to current state //
-        batch.update(postRef(this.id), {score: firestore.FieldValue.increment(positive ? voteValue : -voteValue)})
+        batch.update(postRef(this.id), {score: firestore.FieldValue.increment(ratingPositive ? voteValue : -voteValue)})
         if (removeRating) {
           batch.delete(postRatingRef(`${this.currentUser.uid}_${this.id}`))
         } else {
           batch.set(postRatingRef(`${this.currentUser.uid}_${this.id}`), {
             post: postRef(this.id),
             user: this.currentUserRef,
-            positive: positive
+            positive: ratingPositive
           })
         }
 
@@ -311,7 +261,7 @@ export default {
 
       } catch (e) {
         if (e.code === 'permission-denied') {
-          console.error('Tried to vote with illegal value')
+          console.warn('Tried to vote with illegal value')
         } else {
           console.error(e)
         }

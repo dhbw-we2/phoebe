@@ -197,11 +197,13 @@ export default {
         top = (screen.height / 2) - (height / 2);
       const w = window.open(authURL, 'Spotify API Authentication', 'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
       //Check if window was closed
-      const timer = setInterval(() => {
+      const timer = setInterval(async () => {
         if (w.closed) {
           clearInterval(timer);
           //Clear temporary global variable
           delete (window.pkce_challenge_verifier)
+          await this.$store.commit('spotify/setTokenReady', true)
+          this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
           this.updateSpotifyUsername()
         }
       }, 300);

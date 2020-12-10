@@ -23,6 +23,9 @@
       <q-card-section>
         <spotify-search-bar @add-item="addSong"/>
       </q-card-section>
+      <q-card-section v-if="spotifyItemId" class="q-pt-none">
+        <spotify-item-display :spotify-item="spotifyItemData"/>
+      </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
         <text-editor
@@ -59,7 +62,8 @@
                :user="currentUser"
                :tags="tags"
                :initial-score="post ? post.score : 0"
-               :spotify-item="spotifyItemData">
+               :spotify-item="spotifyItemData"
+               :has-spotify-item="!!spotifyItemId">
     </post-view>
   </q-page>
 </template>
@@ -72,9 +76,10 @@ import TagCreatorBar from "components/forum/TagCreatorBar"
 import SpotifySearchBar from "components/forum/SpotifySearchBar"
 import {postCollection} from "src/services/firebase/db";
 import {firestore} from "firebase/app";
+import SpotifyItemDisplay from "components/forum/SpotifyItemDisplay";
 
 export default {
-  components: {TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
+  components: {SpotifyItemDisplay, TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
   computed: {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
     /**
@@ -133,7 +138,8 @@ export default {
       date: null,
       postSubmitted: false,
       post: null,
-      spotifyItem: null,
+      spotifyItemId: null,
+      spotifyItemType: null,
       spotifyItemData: null,
     }
   },
@@ -144,12 +150,12 @@ export default {
       }
     },
     async spotifyItem() {
-      switch(this.spotifyItem.type) {
+      switch (this.spotifyItemType) {
         case 'track':
-          this.spotifyItemData = await this.$spotify.getTrack(this.spotifyItem.id)
+          this.spotifyItemData = await this.$spotify.getTrack(this.spotifyItemId)
           break;
         case 'album':
-          this.spotifyItemData = await this.$spotify.getAlbum(this.spotifyItem.id)
+          this.spotifyItemData = await this.$spotify.getAlbum(this.spotifyItemId)
           break;
       }
     }
@@ -160,17 +166,10 @@ export default {
      * Sets item type and id for database and creates a Notification
      * @Input: id
      * @Input: type
-     * @Input: name
      */
-    addSong({id, type, name}) {
-      this.spotifyItem = {
-        id: id,
-        type: type
-      }
-      this.$q.notify({
-        type: 'positive',
-        message: 'You added ' + name + ' to this Post!'
-      })
+    addSong({id, type}) {
+      this.spotifyItemType = type
+      this.spotifyItemId = id
     },
 
     /**
@@ -187,7 +186,7 @@ export default {
      *
      */
     submitPost() {
-      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "") || !this.spotifyItem) {
+      if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
           message: 'Not all fields have been filled out',
           type: 'negative'
@@ -201,8 +200,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          spotifyItemId: this.spotifyItem.id,
-          spotifyItemType: this.spotifyItem.type,
+          spotifyItemId: this.spotifyItemId,
+          spotifyItemType: this.spotifyItemType,
           dateEdited: firestore.FieldValue.serverTimestamp()
         }).then(() => {
           this.$router.go(-1)
@@ -220,8 +219,8 @@ export default {
           caption: this.sanitizedCaption,
           tags: this.tags,
           text: this.sanitizedText,
-          spotifyItemId: this.spotifyItem.id,
-          spotifyItemType: this.spotifyItem.type,
+          spotifyItemId: this.spotifyItemId,
+          spotifyItemType: this.spotifyItemType,
           date: firestore.FieldValue.serverTimestamp(),
           user: this.currentUserRef,
         }).then(() => {
@@ -244,14 +243,12 @@ export default {
       postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
         this.post = post
-        this.textInput = post.text;
-        this.tags = post.tags;
-        this.captionInput = post.caption;
-        this.date = post.date;
-        this.spotifyItem = {
-          id: post.spotifyItemId,
-          type: post.spotifyItemType
-        }
+        this.textInput = post.text
+        this.tags = post.tags
+        this.captionInput = post.caption
+        this.date = post.date
+        this.spotifyItemId = post.spotifyItemId
+        this.spotifyItemType = post.spotifyItemType
       })
         .catch(err => {
           console.error(err)
@@ -269,7 +266,11 @@ export default {
       this.tagInput = ''
       this.tags = []
       this.textInput = ''
-      this.date = new Date().getTime()
+      this.date = null
+      this.spotifyItemId = null
+      this.spotifyItemType = null
+      this.spotifyItemData = null
+      this.post = null
     },
   },
   created() {
