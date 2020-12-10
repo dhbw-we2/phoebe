@@ -8,7 +8,7 @@
       class="q-pb-md"/>
     <post-list
       ref="postList"
-      v-if="currentUser.subscribedTags && currentUser.subscribedTags.length > 0"
+      v-if="hasSubscriptions"
       :tags="tags"
       @tag-clicked="$refs.subscriptionBox.addTag($event)">
       <template v-slot:tagTooltip="props">
@@ -40,6 +40,9 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['currentUser']),
+    hasSubscriptions(){
+      return this.currentUser && this.currentUser.subscribedTags.length > 0
+    }
   },
   created() {
     this.$changeBackgroundColor('feed')

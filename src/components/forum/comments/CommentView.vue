@@ -8,7 +8,7 @@
           <q-separator vertical inset="true"/>
           <q-card-section class="full-width q-pa-none">
             <q-card-section horizontal>
-              <q-card-actions vertical class="justify-center q-pa-sm" style="min-width: 4em">
+              <q-card-actions vertical class="q-pa-sm" style="min-width: 4em">
                 <q-btn flat round icon="eva-arrow-ios-upward-outline" :disable="rating.disabled || downvoteLoading"
                        :loading="upvoteLoading" :color="alreadyUpvoted ? 'primary' : 'white'"
                        @click="vote(true)">

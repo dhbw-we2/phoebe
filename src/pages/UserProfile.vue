@@ -1,22 +1,25 @@
 <template>
   <q-page class="constrain q-pa-md">
     <div>
-      <q-card flat class="my-card" >
+      <q-card flat class="my-card">
         <q-card-section>
           <p class="text-center text-h4 no-margin">User Profile</p>
         </q-card-section>
         <q-card-section>
           <q-card-section>
-            <div class="column items-center" v-if="showDefaultPhoto()">
-              <q-avatar @click="showPhotoUpload('profile')" class="q-mb-sm profile-picture" round="round"
-                        color="primary" icon="eva-person-outline" font-size="110px"
-                        size="180px" text-color="white"></q-avatar>
-              <span><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span></div>
-            <div class="column items-center" v-else>
-              <q-avatar class="q-mb-sm shadow-5 profile-picture" size="180px" @click="showPhotoUpload('profile')">
-                <q-img :src="currentUser.profilePicture"></q-img>
+            <div class="column items-center">
+              <q-avatar v-if="showDefaultPhoto()" class="q-mb-sm profile-picture" size="180px"
+                        round="round" color="primary" icon="eva-person-outline" font-size="110px" text-color="white"
+                        @click="showPhotoUpload('profile')"/>
+              <q-avatar v-else class="q-mb-sm shadow-5 profile-picture" size="180px"
+                        @click="showPhotoUpload('profile')">
+                <q-img :src="currentUser.profilePicture"/>
               </q-avatar>
-              <span class=""><q-icon class="q-mr-sm" color="" name="edit" size="16px"></q-icon>Click to edit</span>
+              <span class="cursor-pointer text-caption"
+                    @click="showPhotoUpload('profile')">
+                  Click to edit
+                  <q-icon name="eva-edit-outline"/>
+              </span>
             </div>
           </q-card-section>
           <q-card-section>
@@ -222,8 +225,6 @@ export default {
     },
     updateSpotifyUsername() {
       if (this.currentUser.spotifyAccessToken) {
-        this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
-        this.$spotify.setRefreshToken(this.currentUser.spotifyRefreshToken)
         this.$spotify.getMe().then((data) => {
           this.spotifyUsername = data.body.display_name
         })

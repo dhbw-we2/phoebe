@@ -36,7 +36,8 @@
       <VEmojiPicker
         @select="selectEmoji"
         dark="true"
-        class="emoji-picker-color-override"/>
+        class="emoji-picker-color-override"
+         />
     </div>
   </div>
 </template>
@@ -90,7 +91,7 @@ export default {
       if (evt.originalEvent && evt.originalEvent.clipboardData.getData) {
         text = evt.originalEvent.clipboardData.getData('text/plain')
         if(text.startsWith("http")){
-          const linkHTML = `<a href="${text}">${text}</a>`;
+          const linkHTML = `<a href="${text}" target="_blank" rel="noopener noreferrer">${text}</a>`;
           this.$refs.editor.runCmd('insertHTML', linkHTML)
         } else {
           this.$refs.editor.runCmd('insertText', text)
@@ -98,7 +99,7 @@ export default {
       } else if (evt.clipboardData && evt.clipboardData.getData) {
         text = evt.clipboardData.getData('text/plain')
         if(text.startsWith("http")){
-          const linkHTML = `<a href="${text}">${text}</a>`;
+          const linkHTML = `<a href="${text}" target="_blank" rel="noopener noreferrer">${text}</a>`;
           this.$refs.editor.runCmd('insertHTML', linkHTML)
         } else {
           this.$refs.editor.runCmd('insertText', text)

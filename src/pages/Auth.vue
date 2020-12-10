@@ -29,7 +29,7 @@
           @keyup.enter="onSubmit();"
         >
           <template v-slot:append>
-            <q-icon class="cursor-pointer" :name="isPwd ? 'visibility_off' : 'visibility'" @click="isPwd = !isPwd"/>
+            <q-icon class="cursor-pointer" :name="isPwd ? 'eva-eye-off-outline' : 'eva-eye-outline'" @click="isPwd = !isPwd"/>
           </template>
         </q-input>
         <q-input
@@ -45,7 +45,7 @@
           @keyup.enter="onSubmit();"
         >
           <template v-slot:append>
-            <q-icon class="cursor-pointer" :name="isPwd ? 'visibility_off' : 'visibility'" @click="isPwd = !isPwd"/>
+            <q-icon class="cursor-pointer" :name="isPwd ? 'eva-eye-off-outline' : 'eva-eye-outline'" @click="isPwd = !isPwd"/>
           </template>
         </q-input>
         <q-input
