@@ -3,10 +3,12 @@
     <q-input
       filled dark
       type="search"
-      placeholder="Search"
+      placeholder="Search Spotify"
       v-model="searchInput"
       v-on:keypress.enter.prevent="spotifySearch">
-
+      <template v-slot:prepend>
+        <img src="~assets/spotify-logo-white.svg" style="fill: white" width="30px" alt="Spotify"/>
+      </template>
       <template v-slot:append>
         <q-btn
           unelevated
