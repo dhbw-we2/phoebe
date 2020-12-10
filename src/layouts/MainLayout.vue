@@ -58,7 +58,6 @@
             </div>
           </div>
           <div v-else>
-            <div class="column items-center">
               <div class="column q-pb-sm q-pt-sm">
                 <q-btn
                   flat
@@ -68,7 +67,6 @@
                   v-close-popup
                 />
               </div>
-            </div>
           </div>
           <q-separator/>
           <div class="column q-pb-sm q-pt-sm">
