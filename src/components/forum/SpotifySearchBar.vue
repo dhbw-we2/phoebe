@@ -5,7 +5,8 @@
       type="search"
       placeholder="Search Spotify"
       v-model="searchInput"
-      v-on:keypress.enter.prevent="spotifySearch">
+      v-on:keypress.enter.prevent="spotifySearch"
+      debounce="200">
       <template v-slot:prepend>
         <img src="~assets/spotify-logo-white.svg" style="fill: white" width="30px" alt="Spotify"/>
       </template>
@@ -36,11 +37,13 @@
                     keep-alive
                     transition-prev="jump-up"
                     transition-next="jump-down">
-        <q-tab-panel name="track" >
-          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners" @add-item="itemClicked($event)"/>
+        <q-tab-panel name="track">
+          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners"
+                                  @add-item="itemClicked($event)"/>
         </q-tab-panel>
         <q-tab-panel name="album">
-          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners" @add-item="itemClicked($event)"/>
+          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners"
+                                  @add-item="itemClicked($event)"/>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -55,8 +58,8 @@ import SpotifySearchPreview from "components/forum/SpotifySearchPreview"
 
 export default {
   name: "SpotifySearchBar",
-  components: { SpotifySearchPreview },
-  data () {
+  components: {SpotifySearchPreview},
+  data() {
     return {
       tab: 'track',
       showSearchResults: false,
@@ -68,6 +71,11 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['currentUser']),
+  },
+  watch: {
+    searchInput() {
+        this.spotifySearch()
+    }
   },
   methods: {
     /**
@@ -85,14 +93,16 @@ export default {
      *
      * @returns {Promise<void>}
      */
-    async spotifySearch () {
-      this.searching = true
-      this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
-      const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], { limit : 5})
-      this.searchDataAlbums = result.body.albums.items
-      this.searchDataTracks = result.body.tracks.items
-      this.showSearchResults = true
-      this.searching = false
+    async spotifySearch() {
+      if(this.searchInput.length > 0){
+        this.searching = true
+        this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
+        const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], {limit: 5})
+        this.searchDataAlbums = result.body.albums.items
+        this.searchDataTracks = result.body.tracks.items
+        this.showSearchResults = true
+        this.searching = false
+      }
     },
   }
 }
