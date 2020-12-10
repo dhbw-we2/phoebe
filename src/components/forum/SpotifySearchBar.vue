@@ -11,6 +11,7 @@
         <img src="~assets/spotify-logo-white.svg" style="fill: white" width="30px" alt="Spotify"/>
       </template>
       <template v-slot:append>
+        <q-icon v-if="searchInput" class="cursor-pointer" name="eva-close-outline" @click="searchInput = ''"/>
         <q-btn
           unelevated
           rounded
