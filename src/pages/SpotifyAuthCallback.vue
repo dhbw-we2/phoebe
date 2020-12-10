@@ -46,7 +46,9 @@ export default {
         spotifyRefreshToken: data.refresh_token
       }
       try {
+        this.$spotify.setAccessToken(data.access_token)
         await this.updateUserData(userData)
+        await this.$store.commit('spotify/setTokenReady', true)
         this.result = 'Success! You can close this window now.'
         window.close()
       } catch (err) {
