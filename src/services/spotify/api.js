@@ -71,6 +71,7 @@ export const getAlbums = async (albumIDs) => {
 const buildTrackItem = (apiTrack) => {
   const artists = apiTrack.artists.map(a => a.name)
   return {
+    type: 'track',
     id: apiTrack.id,
     name: apiTrack.name,
     artist: artists.join(', '),
@@ -87,6 +88,7 @@ const buildTrackItem = (apiTrack) => {
 const buildAlbumItem = (apiAlbum) => {
   const artists = apiAlbum.artists.map(a => a.name)
   return {
+    type: 'album',
     id: apiAlbum.id,
     name: apiAlbum.name,
     artist: artists.join(', '),

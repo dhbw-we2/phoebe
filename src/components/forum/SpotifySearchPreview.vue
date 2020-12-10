@@ -5,15 +5,15 @@
     </q-item>
     <q-item v-else v-for="item in getItemArray" :key="item.id" clickable @click="addItem(item)" class="q-pa-none">
         <q-item-section avatar>
-          <q-img :src="getImage(item)" width="70px" height="70px"/>
+          <q-img :src="getImage(item)" width="70px" height="70px" class=""/>
         </q-item-section>
 
-        <q-item-section >
+        <q-item-section class="q-py-sm">
           <q-item-label overline>{{ item.type === 'track' ? 'Track' : 'Album' }}</q-item-label>
           <q-item-label>{{ item.name }}</q-item-label>
         </q-item-section>
 
-        <q-item-section>
+        <q-item-section class="q-py-sm">
           <q-item-label overline>Artist</q-item-label>
           <q-item-label> {{ getArtists(item) }}</q-item-label>
         </q-item-section>
