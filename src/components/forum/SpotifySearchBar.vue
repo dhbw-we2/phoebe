@@ -81,22 +81,11 @@ export default {
      */
     async spotifySearch () {
       this.searching = true
-      try {
-        this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
-        const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], { limit : 5})
-        this.searchDataAlbums = result.body.albums.items
-        this.searchDataTracks = result.body.tracks.items
-        this.showSearchResults = true
-      } catch (e) {
-        if(e.message === "Invalid access token"){
-          console.log("exception caught")
-          if(!this.$spotify.fallback()){
-            await this.spotifySearch()
-          }
-        } else {
-          console.log(e)
-        }
-      }
+      this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
+      const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], { limit : 5})
+      this.searchDataAlbums = result.body.albums.items
+      this.searchDataTracks = result.body.tracks.items
+      this.showSearchResults = true
       this.searching = false
     },
   }

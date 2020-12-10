@@ -1,4 +1,7 @@
 import SpotifyWebApi from "spotify-web-api-node";
+import querystring from "querystring";
+import axios from 'axios'
+import {Notify} from 'quasar'
 
 const _spotify = new SpotifyWebApi()
 
@@ -35,6 +38,34 @@ export const getTracks = (trackIDs) => {
 
 export const getAlbums = (albumIDs) => {
   return _spotify.getAlbums(albumIDs)
+}
+
+/**
+ * Refreshes Access Token
+ * @param refreshToken {String}
+ * @returns access Token {String}
+ */
+export const refreshAccessToken = async (refreshToken) => {
+  try {
+    const res = await axios({
+      method: 'post',
+      url: `https://accounts.spotify.com/api/token`,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: querystring.stringify({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: process.env.SPOTIFY_CONFIG.CLIENT_ID,
+      }),
+    })
+    return res.data
+  } catch(err) {
+    Notify.create({
+      type: 'negative',
+      message: 'Please reconnect your Spotify Account!'
+    })
+  }
 }
 
 /*

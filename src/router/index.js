@@ -6,6 +6,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import routes from './routes'
+import {ensureTokenIsRefreshed} from "src/services/spotify/base";
 
 Vue.use(VueRouter)
 
@@ -43,6 +44,8 @@ export default function (/* { store, ssrContext } */) {
       await ensureAuthIsInitialized(store)
       if(isAuthenticated(store)){
         await ensureUserDataIsInitialized(store)
+        if(store.state.user.currentUser.spotifyAccessToken)
+          await ensureTokenIsRefreshed(store)
       }
 
       if (to.matched.some(record => record.meta.requiresAuth)) {
