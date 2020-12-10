@@ -104,7 +104,6 @@ const buildAlbumItem = (apiAlbum) => {
  */
 const ensureTokenValidAndCall = async (apiFunction, ...args) => {
   try {
-    console.log(args)
     return await apiFunction.call(_spotify, ...args)
   } catch {
     await ensureTokenIsRefreshed(store)
