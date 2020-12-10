@@ -1,3 +1,4 @@
-import * as SpotifyApi from './api.js'
+import * as api from './api.js'
+import * as base from './base'
 
-export default Object.assign({}, SpotifyApi)
+export default Object.assign({}, api, base)

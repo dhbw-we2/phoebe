@@ -51,8 +51,41 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-              <div class="text-h5 q-pb-sm">{{ caption }}</div>
-              <q-card-section class="q-pa-none">
+              <q-card-section v-if="spotifyItem" class="q-pa-none">
+                <q-card flat style="width: fit-content">
+                  <q-card-section :horizontal="!$q.screen.xs">
+                    <q-card-section class="text-center">
+                      <q-img :width="$q.screen.width > 375 ? '200px' : '150px'" :src="getSpotifyItemCoverURL" v-ripple="{early: true, color: 'white'}"
+                             class="cursor-pointer"
+                             @click="openSpotifyLink">
+                      </q-img>
+                    </q-card-section>
+                    <q-separator :vertical="!$q.screen.xs" inset="true"/>
+                    <q-card-section class="column justify-between">
+                      <q-list>
+                        <q-item>
+                          <q-item-section>
+                            <q-item-label overline> {{ getSpotifyItemType }}</q-item-label>
+                            <q-item-label> {{ getSpotifyName }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item>
+                          <q-item-section>
+                            <q-item-label overline>Artist</q-item-label>
+                            <q-item-label> {{ getSpotifyArtist }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                      <q-item>
+                        <q-btn rounded icon="eva-play-circle-outline" color="primary"
+                               @click="openSpotifyLink"/>
+                      </q-item>
+                    </q-card-section>
+                  </q-card-section>
+                </q-card>
+              </q-card-section>
+              <q-card-section class="q-pr-none">
+                <div class="text-h5 q-pb-md">{{ caption }}</div>
                 <div ref="postContent" v-html="text"
                      class="links-primary post-content overflow-hidden post-shortened"/>
                 <div class="q-mt-sm">
@@ -148,9 +181,10 @@ export default {
     preview: Boolean,
     initialScore: {
       type: Number,
-      default: 0
+      default: 0,
     },
     initialRating: Object,
+    spotifyItem: Object,
   },
   data() {
     return {
@@ -166,7 +200,7 @@ export default {
       score: 0,
       rating: {disabled: true},
       upvoteLoading: false,
-      downvoteLoading: false
+      downvoteLoading: false,
     }
   },
   computed: {
@@ -191,7 +225,26 @@ export default {
       if (!this.rating.disabled && !this.rating.neutral) {
         return !this.rating.positive
       }
-    }
+    },
+    getSpotifyItemType() {
+      if (this.spotifyItem) {
+        switch (this.spotifyItem.type) {
+          case 'track':
+            return 'Track'
+          case 'album':
+            return 'Album'
+        }
+      }
+    },
+    getSpotifyItemCoverURL() {
+      if (this.spotifyItem) return this.spotifyItem.coverURL
+    },
+    getSpotifyName() {
+      if (this.spotifyItem) return this.spotifyItem.name
+    },
+    getSpotifyArtist() {
+      if (this.spotifyItem) return this.spotifyItem.artist
+    },
   },
   watch: {
     text() {
@@ -205,6 +258,9 @@ export default {
     }
   },
   methods: {
+    openSpotifyLink() {
+      window.open(this.spotifyItem.url, '_blank');
+    },
     async updateScore() {
       postRef(this.id).get({source: 'server'}).then(doc => {
         this.score = doc.data().score
