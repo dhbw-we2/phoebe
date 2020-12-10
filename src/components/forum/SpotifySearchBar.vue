@@ -22,33 +22,37 @@
         />
       </template>
     </q-input>
-    <div v-if="showSearchResults">
-      <q-tabs
-        v-model="tab"
-        indicator-color="primary"
-        active-color="primary">
-        <q-tab name="track" icon="eva-music-outline" label="Tracks">
+    <q-slide-transition>
+      <div v-show="showSearchResults">
+        <q-tabs
+          v-model="tab"
+          indicator-color="primary"
+          active-color="primary">
+          <q-tab name="track" icon="eva-music-outline" label="Tracks">
 
-        </q-tab>
-        <q-tab name="album" icon="eva-play-circle-outline" label="Album"></q-tab>
+          </q-tab>
+          <q-tab name="album" icon="eva-play-circle-outline" label="Album"></q-tab>
 
-      </q-tabs>
-      <q-tab-panels v-model="tab"
-                    animated
-                    keep-alive
-                    transition-prev="jump-up"
-                    transition-next="jump-down">
-        <q-tab-panel name="track">
-          <spotify-search-preview type="tracks" :tracks="searchDataTracks"
-                                  v-on="$listeners" @add-item="itemClicked()"/>
-        </q-tab-panel>
-        <q-tab-panel name="album">
-          <spotify-search-preview type="albums" :albums="searchDataAlbums"
-                                  v-on="$listeners" @add-item="itemClicked()"/>
-        </q-tab-panel>
-      </q-tab-panels>
+        </q-tabs>
+        <q-tab-panels v-model="tab"
+                      animated
+                      keep-alive
+                      transition-prev="jump-up"
+                      transition-next="jump-down"
+                      v-if="firstSearch"
+                      >
+          <q-tab-panel name="track">
+            <spotify-search-preview type="tracks" :tracks="searchDataTracks"
+                                    v-on="$listeners" @add-item="itemClicked()"/>
+          </q-tab-panel>
+          <q-tab-panel name="album">
+            <spotify-search-preview type="albums" :albums="searchDataAlbums"
+                                    v-on="$listeners" @add-item="itemClicked()"/>
+          </q-tab-panel>
+        </q-tab-panels>
 
-    </div>
+      </div>
+    </q-slide-transition>
   </div>
 </template>
 
@@ -68,6 +72,7 @@ export default {
       searchInput: '',
       searchDataTracks: null,
       searchDataAlbums: null,
+      firstSearch: false
     }
   },
   computed: {
@@ -85,7 +90,6 @@ export default {
      */
     itemClicked() {
       this.searchInput = ''
-      this.showSearchResults = false
     },
     /**
      * Searches for tracks and albums.
@@ -101,12 +105,11 @@ export default {
         this.searchDataTracks = result.body.tracks.items
         this.showSearchResults = true
         this.searching = false
+        this.firstSearch = true
+      } else {
+        this.showSearchResults = false
       }
     },
   }
 }
 </script>
-
-<style scoped>
-
-</style>
