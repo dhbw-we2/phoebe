@@ -52,10 +52,21 @@
                 </q-item-section>
               </q-item>
               <q-card-section :horizontal="!$q.screen.xs && !$q.screen.sm" class="q-pa-none">
-                <q-card-section class="col-6 q-pl-none q-pb-none" v-if="hasSpotifyItem">
+                <q-card-section class="col-6 q-pl-none q-pb-none" v-if="hasSpotifyItem && isSpotifyLinked">
                   <spotify-item-display :spotify-item="spotifyItem"/>
                 </q-card-section>
                 <q-card-section class="q-pb-none">
+                  <div v-if="hasSpotifyItem && !isSpotifyLinked" class="q-pb-sm">
+                    <q-btn v-if="$store.state.auth.isAuthenticated"
+                           rounded color="primary" size="sm" outline
+                           @click="$router.push({name: 'profile'})">
+                      Connect your Spotify account and see the attached media
+                    </q-btn>
+                    <q-btn v-else rounded color="primary" size="sm" outline
+                           @click="$router.push({name: 'Login'})">
+                      Login to see the attached media
+                    </q-btn>
+                  </div>
                   <div class="text-h5 q-pb-md">{{ caption }}</div>
                   <div ref="postContent" v-html="text"
                        class="links-primary post-content overflow-hidden post-shortened"/>
@@ -199,6 +210,9 @@ export default {
       if (!this.rating.disabled && !this.rating.neutral) {
         return !this.rating.positive
       }
+    },
+    isSpotifyLinked() {
+      return this.currentUser && this.currentUser.spotifyAccessToken
     },
   },
   watch: {
