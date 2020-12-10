@@ -21,7 +21,7 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar @add-item="addSong"/>
+        <spotify-search-bar @add-item="addSpotifyItem"/>
       </q-card-section>
       <q-card-section v-if="spotifyItemId" class="q-pt-none">
         <spotify-item-display :spotify-item="spotifyItemData"/>
@@ -149,7 +149,7 @@ export default {
         this.clearInputs()
       }
     },
-    async spotifyItem() {
+    async spotifyItemId() {
       switch (this.spotifyItemType) {
         case 'track':
           this.spotifyItemData = await this.$spotify.getTrack(this.spotifyItemId)
@@ -167,7 +167,7 @@ export default {
      * @Input: id
      * @Input: type
      */
-    addSong({id, type}) {
+    addSpotifyItem({id, type}) {
       this.spotifyItemType = type
       this.spotifyItemId = id
     },
