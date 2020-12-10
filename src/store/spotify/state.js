@@ -1,3 +1,3 @@
 export default {
-  isReady: false,
+  tokenReady: false,
 }

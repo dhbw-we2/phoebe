@@ -1,3 +1,3 @@
-export function setReady (state, ready) {
-  state.isReady = ready
+export function setTokenReady (state, ready) {
+  state.tokenReady = ready
 }

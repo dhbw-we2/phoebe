@@ -1,8 +1,7 @@
-import spotifyService from "../services/spotify";
+import spotifyService from "../services/spotify"
 
-export default async ({Vue}) => {
+export default ({Vue}) => {
   spotifyService.SpotifyInit()
-
 
   Vue.prototype.$spotify = spotifyService
 }

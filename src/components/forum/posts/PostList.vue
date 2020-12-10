@@ -192,10 +192,9 @@ export default {
       // Get current user ratings for all posts from database //
       if (this.$store.state.auth.isAuthenticated) {
         this.fetchCurrentUserRatings(postRefs)
-      }
-
-      if (this.currentUser.spotifyAccessToken) {
-        this.fetchSpotifyData(spotifyItems)
+        if (this.currentUser.spotifyAccessToken) {
+          this.fetchSpotifyData(spotifyItems)
+        }
       }
 
       // Hide the loading skeletons to reveal the posts  //
