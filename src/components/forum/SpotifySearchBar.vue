@@ -96,7 +96,6 @@ export default {
     async spotifySearch() {
       if(this.searchInput.length > 0){
         this.searching = true
-        this.$spotify.self().setAccessToken(this.currentUser.spotifyAccessToken)
         const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], {limit: 5})
         this.searchDataAlbums = result.body.albums.items
         this.searchDataTracks = result.body.tracks.items

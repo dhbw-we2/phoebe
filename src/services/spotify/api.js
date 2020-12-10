@@ -19,7 +19,7 @@ export const self = () => {
 }
 
 export const searchTracks = (query, types, options, callback) => {
-  return _spotify.search(query, types, options, callback)
+  return ensureTokenValidAndCall(_spotify.search(query, types, options, callback))
 }
 
 export const setAccessToken = (accessToken) => {
@@ -31,29 +31,31 @@ export const setRefreshToken = (accessToken) => {
 }
 
 export const getMe = async () => {
-  try{
-    return await _spotify.getMe()
-  } catch {
-    await ensureTokenIsRefreshed(store)
-    return await _spotify.getMe()
-  }}
-
-export const getTracks = async (trackIDs) => {
-  try{
-    return await _spotify.getTracks(trackIDs)
-  } catch {
-    await ensureTokenIsRefreshed(store)
-    return await _spotify.getTracks(trackIDs)
-  }
+  await ensureTokenIsRefreshed(store)
+  return ensureTokenValidAndCall(_spotify.getMe())
 }
 
-export const getAlbums = async (albumIDs) => {
-  try{
-    return await _spotify.getAlbums(albumIDs)
+export const getTracks =  (trackIDs) => {
+  return ensureTokenValidAndCall(_spotify.getTracks(trackIDs))
+}
+
+export const getAlbums = (albumIDs) => {
+  return ensureTokenValidAndCall(_spotify.getAlbums(albumIDs))
+}
+
+/**
+ * Calls library function and retry on fail after waiting for token refresh
+ * @param apiCall
+ * @returns {Promise<*>}
+ */
+const ensureTokenValidAndCall = async (apiCall) => {
+  try {
+    return await apiCall
   } catch {
     await ensureTokenIsRefreshed(store)
-    return await _spotify.getAlbums(albumIDs)
-  }}
+    return await apiCall
+  }
+}
 
 /**
  * Refreshes Access Token
@@ -77,7 +79,7 @@ export const refreshAccessToken = async (refreshToken) => {
     _spotify.setAccessToken(res.data.access_token)
     return res.data
   } catch (err) {
-    if(err.response.status === 400){
+    if (err.response.status === 400) {
       Notify.create({
         type: 'negative',
         message: 'Please reconnect your Spotify Account!'

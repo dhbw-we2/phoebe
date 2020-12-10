@@ -222,8 +222,6 @@ export default {
     },
     updateSpotifyUsername() {
       if (this.currentUser.spotifyAccessToken) {
-        this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
-        this.$spotify.setRefreshToken(this.currentUser.spotifyRefreshToken)
         this.$spotify.getMe().then((data) => {
           this.spotifyUsername = data.body.display_name
         })

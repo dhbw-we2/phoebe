@@ -205,7 +205,6 @@ export default {
      * @param spotifyItems
      */
     fetchSpotifyData(spotifyItems) {
-      this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
       const trackIDs = [], albumIDs = []
       spotifyItems.forEach(item => {
         switch (item.type) {
