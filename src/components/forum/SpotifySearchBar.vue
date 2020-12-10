@@ -29,7 +29,11 @@
         <q-tab name="album" icon="eva-play-circle-outline" label="Album"></q-tab>
 
       </q-tabs>
-      <q-tab-panels v-model="tab">
+      <q-tab-panels v-model="tab"
+                    animated
+                    keep-alive
+                    transition-prev="jump-up"
+                    transition-next="jump-down">
         <q-tab-panel name="track" >
           <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners" @add-item="itemClicked($event)"/>
         </q-tab-panel>
