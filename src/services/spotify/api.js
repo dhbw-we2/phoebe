@@ -19,7 +19,7 @@ export const self = () => {
 }
 
 export const searchTracks = (query, types, options, callback) => {
-  return ensureTokenValidAndCall(_spotify.search(query, types, options, callback))
+  return ensureTokenValidAndCall(_spotify.search, query, types, options, callback)
 }
 
 export const setAccessToken = (accessToken) => {
@@ -32,30 +32,30 @@ export const setRefreshToken = (accessToken) => {
 
 export const getMe = async () => {
   await ensureTokenIsRefreshed(store)
-  return ensureTokenValidAndCall(_spotify.getMe())
+  return ensureTokenValidAndCall(_spotify.getMe)
 }
 
 export const getTrack = async (trackID) => {
-  const apiResponse = await ensureTokenValidAndCall(_spotify.getTrack(trackID))
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getTrack, trackID)
   return buildTrackItem(apiResponse.body)
 }
 
 export const getTracks = async (trackIDs) => {
-  const apiResponse = await ensureTokenValidAndCall(_spotify.getTracks(trackIDs))
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getTracks, trackIDs)
   const trackItems = []
   apiResponse.body.tracks.forEach(apiTrack => {
-      trackItems.push(buildTrackItem(apiTrack))
-    })
+    trackItems.push(buildTrackItem(apiTrack))
+  })
   return trackItems
 }
 
 export const getAlbum = async (albumID) => {
-  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbum(albumID))
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbum, albumID)
   return buildAlbumItem(apiResponse.body)
 }
 
 export const getAlbums = async (albumIDs) => {
-  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbums(albumIDs))
+  const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbums, albumIDs)
   const albumItems = []
   apiResponse.body.albums.forEach(apiAlbum => {
     albumItems.push(buildAlbumItem(apiAlbum))
@@ -98,15 +98,17 @@ const buildAlbumItem = (apiAlbum) => {
 }
 /**
  * Calls library function and retry on fail after waiting for token refresh
- * @param apiCall
+ * @param apiFunction
+ * @param args
  * @returns {Promise<*>}
  */
-const ensureTokenValidAndCall = async (apiCall) => {
+const ensureTokenValidAndCall = async (apiFunction, ...args) => {
   try {
-    return await apiCall
+    console.log(args)
+    return await apiFunction.call(_spotify, ...args)
   } catch {
     await ensureTokenIsRefreshed(store)
-    return await apiCall
+    return await apiFunction.call(_spotify, ...args)
   }
 }
 
@@ -129,6 +131,7 @@ export const refreshAccessToken = async (refreshToken) => {
         client_id: process.env.SPOTIFY_CONFIG.CLIENT_ID,
       }),
     })
+    // Save access token to spotify api library object //
     _spotify.setAccessToken(res.data.access_token)
     return res.data
   } catch (err) {
