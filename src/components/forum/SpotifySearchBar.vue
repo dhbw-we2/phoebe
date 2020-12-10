@@ -38,12 +38,12 @@
                     transition-prev="jump-up"
                     transition-next="jump-down">
         <q-tab-panel name="track">
-          <spotify-search-preview type="tracks" :tracks="searchDataTracks" v-on="$listeners"
-                                  @add-item="itemClicked($event)"/>
+          <spotify-search-preview type="tracks" :tracks="searchDataTracks"
+                                  v-on="$listeners" @add-item="itemClicked()"/>
         </q-tab-panel>
         <q-tab-panel name="album">
-          <spotify-search-preview type="albums" :albums="searchDataAlbums" v-on="$listeners"
-                                  @add-item="itemClicked($event)"/>
+          <spotify-search-preview type="albums" :albums="searchDataAlbums"
+                                  v-on="$listeners" @add-item="itemClicked()"/>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -79,13 +79,12 @@ export default {
   },
   methods: {
     /**
-     * Creates event to toggle notification and update Item ID/type
-     * Closes preview
-     * @param item
+     * Handler for item clicked event
+     * Closes search results, empties search input
      */
-    itemClicked(item) {
+    itemClicked() {
+      this.searchInput = ''
       this.showSearchResults = false
-      this.$emit('add-items', item)
     },
     /**
      * Searches for tracks and albums.
