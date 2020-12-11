@@ -1,7 +1,6 @@
 <template>
   <div ref="postView" class="scroll-margin-navbar overflow-wrap">
-    <q-slide-transition>
-      <q-card class="card-post-text q-mb-md" flat v-show="visible">
+    <q-card class="card-post-text q-mb-md" flat>
         <q-card-section horizontal>
           <q-card-actions vertical class="q-ma-md-sm" style="min-width: 5em">
             <q-btn flat round icon="eva-arrow-ios-upward-outline"
@@ -138,14 +137,13 @@
           </div>
         </q-slide-transition>
       </q-card>
-    </q-slide-transition>
   </div>
 </template>
 
 <script>
 import {getTimeSincePostText} from "src/helpers/TimeHelper";
 import {mapGetters} from "vuex";
-import {commentCollection, postRatingCollection, postRatingRef, postRef} from "src/services/firebase/db";
+import {commentCollection, postRatingRef, postRef} from "src/services/firebase/db";
 import CommentList from "components/forum/comments/CommentList";
 import TextEditor from "components/forum/TextEditor";
 import {firestore} from "firebase/app";
@@ -163,17 +161,21 @@ export default {
     dateEdited: [Number, firestore.Timestamp],
     user: Object,
     preview: Boolean,
-    initialScore: {
+    score: {
       type: Number,
       default: 0,
     },
-    initialRating: Object,
+    rating: {
+      type: Object,
+      default: function () {
+        return {disabled: true}
+      }
+    },
     spotifyItem: Object,
     hasSpotifyItem: Boolean,
   },
   data() {
     return {
-      visible: true,
       now: firestore.Timestamp.now(),
       commentsActive: false,
       commentInput: '',
@@ -182,8 +184,6 @@ export default {
       submittingComment: false,
       longPost: false,
       postExpanded: false,
-      score: 0,
-      rating: {disabled: true},
       upvoteLoading: false,
       downvoteLoading: false,
     }
@@ -219,26 +219,8 @@ export default {
     text() {
       this.checkForLongPost()
     },
-    initialRating() {
-      this.rating = this.initialRating
-    },
-    initialScore() {
-      this.score = this.initialScore
-    }
   },
   methods: {
-    async updateScore() {
-      postRef(this.id).get({source: 'server'}).then(doc => {
-        this.score = doc.data().score
-      })
-      const query = await postRatingCollection().where('user', "==", this.currentUserRef)
-        .where('post', '==', postRef(this.id)).get()
-      if (!query.empty) {
-        this.rating = query.docs[0].data()
-      } else {
-        this.rating = {neutral: true}
-      }
-    },
     async vote(ratingPositive) {
       if (ratingPositive) this.upvoteLoading = true
       else this.downvoteLoading = true
@@ -269,10 +251,8 @@ export default {
             positive: ratingPositive
           })
         }
-
         // Commit the transaction //
         await batch.commit()
-
       } catch (e) {
         if (e.code === 'permission-denied') {
           console.warn('Tried to vote with illegal value')
@@ -280,7 +260,6 @@ export default {
           console.error(e)
         }
       } finally {
-        await this.updateScore()
         this.upvoteLoading = false
         this.downvoteLoading = false
       }
@@ -355,7 +334,6 @@ export default {
         ok: 'Yes',
         color: 'primary'
       }).onOk(() => {
-        this.visible = false;
         postRef(this.id).delete().then(() => {
           // this.$emit('post-deleted')
         });
@@ -402,7 +380,6 @@ export default {
   },
   created() {
     this.scheduleUpdateNow();
-    this.score = this.initialScore
   },
   mounted() {
     this.checkForLongPost()

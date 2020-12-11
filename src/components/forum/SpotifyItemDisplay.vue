@@ -5,7 +5,7 @@
         <q-img v-if="spotifyItem"
                :width="getCoverWidthHeight"
                :height="getCoverWidthHeight"
-               :src="getSpotifyItemCoverURL" v-ripple="{early: true, color: 'white'}"
+               :src="getSpotifyItemCoverURL" v-ripple="{color: 'white'}"
                class="cursor-pointer"
                @click="openSpotifyLink"/>
         <q-skeleton v-else type="rect" :width="getCoverWidthHeight" :height="getCoverWidthHeight"/>

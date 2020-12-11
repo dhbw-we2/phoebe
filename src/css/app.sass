@@ -215,9 +215,9 @@ body.body--dark
       max-width: 500px
 
 .emoji-picker-color-override
-  --ep-color-bg: #{rgba($dark, 0.6)} !important
-  --ep-color-sbg: #{rgba($dark, 0.3)} !important
-  --ep-color-active: #{$primary} !important
+  --ep-color-bg: #rgba($dark, 0.6) !important
+  --ep-color-sbg: #rgba($dark, 0.3) !important
+  --ep-color-active: $primary !important
 
 .scroll-margin-navbar
   scroll-margin-top: $navbar-height + 10px
@@ -228,3 +228,51 @@ body.body--dark
 
 .post-shortened
   max-height: 250px
+
+
+// Transition animations //
+
+.fade-enter-active,
+.fade-leave-active
+  transition-duration: 0.3s
+  transition-property: height, opacity
+  transition-timing-function: ease
+  overflow: hidden
+
+.fade-enter,
+.fade-leave-active
+  opacity: 0
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active
+  transition-duration: 0.3s
+  transition-property: height, opacity, transform
+  transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1)
+  overflow: hidden
+
+.slide-left-enter,
+.slide-right-leave-active
+  opacity: 0
+  transform: translate(2em, 0)
+
+.slide-left-leave-active,
+.slide-right-enter
+  opacity: 0
+  transform: translate(-2em, 0)
+
+.zoom-leave-active
+  animation-duration: 0.5s
+  animation-fill-mode: both
+  animation-name: zoom
+
+.zoom-leave-active
+  animation-direction: reverse
+
+@keyframes zoom
+  0%
+    opacity: 0
+    transform: scale3d(0.3, 0.3, 0.3)
+  100%
+    opacity: 1

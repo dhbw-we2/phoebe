@@ -1,25 +1,27 @@
 <template>
   <div>
     <template v-if="!loadingSkeleton && posts.length">
-      <post-view v-for="post in posts"
-                 :key="post.id"
-                 :id="post.id"
-                 :caption="post.caption"
-                 :date="post.date"
-                 :text="post.text"
-                 :user="userData[post.user.id]"
-                 :uid="post.user.id"
-                 :tags="post.tags"
-                 :date-edited="post.dateEdited"
-                 :initial-score="post.score"
-                 :initial-rating="ratingData[post.id]"
-                 :spotify-item="spotifyData[`${post.spotifyItemType}_${post.spotifyItemId}`]"
-                 :has-spotify-item="!!post.spotifyItemId"
-                 @tag-clicked="$emit('tag-clicked', $event)">
-        <template v-slot:tagTooltip="props">
-          <slot name="tagTooltip" :tag="props.tag"/>
-        </template>
-      </post-view>
+      <transition-group name="zoom">
+        <post-view v-for="post in posts"
+                   :key="post.id"
+                   :id="post.id"
+                   :caption="post.caption"
+                   :date="post.date"
+                   :text="post.text"
+                   :user="userData[post.user.id]"
+                   :uid="post.user.id"
+                   :tags="post.tags"
+                   :date-edited="post.dateEdited"
+                   :score="post.score"
+                   :rating="ratingData[post.id]"
+                   :spotify-item="spotifyData[`${post.spotifyItemType}_${post.spotifyItemId}`]"
+                   :has-spotify-item="!!post.spotifyItemId"
+                   @tag-clicked="$emit('tag-clicked', $event)">
+          <template v-slot:tagTooltip="props">
+            <slot name="tagTooltip" :tag="props.tag"/>
+          </template>
+        </post-view>
+      </transition-group>
       <post-skeleton v-if="!lastPage" v-view="onLoadMoreInView"/>
       <div v-else class="column items-center">
         <h5 class="text-center text-grey-4 q-my-md">You have reached the end 🏁</h5>
@@ -54,11 +56,9 @@ export default {
     return {
       posts: [],
       loadingSkeleton: true,
-      initialUpdate: true,
       pendingPosts: [],
-      postQuery: Function,
+      queryListener: Function,
       newPostsNotify: Function,
-      canShowNewPostsNotify: true,
       newestSnapshot: Function,
       userData: [],
       ratingData: [],
@@ -66,7 +66,9 @@ export default {
       lastDocVisible: null,
       pageSize: 10,
       lastPage: false,
-      loadingNextPage: false
+      loadingNextPage: false,
+      requestCode: 0,
+      isInitialSnapshot: true
     }
   },
   props: {
@@ -92,65 +94,87 @@ export default {
         this.loadMorePosts()
       }
     },
-    loadMorePosts() {
+    async loadMorePosts() {
+      const requestCode = this.requestCode
       this.loadingNextPage = true
-      let query = this.buildQuery()
+      let query = this.buildQuery().limit(this.pageSize)
       if (this.lastDocVisible) {
         query = query.startAfter(this.lastDocVisible)
       }
-      query.get().then(snapshot => {
+      const snapshot = await query.get()
+      if (requestCode === this.requestCode) {
         this.addPosts(snapshot)
         this.loadingNextPage = false
-      })
+        if (this.posts.length > 0) {
+          this.isInitialSnapshot = true
+          this.listenForQuery(this.buildQuery().limit(this.posts.length))
+        }
+      }
     },
     replacePosts(snapshot) {
       this.posts = []
       this.addPosts(snapshot)
     },
-    listenForQuery(query) {
-      this.postQuery = query.onSnapshot(snapshot => {
-        this.newestSnapshot = snapshot
-        if (this.initialUpdate) {
-          this.replacePosts(snapshot)
-          this.initialUpdate = false;
-        } else {
-          let newPosts = false;
-          snapshot.docChanges().forEach((change) => {
-            switch (change.type) {
-              case 'added':
-                if (change.newIndex !== this.pageSize - 1 && !change.doc.metadata.hasPendingWrites) newPosts = true
-                break
-              default:
-                break
-            }
-          })
-          if (newPosts) {
-            this.showNewPostsNotification()
-          }
+    replacePost(doc) {
+      const post = doc.data({serverTimestamps: 'estimate'})
+      post.id = doc.id
+      const index = this.posts.findIndex(oldPost => oldPost.id === post.id)
+      this.$set(this.posts, index, post)
+      if (post.spotifyItemType) {
+        if (!this.spotifyData[`${post.spotifyItemType}_${post.spotifyItemId}`]) {
+          this.fetchSpotifyData([{
+            id: post.spotifyItemId,
+            type: post.spotifyItemType
+          }])
         }
-
-      }, (err) => {
-        console.error(err)
-        this.$q.notify({
-          message: `Firebase Connection Failed!`,
-          type: 'negative'
+      }
+      this.fetchCurrentUserRating([doc.ref])
+    },
+    removePost(doc) {
+      const index = this.posts.findIndex(post => post.id === doc.id)
+      this.posts.splice(index, 1)
+    },
+    listenForQuery(query) {
+      this.clearQuery()
+      this.queryListener = query.onSnapshot(snapshot => {
+        this.newestSnapshot = snapshot
+        snapshot.docChanges().forEach(change => {
+          switch (change.type) {
+            case 'added':
+              if (!this.isInitialSnapshot && change.newIndex === 0) {
+                this.showNewPostsNotification()
+              }
+              break
+            case 'modified':
+              this.replacePost(change.doc)
+              break
+            case 'removed':
+              this.removePost(change.doc)
+              break
+          }
         })
+        this.isInitialSnapshot = false
       })
     },
-    refreshQuery() {
-      this.loadingSkeleton = true;
-      this.initialUpdate = true;
+    async refreshQuery() {
       this.clearQuery()
-      this.listenForQuery(this.buildQuery())
+      this.loadingSkeleton = true
+      this.isInitialSnapshot = true
+      this.posts = []
+      this.lastDocVisible = null
+      this.requestCode += 1
+      await this.loadMorePosts()
+      // Hide the loading skeletons to reveal the posts  //
+      this.loadingSkeleton = false
     },
     addPosts(snapshot) {
-      if (snapshot.empty && snapshot.metadata.fromCache) {
-        throw new Error('empty response');
-      }
-      if (snapshot.docs.length > 0) {
+      if (!snapshot.empty) {
         this.lastDocVisible = snapshot.docs[snapshot.docs.length - 1]
+        this.lastPage = snapshot.docs.length < this.pageSize;
+      } else {
+        this.lastPage = true
+        return
       }
-      this.lastPage = snapshot.docs.length < this.pageSize;
 
       const userIDs = []
       const postRefs = []
@@ -162,8 +186,8 @@ export default {
         post.id = doc.id
         // Populate userIDs with all new users that have not been loaded yet //
         if (post.user instanceof firestore.DocumentReference) {
-          if ((userIDs.findIndex(userID => userID === post.user.id) === -1) &&
-            (this.userData.findIndex(user => user.uid === post.user.id) === -1)) {
+          if (userIDs.indexOf(post.user.id) === -1 &&
+            !this.userData[post.user.id]) {
             userIDs.push(post.user.id)
           }
         }
@@ -171,9 +195,11 @@ export default {
         postRefs.push(doc.ref)
 
         // Populate spotifyItems with all new items //
-        if ((spotifyItems.findIndex(item => item.id === post.spotifyItemId) === -1) &&
-          (this.spotifyData.findIndex(item => item.id === post.spotifyItemId) === -1)) {
-          spotifyItems.push({id: post.spotifyItemId, type: post.spotifyItemType})
+        if (post.spotifyItemId) {
+          if (!spotifyItems.some(item => item.id === post.spotifyItemId) &&
+            !this.spotifyData[`${post.spotifyItemType}_${post.spotifyItemId}`]) {
+            spotifyItems.push({id: post.spotifyItemId, type: post.spotifyItemType})
+          }
         }
 
         // Populate posts array //
@@ -181,25 +207,15 @@ export default {
       })
 
       // Load all user information into userData object //
-      while (userIDs.length > 0) {
-        const userIDsPart = userIDs.splice(0, 10)
-        userCollection().where(firestore.FieldPath.documentId(), "in", userIDsPart).get().then(snapshot => {
-          snapshot.forEach(doc => {
-            this.$set(this.userData, doc.id, doc.data())
-          })
-        })
-      }
-
-      // Get current user ratings for all posts from database //
+      this.fetchUserData(userIDs)
       if (this.$store.state.auth.isAuthenticated) {
-        this.fetchCurrentUserRatings(postRefs)
+        // Get current user ratings for all posts from database //
+        this.fetchCurrentUserRating(postRefs)
         if (this.currentUser.spotifyAccessToken) {
+          // Load all spotify item data //
           this.fetchSpotifyData(spotifyItems)
         }
       }
-
-      // Hide the loading skeletons to reveal the posts  //
-      this.loadingSkeleton = false
     },
     /**
      * Fetch spotify information and save to spotifyData array
@@ -234,7 +250,7 @@ export default {
         })
       }
     },
-    fetchCurrentUserRatings(postRefs) {
+    fetchCurrentUserRating(postRefs) {
       while (postRefs.length > 0) {
         const postRefsPart = postRefs.splice(0, 10)
         postRatingCollection().where('user', "==", this.currentUserRef)
@@ -251,8 +267,17 @@ export default {
           })
         })
       }
-    }
-    ,
+    },
+    fetchUserData(userIDs){
+      while (userIDs.length > 0) {
+        const userIDsPart = userIDs.splice(0, 10)
+        userCollection().where(firestore.FieldPath.documentId(), "in", userIDsPart).get().then(snapshot => {
+          snapshot.forEach(doc => {
+            this.$set(this.userData, doc.id, doc.data())
+          })
+        })
+      }
+    },
     showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -268,15 +293,13 @@ export default {
           }
         ]
       })
-    }
-    ,
+    },
     clearQuery() {
-      this.postQuery()
+      this.queryListener()
       this.newPostsNotify()
-    }
-    ,
+    },
     buildQuery() {
-      let query = postCollection().orderBy("date", "desc").limit(this.pageSize)
+      let query = postCollection().orderBy("date", "desc")
       if (this.userFilter) {
         query = query.where('user', '==', this.userFilter)
       }
