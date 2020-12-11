@@ -21,7 +21,11 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar @add-item="addSpotifyItem"/>
+        <spotify-search-bar v-if="currentUser.spotifyAccessToken" @add-item="addSpotifyItem"/>
+        <q-btn v-else rounded color="primary" size="sm" outline
+               @click="$router.push({name: 'profile'})">
+          Connect your Spotify account to attach a song/album
+        </q-btn>
       </q-card-section>
       <q-card-section v-if="spotifyItemId" class="q-pt-none">
         <spotify-item-display :spotify-item="spotifyItemData"/>
