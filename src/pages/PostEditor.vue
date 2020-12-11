@@ -65,7 +65,7 @@
                :text="sanitizedText"
                :user="currentUser"
                :tags="tags"
-               :initial-score="post ? post.score : 0"
+               :score="post ? post.score : 0"
                :spotify-item="spotifyItemData"
                :has-spotify-item="!!spotifyItemId">
     </post-view>
