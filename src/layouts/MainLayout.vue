@@ -4,19 +4,20 @@
       <div class="background gradient-color" id="background-gradient"/>
       <div class="background gradient-darken"/>
     </div>
-    <q-header class="header-background" id="header">
-      <q-toolbar>
-        <q-btn dense flat round icon="eva-menu-outline" @click="drawer = !drawer" class="q-mr-sm"/>
-
+    <div id="pixel-anchor-toolbar-scroll"/>
+    <q-header style="background-color: transparent">
+      <q-toolbar class="toolbar" id="toolbar">
         <q-toolbar-title>
-          <router-link to="/" class="logo-text-link" >
-            <div class="flex no-wrap q-gutter-x-sm logo">
-              <q-avatar square size="55px">
-                <img src="~assets/spreddit-logo.svg" alt="Logo">
-              </q-avatar>
-              <div class="self-center logo-text">spreddit</div>
-            </div>
-          </router-link>
+          <div class="flex logo">
+            <router-link to="/" class="logo-text-link">
+              <div class="flex no-wrap q-gutter-x-sm">
+                <q-avatar square size="55px">
+                  <img src="~assets/spreddit-logo.svg" alt="Logo">
+                </q-avatar>
+                <div class="self-center logo-text">spreddit</div>
+              </div>
+            </router-link>
+          </div>
         </q-toolbar-title>
 
         <q-btn-dropdown
@@ -58,15 +59,15 @@
             </div>
           </div>
           <div v-else>
-              <div class="column q-pb-sm q-pt-sm">
-                <q-btn
-                  flat
-                  icon="eva-log-in-outline"
-                  label="Login"
-                  to="/auth/login"
-                  v-close-popup
-                />
-              </div>
+            <div class="column q-pb-sm q-pt-sm">
+              <q-btn
+                flat
+                icon="eva-log-in-outline"
+                label="Login"
+                to="/auth/login"
+                v-close-popup
+              />
+            </div>
           </div>
           <q-separator/>
           <div class="column q-pb-sm q-pt-sm">
@@ -91,75 +92,89 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="drawer" side="left"
+    <q-drawer class="large-screen-only"
+              v-model="drawer"
+              show-if-above side="left"
               :mini="miniState"
               @mouseover="miniState = false"
               @mouseout="miniState = true"
+              @focusout="miniState = true"
+              @="miniState = true"
+              @mouseleave="miniState = true"
               :width="200"
-              :breakpoint="500">
-      <q-scroll-area class="fit">
-        <q-list padding class="menu-list">
-          <q-item clickable v-ripple
-                  :to="{name: 'feed'}">
-            <q-item-section avatar>
-              <q-icon name="eva-home-outline"/>
-            </q-item-section>
-            <q-item-section>
-              My Feed
-            </q-item-section>
-          </q-item>
+              :breakpoint="500"
+              mini-to-overlay>
+      <q-list padding class="drawer-list">
+        <q-item clickable v-ripple
+                :to="{name: 'feed'}">
+          <q-item-section avatar>
+            <q-icon name="eva-home-outline"/>
+          </q-item-section>
+          <q-item-section>
+            My Feed
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-ripple
-                  :to="{name: 'forum'}">
-            <q-item-section avatar>
-              <q-icon name="eva-message-circle-outline"/>
-            </q-item-section>
-            <q-item-section>
-              Forum
-            </q-item-section>
-          </q-item>
+        <q-item clickable v-ripple
+                :to="{name: 'forum'}">
+          <q-item-section avatar>
+            <q-icon name="eva-message-circle-outline"/>
+          </q-item-section>
+          <q-item-section>
+            Forum
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-ripple
-                  :to="{name: 'newPost'}">
-            <q-item-section avatar>
-              <q-icon name="eva-plus-circle-outline"/>
-            </q-item-section>
-            <q-item-section>
-              New Post
-            </q-item-section>
-          </q-item>
+        <q-item clickable v-ripple
+                :to="{name: 'newPost'}">
+          <q-item-section avatar>
+            <q-icon name="eva-plus-circle-outline"/>
+          </q-item-section>
+          <q-item-section>
+            New Post
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-ripple
-                  :to="{name: 'myPosts'}">
-            <q-item-section avatar>
-              <q-icon name="eva-person-outline"/>
-            </q-item-section>
-            <q-item-section>
-              My Posts
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="eva-music-outline"/>
-            </q-item-section>
-            <q-item-section>
-              Playlists
-            </q-item-section>
-          </q-item>
-
-        </q-list>
-      </q-scroll-area>
+        <q-item clickable v-ripple
+                :to="{name: 'myPosts'}">
+          <q-item-section avatar>
+            <q-icon name="eva-person-outline"/>
+          </q-item-section>
+          <q-item-section>
+            My Posts
+          </q-item-section>
+        </q-item>
+      </q-list>
     </q-drawer>
 
     <q-page-container>
       <transition
         name="slide-right"
         mode="out-in">
-      <router-view/>
+        <router-view/>
       </transition>
     </q-page-container>
-
+    <q-footer class="small-screen-only" reveal :reveal-offset="20">
+      <q-tabs align="center" dense active-color="primary" switch-indicator indicator-color="transparent"
+              :breakpoint="0">
+        <q-route-tab icon="eva-home-outline" v-ripple
+                     :to="{name: 'feed'}">
+          Feed
+        </q-route-tab>
+        <q-route-tab icon="eva-message-circle-outline"
+                     :to="{name: 'forum'}">
+          Forum
+        </q-route-tab>
+        <q-route-tab icon="eva-person-outline"
+                     :to="{name: 'myPosts'}">
+          My Posts
+        </q-route-tab>
+        <q-route-tab icon="eva-plus-circle-outline"
+                     :to="{name: 'newPost'}">
+          New
+        </q-route-tab>
+      </q-tabs>
+    </q-footer>
   </q-layout>
 </template>
 
@@ -203,14 +218,12 @@ export default {
     toggleDarkMode() {
       this.$q.dark.toggle()
     },
-    // Scroll event handler to change the header opacity
     handleScroll() {
-      const header = document.getElementById('header');
-      "use strict";
+      const header = document.getElementById('header')
       if (document.body.scrollTop >= 25 || document.documentElement.scrollTop >= 25) {
-        header.classList.add("scroll");
+        header.style.backgroundColor = 'black';
       } else {
-        header.classList.remove("scroll");
+        header.style.backgroundColor = 'blue'
       }
     },
     rainbowColors() {
@@ -222,11 +235,20 @@ export default {
       this.$changeBackgroundColor('fun')
     }
   },
-  created() {
-    window.addEventListener('scroll', this.handleScroll)
-  },
-  destroyed() {
-    window.removeEventListener('scroll', this.handleScroll)
+  mounted() {
+    // Define Observer to change the header opacity
+    if ("IntersectionObserver" in window &&
+      "IntersectionObserverEntry" in window &&
+      "intersectionRatio" in window.IntersectionObserverEntry.prototype) {
+      let observer = new IntersectionObserver(entries => {
+        if (entries[0].boundingClientRect.y < 0) {
+          document.getElementById('toolbar').classList.add("scroll")
+        } else {
+          document.getElementById('toolbar').classList.remove("scroll")
+        }
+      });
+      observer.observe(document.querySelector("#pixel-anchor-toolbar-scroll"));
+    }
   }
 }
 </script>
@@ -239,10 +261,12 @@ export default {
   transition-timing-function: ease;
   overflow: hidden;
 }
+
 .fade-enter,
 .fade-leave-active {
   opacity: 0
 }
+
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,
@@ -252,11 +276,13 @@ export default {
   transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
   overflow: hidden;
 }
+
 .slide-left-enter,
 .slide-right-leave-active {
   opacity: 0;
   transform: translate(2em, 0);
 }
+
 .slide-left-leave-active,
 .slide-right-enter {
   opacity: 0;
