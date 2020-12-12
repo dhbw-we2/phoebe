@@ -100,7 +100,7 @@ export default {
     async spotifySearch() {
       if(this.searchInput.length > 0){
         this.searching = true
-        const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], {limit: 5})
+        const result = await this.$spotify.searchTracks(this.searchInput, ['track', 'album'], {limit: 10})
         this.searchDataAlbums = result.body.albums.items
         this.searchDataTracks = result.body.tracks.items
         this.showSearchResults = true
