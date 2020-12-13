@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="!loadingSkeleton && posts.length">
-      <transition-group name="zoom">
+      <transition-group leave-active-class="zoom-leave-active" >
         <post-view v-for="post in posts"
                    :key="post.id"
                    :id="post.id"
