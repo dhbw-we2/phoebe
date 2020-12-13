@@ -109,6 +109,8 @@ export default {
           this.isInitialSnapshot = true
           this.listenForQuery(this.buildQuery().limit(this.posts.length))
         }
+        // Hide the loading skeletons to reveal the posts  //
+        this.loadingSkeleton = false
       }
     },
     replacePosts(snapshot) {
@@ -164,8 +166,6 @@ export default {
       this.lastDocVisible = null
       this.requestCode += 1
       await this.loadMorePosts()
-      // Hide the loading skeletons to reveal the posts  //
-      this.loadingSkeleton = false
     },
     addPosts(snapshot) {
       if (!snapshot.empty) {
