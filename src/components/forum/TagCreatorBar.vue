@@ -25,18 +25,18 @@
         />
       </template>
     </q-input>
-      <transition-group name="zoom" class="q-gutter-sm q-pt-md" v-show="tags.length > 0">
-        <q-btn
-          color='positive'
-          unelevated rounded
-          icon-right="eva-close-outline"
-          ref="container"
-          v-for="tag in tags"
-          :key="tag"
-          v-on:click="removeTag(tag)">
-          {{ tag }}
-        </q-btn>
-      </transition-group>
+        <transition-group tag="div" name="zoom" class=" q-pt-md q-gutter-sm" v-show="tags.length > 0">
+          <q-btn
+            color='positive'
+            unelevated rounded
+            icon-right="eva-close-outline"
+            ref="container"
+            v-for="tag in tags"
+            :key="tag"
+            v-on:click="removeTag(tag)">
+            {{ tag }}
+          </q-btn>
+        </transition-group>
     <q-card-actions align="right" v-if="allowSubscribe && tags.length > 0">
       <q-btn
         color='negative'
