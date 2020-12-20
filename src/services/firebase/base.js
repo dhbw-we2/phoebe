@@ -39,6 +39,14 @@ export const ensureAuthIsInitialized = (store) => {
   })
 }
 
+
+/**
+ * Handles waiting for user data. Return true if it is ready
+ * Rejects if timeout is triggered.
+ *
+ * @param store
+ * @returns {Promise<unknown>|boolean}
+ */
 export const ensureUserDataIsInitialized = (store) => {
   if (store.state.user.isReady) return true
   // Create the observer only once on init
@@ -108,6 +116,7 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
 }
 
 /**
+ * Convenience method to know if a user is authenticated
  * @param  {Object} store - Vuex store
  */
 export const isAuthenticated = (store) => {
