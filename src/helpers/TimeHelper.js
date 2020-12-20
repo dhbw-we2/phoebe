@@ -1,6 +1,12 @@
 import {date} from "quasar";
 import {firestore} from "firebase/app";
 
+/**
+ * Determines the time difference when something was posted
+ * @param startTime
+ * @param finishTime
+ * @returns {string}
+ */
 export function getTimeSincePostText(startTime, finishTime) {
   if (startTime instanceof firestore.Timestamp) startTime = startTime.toMillis()
   if (finishTime instanceof firestore.Timestamp) finishTime = finishTime.toMillis()

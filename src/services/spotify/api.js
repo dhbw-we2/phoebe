@@ -5,8 +5,15 @@ import {Notify} from 'quasar'
 import {store} from "src/store"
 import {ensureTokenIsRefreshed} from "src/services/spotify/base";
 
+/**
+ * Initializes new SpotifyWebApi privately
+ * @private
+ */
 const _spotify = new SpotifyWebApi()
 
+/**
+ * Sets credentials from our spotify project from our config files
+ */
 export const SpotifyInit = () => {
   _spotify.setCredentials({
     clientId: process.env.SPOTIFY_CONFIG.CLIENT_ID,
@@ -18,28 +25,64 @@ export const self = () => {
   return _spotify
 }
 
+/**
+ * Implements the spotify search function with parameters and redirects if an error occurs
+ * Search function from https://github.com/thelinmichael/spotify-web-api-node
+ * @param query
+ * @param types
+ * @param options
+ * @param callback
+ * @returns {Promise<*>}
+ */
 export const searchTracks = (query, types, options, callback) => {
   return ensureTokenValidAndCall(_spotify.search, query, types, options, callback)
 }
 
+/**
+ * Implements function "setAccessToken()" from https://github.com/thelinmichael/spotify-web-api-node
+ * @param accessToken
+ * @returns {*}
+ */
 export const setAccessToken = (accessToken) => {
   return _spotify.setAccessToken(accessToken)
 }
 
+/**
+ * Implements "setRefreshToken()" from https://github.com/thelinmichael/spotify-web-api-node
+ * @param accessToken
+ * @returns {*}
+ */
 export const setRefreshToken = (accessToken) => {
   return _spotify.setRefreshToken(accessToken)
 }
 
+/**
+ * Implements the "getMe()" function and handles if and error occurs
+ * function from https://github.com/thelinmichael/spotify-web-api-node
+ * @returns {Promise<*>}
+ */
 export const getMe = async () => {
   await ensureTokenIsRefreshed(store)
   return ensureTokenValidAndCall(_spotify.getMe)
 }
 
+/**
+ * Implements the "getTrack()" function with a specific trackID
+ * from https://github.com/thelinmichael/spotify-web-api-node
+ * @param trackID
+ * @returns {Promise<{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}>}
+ */
 export const getTrack = async (trackID) => {
   const apiResponse = await ensureTokenValidAndCall(_spotify.getTrack, trackID)
   return buildTrackItem(apiResponse.body)
 }
 
+/**
+ * Implements the "getTracks()" function
+ * from https://github.com/thelinmichael/spotify-web-api-node
+ * @param trackIDs
+ * @returns {Promise<[]>}
+ */
 export const getTracks = async (trackIDs) => {
   const apiResponse = await ensureTokenValidAndCall(_spotify.getTracks, trackIDs)
   const trackItems = []
@@ -49,11 +92,23 @@ export const getTracks = async (trackIDs) => {
   return trackItems
 }
 
+/**
+ * Implements the "getAlbum()" function with a specific albumID
+ * from https://github.com/thelinmichael/spotify-web-api-node
+ * @param albumID
+ * @returns {Promise<{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}>}
+ */
 export const getAlbum = async (albumID) => {
   const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbum, albumID)
   return buildAlbumItem(apiResponse.body)
 }
 
+/**
+ * Implements the "getAlbums()" function
+ * from https://github.com/thelinmichael/spotify-web-api-node
+ * @param albumIDs
+ * @returns {Promise<[]>}
+ */
 export const getAlbums = async (albumIDs) => {
   const apiResponse = await ensureTokenValidAndCall(_spotify.getAlbums, albumIDs)
   const albumItems = []
