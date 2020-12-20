@@ -68,10 +68,19 @@ export default {
     }
   },
   methods: {
+    /**
+     * selects Emoji and adds it to the editor-text
+     * @param emoji that is selcted
+     */
     selectEmoji(emoji) {
       this.$refs.editor.runCmd('insertText', emoji.data)
       this.emojiDialog = true
     },
+    /**
+     * detect a past into editor,
+     * paste in the copied content but filtering out not wanted parts like Pictures
+     * @param evt
+     */
     pasteCapture(evt) {
       let text, onPasteStripFormattingIEPaste
       evt.preventDefault()

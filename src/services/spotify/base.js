@@ -6,7 +6,8 @@ const {ensureAuthIsInitialized, ensureUserDataIsInitialized, isAuthenticated} = 
 let refreshInterval
 
 /**
- *
+ * Function ensures that the token is refreshed
+ * Handles timeout error
  * @param store
  * @returns {Promise<boolean>}
  */
@@ -28,6 +29,13 @@ export const ensureTokenIsRefreshed = (store) => {
   })
 }
 
+/**
+ * Refreshes spotify auth state
+ * Displays a notification
+ * @param store
+ * @param currentUser
+ * @returns {Promise<void>}
+ */
 export const handleOnAuthStateChanged = async (store, currentUser) => {
   if(currentUser) {
     const notif = Notify.create({
@@ -45,6 +53,11 @@ export const handleOnAuthStateChanged = async (store, currentUser) => {
   }
 }
 
+/**
+ *
+ * @param store
+ * @returns {Promise<void>}
+ */
 const refreshAndSaveAccessToken = async (store) => {
   await ensureAuthIsInitialized(store)
   if (isAuthenticated(store)) {

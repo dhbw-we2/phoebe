@@ -122,6 +122,13 @@ export default {
   },
   methods: {
     ...mapActions('auth', ['createNewUser', 'loginUser']),
+    /**
+     * submit the authentication inputs as a login/registration
+     * validates the account
+     * checks if user already exists
+     * login or Registration
+     * checks for mistakes in the input, like an invalid email
+     */
     onSubmit() {
       this.submitting = true;
       const {email, password, username} = this
@@ -165,6 +172,10 @@ export default {
           }
         )
     },
+    /**
+     * checks if username is free
+     * @returns if username is free => true else false
+     */
     checkIfUsernameFree() {
       return new Promise((resolve) => {
         userCollection().where('username', '==', this.username).get().then(querySnapshot => {

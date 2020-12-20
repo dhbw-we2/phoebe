@@ -15,6 +15,9 @@ export default {
   },
   methods: {
     ...mapActions('user', ['updateUserData']),
+    /**
+     * request a spotify Access-Token and Refresh-Token to access the Spotify api with a spotify acc
+     */
     async requestToken() {
       await this.$axios({
         method: 'post',
@@ -39,6 +42,10 @@ export default {
         delete (window.opener.pkce_challenge_verifier)
       })
     },
+    /**
+     * safes the Access-Token and Refresh-Token in the DB
+     * @param data
+     */
     async saveToken(data) {
       const userData = {
         uid: this.$store.state.auth.uid,
@@ -56,6 +63,9 @@ export default {
       }
     }
   },
+  /**
+   * checks if a user was allowed to enter the page
+   */
   created() {
     if (this.$route.query.code) {
       this.requestToken()

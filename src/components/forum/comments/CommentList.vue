@@ -50,6 +50,9 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
+    /**
+     * fetches the up/down-votings of comments from the Post, of the current user
+     */
     fetchCurrentUserRatings(commentRefs){
       while (commentRefs.length > 0) {
         const commentRefsPart = commentRefs.splice(0, 10)
@@ -68,6 +71,11 @@ export default {
         })
       }
     },
+    /**
+     * using the comments query from buildQuery() a Snapshot
+     * is created, which is send to onSnapshot(snapshot)
+     * ! only if main Comment-list of Post
+     */
     createQuery() {
       this.clearQuery()
       let query = this.buildQuery();
@@ -79,9 +87,17 @@ export default {
         })
       })
     },
+    /**
+     * clears the Value of commentsQuery
+     */
     clearQuery() {
       this.commentsQuery()
     },
+    /**
+     * creates query of Comments of the Post this List is in
+     * - which is ordered by date of creation
+     * @returns the created query
+     */
     buildQuery() {
       let query = commentCollection().orderBy("date", "asc")
       if (this.post) {
@@ -91,6 +107,12 @@ export default {
       }
       return query
     },
+    /**
+     * Filters the snapshot to only use the comments, which are from the right parent-component
+     * allComments is set with an array with the filtered comments from the query
+     *
+     * @param snapshot = a snapshot of the comments query from buildQuery()
+     */
     onSnapshot(snapshot) {
       let comments = []
       const userRefs = []
@@ -124,6 +146,9 @@ export default {
       this.loadTopLevelComments()
       this.$emit('comments-received')
     },
+    /**
+     * loads the first Comments of the Post so vue can render them
+     */
     loadTopLevelComments() {
       this.comments = []
       this.allComments.forEach((comment) => {
@@ -132,6 +157,9 @@ export default {
         }
       })
     },
+    /**
+     * loads a nested-List of Comment under a other Comment so vue can render it
+     */
     loadSubComments() {
       this.allComments = this.inheritedComments
       this.comments = []
@@ -142,6 +170,10 @@ export default {
       })
     }
   },
+  /**
+   * distinction between if list is the main Comment-List of
+   * the Post or a nested-List of Comments under a other Comment
+   */
   created() {
     // Check if CommentList is a nested list
     if (!this.inheritedComments) {
@@ -158,6 +190,9 @@ export default {
     this.clearQuery()
   },
   watch: {
+    /**
+     * checkes if new Comments got created
+     */
     inheritedComments() {
       this.loadSubComments()
     }

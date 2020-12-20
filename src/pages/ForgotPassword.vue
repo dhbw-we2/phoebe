@@ -34,6 +34,9 @@ export default {
     }
   },
   methods: {
+    /**
+     * submits that a  new password is needed for the inputted email and account
+     */
     onSubmit () {
       this.$refs.forgotPasswordForm.validate()
         .then(async success => {
