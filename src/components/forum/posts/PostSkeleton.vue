@@ -47,7 +47,3 @@ export default {
   components: {SpotifyItemDisplay},
 }
 </script>
-
-<style scoped>
-
-</style>

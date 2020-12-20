@@ -39,7 +39,6 @@ export default {
     // Required for QUploaderBase. Will not be
     // used. Use of isBusy Overlay instead
     abort () {},
-
     updateComponent (index, snapshot, status = 'uploading') {
       const file = this.files[index],
         uploadSize = (typeof snapshot === 'object') ? snapshot.bytesTransferred : 0
@@ -47,7 +46,6 @@ export default {
       // QUploaderBase private method to update file progress
       this.__updateFile(file, status, uploadSize)
     },
-
     upload () {
       if (this.canUpload === false) {
         return
@@ -70,7 +68,6 @@ export default {
           })
         })
     },
-
     uploadFileToFirestore (file) {
       const { meta } = this,
         { userRef, storageRef } = this.$fb,

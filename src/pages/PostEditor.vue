@@ -153,6 +153,9 @@ export default {
         this.clearInputs()
       }
     },
+    /**
+     * check for changes in the album/track-id and change to new if needed
+     */
     async spotifyItemId() {
       switch (this.spotifyItemType) {
         case 'track':
@@ -187,7 +190,7 @@ export default {
       }
     },
     /**
-     *
+     * adds new Post to DB by unsing all inputs from the page like text or tags
      */
     submitPost() {
       if (this.tags.length === 0 || !this.sanitizedCaption || !this.sanitizedText.replace(/<\/?[^>]+(>|$)/g, "")) {
@@ -239,10 +242,19 @@ export default {
         })
       }
     },
+    /**
+     * removes a specific tag from the tag list
+     * @param tag
+     */
     removeTag(tag) {
       const index = this.tags.findIndex(f => f === tag);
       this.tags.splice(index, 1);
     },
+    /**
+     * if the post was loaded from a existing Post,
+     * instead of creating a new one,
+     * this function files in all the needed information from the existing Post
+     */
     restoreIfEdit() {
       postCollection().doc(this.postID).get().then(doc => {
         const post = doc.data()
@@ -265,6 +277,9 @@ export default {
           this.$q.loading.hide()
         })
     },
+    /**
+     * clears all input fields
+     */
     clearInputs() {
       this.captionInput = ''
       this.tagInput = ''
@@ -277,6 +292,9 @@ export default {
       this.post = null
     },
   },
+  /**
+   * checks if the user wants to create a new Post or edit a existing post
+   */
   created() {
     if (this.isEdit) {
       if (this.$route.params.id) {
@@ -288,6 +306,9 @@ export default {
     }
     this.$changeBackgroundColor('post-editor')
   },
+  /**
+   * checks if the user hasn't submitted something that will be lost upon leaving the page
+   */
   beforeRouteLeave(to, from, next) {
     //Show warning when leaving partially filled form
     if (!this.postSubmitted && (this.tags.length > 0 || this.sanitizedText || this.sanitizedCaption || this.tagInput) && this.$store.state.auth.isAuthenticated) {

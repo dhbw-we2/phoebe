@@ -89,11 +89,17 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
+    /**
+     * if on the bottom of the page load more posts
+     */
     onLoadMoreInView(e) {
       if (e.type === 'enter' && !this.loadingNextPage) {
         this.loadMorePosts()
       }
     },
+    /**
+     * loading more Posts if user is at the bottom
+     */
     async loadMorePosts() {
       const requestCode = this.requestCode
       this.loadingNextPage = true
@@ -113,10 +119,16 @@ export default {
         this.loadingSkeleton = false
       }
     },
+    /**
+     * if new Posts are available and user clicks the Notification the new posts are loaded from the top
+     */
     replacePosts(snapshot) {
       this.posts = []
       this.addPosts(snapshot)
     },
+    /**
+     * A change in the DB from another user is detecked and this Function sets the new values
+     */
     replacePost(doc) {
       const post = doc.data({serverTimestamps: 'estimate'})
       post.id = doc.id
@@ -132,10 +144,17 @@ export default {
       }
       this.fetchCurrentUserRating([doc.ref])
     },
+    /**
+     * removes a Post from the List if it got deleted somewhere
+     */
     removePost(doc) {
       const index = this.posts.findIndex(post => post.id === doc.id)
       this.posts.splice(index, 1)
     },
+    /**
+     * creats a query of all the currently loaded tasks.
+     * this query is used to check all changes in the DB concerning the Posts
+     */
     listenForQuery(query) {
       this.clearQuery()
       this.queryListener = query.onSnapshot(snapshot => {
@@ -158,6 +177,9 @@ export default {
         this.isInitialSnapshot = false
       })
     },
+    /**
+     * query is reseted and a new one is created
+     */
     async refreshQuery() {
       this.clearQuery()
       this.loadingSkeleton = true
@@ -167,6 +189,9 @@ export default {
       this.requestCode += 1
       await this.loadMorePosts()
     },
+    /**
+     * adds new Post to the query
+     */
     addPosts(snapshot) {
       if (!snapshot.empty) {
         this.lastDocVisible = snapshot.docs[snapshot.docs.length - 1]
@@ -250,6 +275,9 @@ export default {
         })
       }
     },
+    /**
+     * fetches all up/downvotes of a user concerning the loaded posts
+     */
     fetchCurrentUserRating(postRefs) {
       while (postRefs.length > 0) {
         const postRefsPart = postRefs.splice(0, 10)
@@ -268,6 +296,9 @@ export default {
         })
       }
     },
+    /**
+     * fetches all data from users concerning the loaded Posts
+     */
     fetchUserData(userIDs){
       while (userIDs.length > 0) {
         const userIDsPart = userIDs.splice(0, 10)
@@ -278,6 +309,10 @@ export default {
         })
       }
     },
+    /**
+     * ....
+     * if new Posts are available and user clicks the Notification the new posts are loaded from the top
+     */
     showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({
         color: "primary",
@@ -298,6 +333,10 @@ export default {
       this.queryListener()
       this.newPostsNotify()
     },
+    /**
+     * creates a query of Posts and filters it, if filters are set
+     * @returns the created query
+     */
     buildQuery() {
       let query = postCollection().orderBy("date", "desc")
       if (this.userFilter) {

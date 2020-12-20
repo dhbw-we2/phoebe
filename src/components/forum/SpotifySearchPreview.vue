@@ -56,7 +56,7 @@ export default {
 
     },
     /**
-     *
+     * loads Avatar image
      */
     getImage(item) {
       switch (this.type) {

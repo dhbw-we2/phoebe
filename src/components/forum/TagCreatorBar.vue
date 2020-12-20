@@ -85,11 +85,18 @@ export default {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
   },
   methods: {
+    /**
+     * add new Tag from the Inputtbar
+     */
     addTagFromInput() {
       if (this.addTag(this.tagInput)) {
         this.tagInput = '';
       }
     },
+    /**
+     * Adds a new Tag to the filter tag list with conditions
+     * @param tag
+     */
     addTag(tag) {
       if (this.tags.length < 10) {
         const newTag = tag.replace(/\s/g, '').toLowerCase()
@@ -111,6 +118,10 @@ export default {
       }
       return false
     },
+    /**
+     * removes a selected Tag from the filter list
+     * @param tag
+     */
     removeTag(tag) {
       const index = this.tags.indexOf(tag);
       if (index !== -1) {
@@ -120,21 +131,35 @@ export default {
         }
       }
     },
+    /**
+     * makes the current user subscribe to a specific tag
+     * @param tag
+     */
     async subscribe(tag) {
       await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tag)
       })
     },
+    /**
+     * makes the current user unsubscribe to a specific tag
+     * @param tag
+     */
     async unsubscribe(tag){
       await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
       })
     },
+    /**
+     * shows all subscriptions of a User
+     */
     getSubscriptions() {
       if (this.currentUser.subscribedTags) {
         this.tags.push(...this.currentUser.subscribedTags)
       }
     },
+    /**
+     * Subscribe Button was clicked, all currend Tags for filtering
+     */
     async subscribeButton() {
       this.subscribing = true
       try {

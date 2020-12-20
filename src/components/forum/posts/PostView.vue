@@ -221,6 +221,10 @@ export default {
     },
   },
   methods: {
+    /**
+     * upvote or downvote / undo upvote or undo downvote
+     * @param ratingPositive up or downvote was clicked?
+     */
     async vote(ratingPositive) {
       if (ratingPositive) this.upvoteLoading = true
       else this.downvoteLoading = true
@@ -272,6 +276,9 @@ export default {
       }
       this.postExpanded = !this.postExpanded
     },
+    /**
+     * for displaying shortened versions of long posts
+     */
     checkForLongPost() {
       // Check whether  post content is overflowing
       const postContent = this.$refs.postContent
@@ -279,6 +286,9 @@ export default {
         this.longPost = postContent.scrollHeight > postContent.clientHeight
       }
     },
+    /**
+     * for showing an animation bevore comments are loaded
+     */
     onCommentsShowTransitionEnd() {
       if (!this.isInViewport()) {
         this.$refs.postView.scrollIntoView({block: 'start', behavior: 'smooth'});
@@ -293,13 +303,22 @@ export default {
         }, 500)
       }
     },
+    /**
+     * starting Comment loading cycle
+     */
     onCommentsHidden() {
       this.commentsActive = false;
     },
+    /**
+     * end of Comment loading cycle
+     */
     onCommentsReceived() {
       this.commentsShown = true
       this.commentsLoading = false
     },
+    /**
+     * show or hide comments depending on status after button was clicked
+     */
     showHideComments() {
       if (!this.commentsShown) {
         if (!this.commentsActive) {
@@ -313,6 +332,10 @@ export default {
         this.commentsShown = false;
       }
     },
+    /**
+     * for rendering
+     * @returns borders
+     */
     isInViewport() {
       const bounding = this.$refs.postView.getBoundingClientRect();
       return (
@@ -322,9 +345,15 @@ export default {
         bounding.right <= (window.innerWidth || document.documentElement.clientWidth)
       )
     },
+    /**
+     * edit Post Button was clicked edit page is loaded
+     */
     editPost() {
       this.$router.push({name: 'editPost', params: {id: this.id}});
     },
+    /**
+     * delete Post from DB
+     */
     deletePost() {
       this.$q.dialog({
         title: 'Delete Post',
@@ -339,19 +368,32 @@ export default {
         });
       })
     },
+    /**
+     * Timestamp Variable NOW is updated and call scheduleUpdateNow()
+     */
     updateNow() {
       this.now = firestore.Timestamp.now();
       this.scheduleUpdateNow();
     },
+    /**
+     * Timestamp Variable NOW is updated in 1ms by calling updateNow()
+     */
     scheduleUpdateNow() {
       setTimeout(this.updateNow, 1000);
     },
+    /**
+     * checks if the current user ist the author of the Post
+     * @returns true or false
+     */
     postedByCurrentUser() {
       if (this.currentUser && this.user) {
         return this.user.uid === this.currentUser.uid;
       }
       return false
     },
+    /**
+     * creats new Comment DB entry with the inputs from the user
+     */
     addComment() {
       if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({

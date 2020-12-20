@@ -177,22 +177,37 @@ export default {
     }
   },
   watch: {
+    /**
+     * if new Sub-Comments exists or old got deleted
+     */
     allComments() {
       this.checkForSubComments()
     },
+    /**
+     * checks if user is logged in so he can answer
+     */
     currentUser() {
       if (!this.currentUser) {
         this.replying = false
       }
     },
+    /**
+     * sets params to data
+     */
     initialRating() {
       this.rating = this.initialRating
     },
+    /**
+     * sets params to data
+     */
     initialScore() {
       this.score = this.initialScore
     }
   },
   methods: {
+    /**
+     * updates the upvote-downvote score of the comment
+     */
     async updateScore() {
       commentRef(this.id).get({source: 'server'}).then(doc => {
         this.score = doc.data().score
@@ -205,6 +220,9 @@ export default {
         this.rating = {neutral: true}
       }
     },
+    /**
+     * upvote or downvote / undo upvote or undo downvote
+     */
     async vote(positive) {
       if (positive) this.upvoteLoading = true
       else this.downvoteLoading = true
@@ -256,6 +274,9 @@ export default {
     onTransitionEnd() {
       this.transitionEnded = true
     },
+    /**
+     * adds a new comment to the DB after the user typed the comment and clicked the submit button.
+     */
     AddReply() {
       if (!this.sanitizedComment.replace(/<\/?[^>]+(>|$)/g, "")) {
         this.$q.notify({
@@ -285,6 +306,9 @@ export default {
         this.submittingReply = false;
       })
     },
+    /**
+     * opens or closes the answering editor depending when the answering button is clicked
+     */
     replyToComment() {
       this.replying = !this.replying
       if (this.replying) {
@@ -297,6 +321,10 @@ export default {
         }
       }
     },
+    /**
+     * deletes the comment in the DB, but only if in the recursive tree there is no other comment depending on it.
+     * if there is, the comment is replaced by a dummy-Comment
+     */
     deleteComment() {
       this.$q.dialog({
         title: 'Delete comment',
@@ -323,6 +351,9 @@ export default {
         }
       })
     },
+    /**
+     * handles the recursive part of deleting a post
+     */
     recursiveDelete(parentComment) {
       if (parentComment) {
         const parentIndex = this.allComments.findIndex(comment => comment.id === parentComment.id)
@@ -336,6 +367,9 @@ export default {
         }
       }
     },
+    /**
+     * checks if the Comment has sub-comments
+     */
     checkForSubComments() {
       let subComments = false
       this.allComments.every((comment) => {
@@ -348,13 +382,22 @@ export default {
       })
       this.hasSubComments = subComments
     },
+    /**
+     * updates var now to the current date and calls scheduleUpdateNow()
+     */
     updateNow() {
       this.now = firestore.Timestamp.now();
       this.scheduleUpdateNow();
     },
+    /**
+     * update var now to current Date in 1 ms
+     */
     scheduleUpdateNow() {
       setTimeout(this.updateNow, 1000);
     },
+    /**
+     * checkes if the current user is the creater of the Comment
+     */
     postedByCurrentUser() {
       if (this.currentUser && this.user) {
         return this.user.uid === this.currentUser.uid;
