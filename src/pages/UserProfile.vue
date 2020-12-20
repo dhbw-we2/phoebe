@@ -115,42 +115,40 @@ export default {
   },
   methods: {
     ...mapActions('user', ['updateUserData']),
+    /**
+     * If a user exists in the db, his info can be displayed
+     * @param attr
+     * @returns {string}
+     */
     getUserData(attr) {
       return (this.currentUser[attr]) ? this.currentUser[attr] : '((EMPTY))'
     },
+    /**
+     * Sets photoType to zero
+     */
     resetPhotoType() {
       this.photoType = ''
     },
-    async saveUserData() {
-      const {currentUser, username} = this
-
-      this.$q.loading.show({
-        message: 'Updating your data, please stand by...',
-      })
-
-      try {
-        await this.updateUserData({
-          uid: this.currentUser.uid,
-          username,
-        })
-      } catch (err) {
-        this.$q.notify({
-          message: `Looks like a problem updating your profile: ${err}`,
-          color: 'negative'
-        })
-      } finally {
-        this.$q.loading.hide()
-      }
-    },
+    /**
+     * If the profilePicture field in the db is empty, null or undefined, it returns true
+     * @returns {boolean}
+     */
     showDefaultPhoto() {
       return this.currentUser.profilePicture === '' ||
         this.currentUser.profilePicture === null ||
         this.currentUser.profilePicture === undefined
     },
+    /**
+     * Opens the dialog to finally upload and sets photoType for the FBQUploader
+     * @param type
+     */
     showPhotoUpload(type) {
       this.photoUpload = true
       this.photoType = type
     },
+    /**
+     * Closes dialog to upload and creates notification
+     */
     uploadComplete() {
       this.photoUpload = false
       this.$q.notify({
@@ -158,6 +156,10 @@ export default {
         color: 'positive'
       })
     },
+    /**
+     * Creates upload failure notification
+     * @param rejectedEntries
+     */
     imageRejected(rejectedEntries) {
       let message = 'Something went wrong'
       switch (rejectedEntries[0].failedPropValidation) {
@@ -173,11 +175,15 @@ export default {
         color: 'negative'
       })
     },
+    /**
+     * Links Spotify Account using PKCE Authentication
+     */
     linkSpotifyAccount() {
       const pkceChallenge = require('pkce-challenge')
       const challenge = pkceChallenge(128)
       const scope = 'user-read-private user-read-email';
 
+      //creates authentication URL
       const authURL = 'https://accounts.spotify.com/authorize?' +
         querystring.stringify({
           response_type: 'code',
@@ -208,6 +214,10 @@ export default {
         }
       }, 300);
     },
+    /**
+     * Unlinks spotify accound from user entry in db
+     * @returns {Promise<void>}
+     */
     async unlinkSpotifyAccount() {
       try {
         await this.updateUserData({
@@ -225,6 +235,10 @@ export default {
         this.spotifyUsername = ''
       }
     },
+    /**
+     * Updates Spotify user name
+     * Is called when refreshToken is set again
+     */
     updateSpotifyUsername() {
       if (this.currentUser.spotifyAccessToken) {
         this.$spotify.getMe().then((data) => {
