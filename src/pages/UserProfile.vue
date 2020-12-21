@@ -10,13 +10,13 @@
             <div class="column items-center">
               <q-avatar v-if="showDefaultPhoto()" class="q-mb-sm profile-picture" size="180px"
                         round="round" color="primary" icon="eva-person-outline" font-size="110px" text-color="white"
-                        @click="showPhotoUpload('profile')"/>
+                        @click="showPhotoUpload()"/>
               <q-avatar v-else class="q-mb-sm shadow-5 profile-picture" size="180px"
-                        @click="showPhotoUpload('profile')">
+                        @click="showPhotoUpload()">
                 <q-img :src="currentUser.profilePicture"/>
               </q-avatar>
               <span class="cursor-pointer text-caption"
-                    @click="showPhotoUpload('profile')">
+                    @click="showPhotoUpload()">
                   Click to edit
                   <q-icon name="eva-edit-outline"/>
               </span>
@@ -42,7 +42,7 @@
                     <q-item-label overline>SPOTIFY ACCOUNT</q-item-label>
                     <q-btn @click="linkSpotifyAccount" icon="eva-link-outline" class="q-ma-sm" color="primary"
                            style="max-width: 15rem" label="Link Spotify"
-                           v-if="!currentUser.spotifyAccessToken">
+                           v-if="!spotifyAuth">
                     </q-btn>
                     <template v-else>
                       <q-item-label>{{ spotifyUsername }}</q-item-label>
@@ -64,7 +64,7 @@
           </q-card-section>
         </q-card-section>
       </q-card>
-      <q-dialog v-model="photoUpload" transition-hide="scale" transition-show="scale" @before-hide="resetPhotoType">
+      <q-dialog v-model="photoUpload" transition-hide="scale" transition-show="scale">
         <fbq-uploader
           class="q-my-lg"
           label="Upload a Picture (max. 200 KiB)"
@@ -85,7 +85,6 @@ import {mapActions, mapGetters} from 'vuex'
 import {QUploaderBase} from 'quasar'
 import {currentUser} from "src/store/user/getters";
 import querystring from "querystring";
-import * as firebase from "firebase/app";
 
 export default {
   name: 'UserProfile',
@@ -95,13 +94,13 @@ export default {
   },
   data() {
     return {
-      photoType: '',
+      photoType: 'profile',
       photoUpload: false,
       spotifyUsername: '',
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUser', 'spotifyAuth']),
     meta() {
       return {
         uid: this.currentUser.uid,
@@ -114,9 +113,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['updateUserData']),
+    ...mapActions('user', ['updateUserData', 'unlinkSpotify']),
     /**
-     * If a user exists in the db, his info can be displayed
+     * Convenience function to get user attributes
      * @param attr
      * @returns {string}
      */
@@ -124,13 +123,7 @@ export default {
       return (this.currentUser[attr]) ? this.currentUser[attr] : '((EMPTY))'
     },
     /**
-     * Sets photoType to zero
-     */
-    resetPhotoType() {
-      this.photoType = ''
-    },
-    /**
-     * If the profilePicture field in the db is empty, null or undefined, it returns true
+     * If the profilePicture field in the DB is empty, null or undefined, it returns true
      * @returns {boolean}
      */
     showDefaultPhoto() {
@@ -139,21 +132,16 @@ export default {
         this.currentUser.profilePicture === undefined
     },
     /**
-     * Opens the dialog to finally upload and sets photoType for the FBQUploader
-     * @param type
+     * Opens the upload dialog
      */
-    showPhotoUpload(type) {
+    showPhotoUpload() {
       this.photoUpload = true
-      this.photoType = type
     },
-    /**
-     * Closes dialog to upload and creates notification
-     */
     uploadComplete() {
       this.photoUpload = false
       this.$q.notify({
-        message: 'Successfully uploaded your profile picture',
-        color: 'positive'
+        type: 'positive',
+        message: 'Successfully uploaded your profile picture'
       })
     },
     /**
@@ -171,8 +159,8 @@ export default {
           break
       }
       this.$q.notify({
-        message: message,
-        color: 'negative'
+        type: 'negative',
+        message: message
       })
     },
     /**
@@ -181,7 +169,7 @@ export default {
     linkSpotifyAccount() {
       const pkceChallenge = require('pkce-challenge')
       const challenge = pkceChallenge(128)
-      const scope = 'user-read-private user-read-email';
+      const scope = 'user-read-private';
 
       //creates authentication URL
       const authURL = 'https://accounts.spotify.com/authorize?' +
@@ -208,39 +196,31 @@ export default {
           clearInterval(timer);
           //Clear temporary global variable
           delete (window.pkce_challenge_verifier)
-          await this.$store.commit('spotify/setTokenReady', true)
-          this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
           this.updateSpotifyUsername()
         }
       }, 300);
     },
     /**
-     * Unlinks spotify accound from user entry in db
+     * Unlinks spotify account from user and removes entry in DB
      * @returns {Promise<void>}
      */
     async unlinkSpotifyAccount() {
       try {
-        await this.updateUserData({
-          uid: this.currentUser.uid,
-          spotifyAccessToken: firebase.firestore.FieldValue.delete(),
-          spotifyRefreshToken: firebase.firestore.FieldValue.delete(),
-        })
+        await this.unlinkSpotify()
+        this.spotifyUsername = ''
       } catch (err) {
         console.error(err)
         this.$q.notify({
           message: `Failed to unlink your Spotify account!`,
           color: 'negative'
         })
-      } finally {
-        this.spotifyUsername = ''
       }
     },
     /**
-     * Updates Spotify user name
-     * Is called when refreshToken is set again
+     * Updates Spotify user name from API
      */
     updateSpotifyUsername() {
-      if (this.currentUser.spotifyAccessToken) {
+      if (this.spotifyAuth) {
         this.$spotify.getMe().then((data) => {
           this.spotifyUsername = data.body.display_name
         })

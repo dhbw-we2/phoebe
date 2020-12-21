@@ -1,23 +1,31 @@
 import {firestoreAction} from 'vuexfire'
-import { userRef } from 'src/services/firebase/db'
+import {spotifyAuthRef, userRef} from 'src/services/firebase/db'
 
 /** Get current user from the firestore collection user's
  * via firebase uid
  *
  * @param  {Object} payload.id - Firebase currentUser id
  */
-export const getCurrentUser = firestoreAction(({ bindFirestoreRef }, id) => {
-  return bindFirestoreRef('currentUser', userRef(id))
+export const getCurrentUser = firestoreAction(({bindFirestoreRef}, id) => {
+  return Promise.all([
+    bindFirestoreRef('currentUser', userRef(id)),
+    bindFirestoreRef('spotifyAuth', spotifyAuthRef(id))
+  ])
 })
 
-export const clearCurrentUser = firestoreAction(({ unbindFirestoreRef }, ) => {
+export const clearCurrentUser = firestoreAction(({unbindFirestoreRef}) => {
   unbindFirestoreRef('currentUser')
+  unbindFirestoreRef('spotifyAuth')
 })
 
-/**
- * @param  {Object} {state}
- * @param  {Object} payload
- */
-export const updateUserData = async function ({ state }, payload) {
-  return userRef(payload.uid).update(payload)
+export const updateUserData = async function ({state}, payload) {
+  return userRef(state.currentUser.uid).update(payload)
+}
+
+export const setSpotifyAuth = function ({state}, payload) {
+  return spotifyAuthRef(state.currentUser.uid).set(payload)
+}
+
+export const unlinkSpotify = function ({state}) {
+  return spotifyAuthRef(state.currentUser.uid).delete()
 }

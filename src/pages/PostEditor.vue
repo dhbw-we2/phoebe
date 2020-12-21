@@ -21,7 +21,7 @@
       </q-card-section>
       <q-separator inset="true"/>
       <q-card-section>
-        <spotify-search-bar v-if="currentUser.spotifyAccessToken" @add-item="addSpotifyItem"/>
+        <spotify-search-bar v-if="spotifyAuth" @add-item="addSpotifyItem"/>
         <q-btn v-else rounded color="primary" size="sm" outline
                @click="$router.push({name: 'profile'})">
           Connect your Spotify account to attach a song/album
@@ -85,7 +85,7 @@ import SpotifyItemDisplay from "components/forum/SpotifyItemDisplay";
 export default {
   components: {SpotifyItemDisplay, TextEditor, PostView, TagCreatorBar, SpotifySearchBar},
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef', 'spotifyAuth']),
     /**
      * Returns
      * @returns {string}

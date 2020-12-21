@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="!loadingSkeleton && posts.length">
-      <transition-group leave-active-class="zoom-leave-active" >
+      <transition-group leave-active-class="zoom-leave-active">
         <post-view v-for="post in posts"
                    :key="post.id"
                    :id="post.id"
@@ -46,7 +46,7 @@ import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import {postCollection, postRatingCollection, userCollection} from "src/services/firebase/db";
 import {firestore} from "firebase/app"
-import {mapGetters} from "vuex";
+import {mapGetters, mapMutations} from "vuex";
 
 export default {
   name: 'PostList',
@@ -60,9 +60,7 @@ export default {
       queryListener: Function,
       newPostsNotify: Function,
       newestSnapshot: Function,
-      userData: [],
       ratingData: [],
-      spotifyData: [],
       lastDocVisible: null,
       pageSize: 10,
       lastPage: false,
@@ -86,19 +84,23 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef', 'spotifyAuth']),
+    ...mapGetters('cache', ['userData', 'spotifyData'])
   },
   methods: {
+    ...mapMutations('cache', ['setUserDataCache', 'setSpotifyDataCache']),
+
     /**
-     * if on the bottom of the page load more posts
+     * Handler for infinite scroll
      */
     onLoadMoreInView(e) {
       if (e.type === 'enter' && !this.loadingNextPage) {
         this.loadMorePosts()
       }
     },
+
     /**
-     * loading more Posts if user is at the bottom
+     * Load next n=pageSize posts
      */
     async loadMorePosts() {
       const requestCode = this.requestCode
@@ -120,14 +122,15 @@ export default {
       }
     },
     /**
-     * if new Posts are available and user clicks the Notification the new posts are loaded from the top
+     * Replaces all posts with data from snapshot
      */
     replacePosts(snapshot) {
       this.posts = []
       this.addPosts(snapshot)
     },
     /**
-     * A change in the DB from another user is detecked and this Function sets the new values
+     * Replaces a single post with data from firestore document
+     * Starts fetching Spotify and rating data for new post
      */
     replacePost(doc) {
       const post = doc.data({serverTimestamps: 'estimate'})
@@ -145,15 +148,15 @@ export default {
       this.fetchCurrentUserRating([doc.ref])
     },
     /**
-     * removes a Post from the List if it got deleted somewhere
+     * Removes a Post from the list if it got deleted somewhere
      */
     removePost(doc) {
       const index = this.posts.findIndex(post => post.id === doc.id)
       this.posts.splice(index, 1)
     },
     /**
-     * creats a query of all the currently loaded tasks.
-     * this query is used to check all changes in the DB concerning the Posts
+     * Creates a listener query of all the currently visible posts
+     * Reacts differently to new, modified or removed posts
      */
     listenForQuery(query) {
       this.clearQuery()
@@ -178,7 +181,8 @@ export default {
       })
     },
     /**
-     * query is reseted and a new one is created
+     * Called on page load and tags change
+     * Query is reset and the first page is loaded
      */
     async refreshQuery() {
       this.clearQuery()
@@ -190,7 +194,7 @@ export default {
       await this.loadMorePosts()
     },
     /**
-     * adds new Post to the query
+     * Adds new post to the list
      */
     addPosts(snapshot) {
       if (!snapshot.empty) {
@@ -236,7 +240,7 @@ export default {
       if (this.$store.state.auth.isAuthenticated) {
         // Get current user ratings for all posts from database //
         this.fetchCurrentUserRating(postRefs)
-        if (this.currentUser.spotifyAccessToken) {
+        if (this.spotifyAuth) {
           // Load all spotify item data //
           this.fetchSpotifyData(spotifyItems)
         }
@@ -262,7 +266,7 @@ export default {
         const trackIDsPart = trackIDs.splice(0, 50)
         this.$spotify.getTracks(trackIDsPart).then(trackItems => {
           trackItems.forEach(trackItem => {
-            this.$set(this.spotifyData, `track_${trackItem.id}`, trackItem)
+            this.setSpotifyDataCache({index: `track_${trackItem.id}`, item: trackItem})
           })
         })
       }
@@ -270,13 +274,13 @@ export default {
         const albumIDsPart = albumIDs.splice(0, 50)
         this.$spotify.getAlbums(albumIDsPart).then(albumItems => {
           albumItems.forEach(albumItem => {
-            this.$set(this.spotifyData, `album_${albumItem.id}`, albumItem)
+            this.setSpotifyDataCache({index: `album_${albumItem.id}`, item: albumItem})
           })
         })
       }
     },
     /**
-     * fetches all up/downvotes of a user concerning the loaded posts
+     * Fetches all up/downvotes of a user of all given posts and stores them in cache
      */
     fetchCurrentUserRating(postRefs) {
       while (postRefs.length > 0) {
@@ -297,21 +301,20 @@ export default {
       }
     },
     /**
-     * fetches all data from users concerning the loaded Posts
+     * Fetches all user data of all given users and stores them in cache
      */
     fetchUserData(userIDs){
       while (userIDs.length > 0) {
         const userIDsPart = userIDs.splice(0, 10)
         userCollection().where(firestore.FieldPath.documentId(), "in", userIDsPart).get().then(snapshot => {
           snapshot.forEach(doc => {
-            this.$set(this.userData, doc.id, doc.data())
+            this.setUserDataCache({index: doc.id, item: doc.data()})
           })
         })
       }
     },
     /**
-     * ....
-     * if new Posts are available and user clicks the Notification the new posts are loaded from the top
+     * If new Posts are available and user clicks the notification the new posts are loaded from the top
      */
     showNewPostsNotification() {
       this.newPostsNotify = this.$q.notify({
@@ -334,7 +337,7 @@ export default {
       this.newPostsNotify()
     },
     /**
-     * creates a query of Posts and filters it, if filters are set
+     * Creates a query of posts and filters it, if filters are set
      * @returns the created query
      */
     buildQuery() {

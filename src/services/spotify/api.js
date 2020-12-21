@@ -1,18 +1,13 @@
 import SpotifyWebApi from "spotify-web-api-node";
 import querystring from "querystring";
 import axios from 'axios'
-import {Notify} from 'quasar'
 import {store} from "src/store"
-import {ensureTokenIsRefreshed} from "src/services/spotify/base";
+import {ensureAccessCodeIsValid} from "src/services/spotify/base";
 
-/**
- * Initializes new SpotifyWebApi privately
- * @private
- */
 const _spotify = new SpotifyWebApi()
 
 /**
- * Sets credentials from our spotify project from our config files
+ * Initializes the library object with credentials from the secret quasar.env config file
  */
 export const SpotifyInit = () => {
   _spotify.setCredentials({
@@ -34,7 +29,7 @@ export const self = () => {
  * @param callback
  * @returns {Promise<*>}
  */
-export const searchTracks = (query, types, options, callback) => {
+export const search = (query, types, options, callback) => {
   return ensureTokenValidAndCall(_spotify.search, query, types, options, callback)
 }
 
@@ -62,7 +57,7 @@ export const setRefreshToken = (accessToken) => {
  * @returns {Promise<*>}
  */
 export const getMe = async () => {
-  await ensureTokenIsRefreshed(store)
+  await ensureAccessCodeIsValid(store)
   return ensureTokenValidAndCall(_spotify.getMe)
 }
 
@@ -121,7 +116,7 @@ export const getAlbums = async (albumIDs) => {
 /**
  * Converts a track object from the api into one that only contains relevant information
  * @param apiTrack
- * @returns {{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}}
+ * @returns {{coverURL, artist: *, name, id, type: string, url: *}}
  */
 const buildTrackItem = (apiTrack) => {
   const artists = apiTrack.artists.map(a => a.name)
@@ -138,7 +133,7 @@ const buildTrackItem = (apiTrack) => {
 /**
  * Converts a album object from the api into one that only contains relevant information
  * @param apiAlbum
- * @returns {{coverURL: *, artist: *, name: *, id: *, url: {mutations: {setTokenReady?}, state: {tokenReady: boolean}, getters: {}, actions: {}, namespaced: boolean}}}
+ * @returns {{coverURL, artist: *, name, id, type: string, url: *}}
  */
 const buildAlbumItem = (apiAlbum) => {
   const artists = apiAlbum.artists.map(a => a.name)
@@ -158,10 +153,11 @@ const buildAlbumItem = (apiAlbum) => {
  * @returns {Promise<*>}
  */
 const ensureTokenValidAndCall = async (apiFunction, ...args) => {
+  setAccessToken(store.state.user.spotifyAuth.accessToken)
   try {
     return await apiFunction.call(_spotify, ...args)
   } catch {
-    await ensureTokenIsRefreshed(store)
+    await ensureAccessCodeIsValid(store)
     return await apiFunction.call(_spotify, ...args)
   }
 }
@@ -169,10 +165,9 @@ const ensureTokenValidAndCall = async (apiFunction, ...args) => {
 /**
  * Refreshes Access Token
  * @param refreshToken {String}
- * @returns access Token {String}
+ * @returns HTTP Response Data {Object}
  */
 export const refreshAccessToken = async (refreshToken) => {
-  try {
     const res = await axios({
       method: 'post',
       url: `https://accounts.spotify.com/api/token`,
@@ -188,14 +183,4 @@ export const refreshAccessToken = async (refreshToken) => {
     // Save access token to spotify api library object //
     _spotify.setAccessToken(res.data.access_token)
     return res.data
-  } catch (err) {
-    if (err.response.status === 400) {
-      Notify.create({
-        type: 'negative',
-        message: 'Please reconnect your Spotify Account!'
-      })
-    } else {
-      console.error(err)
-    }
-  }
 }

@@ -1,5 +1,4 @@
 import firebaseService from '../services/firebase'
-import {handleOnAuthStateChanged} from "src/services/spotify/base";
 
 export default ({store, Vue}) => {
   const config = process.env.FIREBASE_CONFIG
@@ -9,7 +8,6 @@ export default ({store, Vue}) => {
   // authentication state has changed
   firebaseService.auth().onAuthStateChanged((currentUser) => {
     firebaseService.handleOnAuthStateChanged(store, currentUser)
-    handleOnAuthStateChanged(store, currentUser)
   }, (error) => {
     console.error(error)
   })

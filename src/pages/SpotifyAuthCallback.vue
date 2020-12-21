@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 import querystring from "querystring";
 
 export default {
@@ -13,10 +13,13 @@ export default {
       result: 'Loading...'
     }
   },
+  computed: {
+    ...mapGetters('user', ['currentUserRef'])
+  },
   methods: {
     ...mapActions('user', ['updateUserData']),
     /**
-     * request a spotify Access-Token and Refresh-Token to access the Spotify api with a spotify acc
+     * Request a Spotify access and refresh token for access to commands
      */
     async requestToken() {
       await this.$axios({
@@ -32,8 +35,15 @@ export default {
           client_id: process.env.SPOTIFY_CONFIG.CLIENT_ID,
           code_verifier: window.opener.pkce_challenge_verifier
         }),
-      }).then(response => {
-        this.saveToken(response.data)
+      }).then(async response =>  {
+        try {
+          await this.$spotify.saveSpotifyAuthData(response.data)
+          this.result = 'Success! You can close this window now.'
+          window.close()
+        } catch (err) {
+          console.error(err);
+          this.result = err
+        }
       }).catch(err => {
         console.error(err.response);
         this.result = 'Something went wrong.'
@@ -42,29 +52,9 @@ export default {
         delete (window.opener.pkce_challenge_verifier)
       })
     },
-    /**
-     * safes the Access-Token and Refresh-Token in the DB
-     * @param data
-     */
-    async saveToken(data) {
-      const userData = {
-        uid: this.$store.state.auth.uid,
-        spotifyAccessToken: data.access_token,
-        spotifyRefreshToken: data.refresh_token
-      }
-      try {
-        this.$spotify.setAccessToken(data.access_token)
-        await this.updateUserData(userData)
-        await this.$store.commit('spotify/setTokenReady', true)
-        this.result = 'Success! You can close this window now.'
-        window.close()
-      } catch (err) {
-        this.result = err
-      }
-    }
   },
   /**
-   * checks if a user was allowed to enter the page
+   * Checks if page was redirected from the Spotify API callback and prints error messages
    */
   created() {
     if (this.$route.query.code) {

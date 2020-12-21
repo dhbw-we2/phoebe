@@ -11,8 +11,6 @@ export default class User {
   email = ''
   username = ''
   profilePicture = ''
-  spotifyAccessToken = ''
-  spotifyRefreshToken = ''
   subscribedTags = []
 
   /**

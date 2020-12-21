@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import {firestoreOptions} from "vuexfire";
 
 /**
  * Returns Firebase 's global namespace from which all Firebase services are accessed
@@ -76,12 +77,14 @@ export const fBInit = (config) => {
   // Enable Firestore Persistence //
   firebase.firestore().settings({
     // Set cache size to 100 MB //
+    // Set cache size to 100 MB //
     cacheSizeBytes: 100000000
   })
   firebase.firestore().enablePersistence({synchronizeTabs: true})
     .catch(err => {
       console.error(err)
     })
+  firestoreOptions.wait = true
 
   return fb
 }

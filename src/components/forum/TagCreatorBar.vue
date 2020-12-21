@@ -25,18 +25,18 @@
         />
       </template>
     </q-input>
-        <transition-group tag="div" name="zoom" class=" q-pt-md q-gutter-sm" v-show="tags.length > 0">
-          <q-btn
-            color='positive'
-            unelevated rounded
-            icon-right="eva-close-outline"
-            ref="container"
-            v-for="tag in tags"
-            :key="tag"
-            v-on:click="removeTag(tag)">
-            {{ tag }}
-          </q-btn>
-        </transition-group>
+    <transition-group tag="div" name="zoom" class=" q-pt-md q-gutter-sm" v-show="tags.length > 0">
+      <q-btn
+        color='positive'
+        unelevated rounded
+        icon-right="eva-close-outline"
+        ref="container"
+        v-for="tag in tags"
+        :key="tag"
+        v-on:click="removeTag(tag)">
+        {{ tag }}
+      </q-btn>
+    </transition-group>
     <q-card-actions align="right" v-if="allowSubscribe && tags.length > 0">
       <q-btn
         color='negative'
@@ -86,7 +86,7 @@ export default {
   },
   methods: {
     /**
-     * add new Tag from the Inputtbar
+     * Add new tag from the input box
      */
     addTagFromInput() {
       if (this.addTag(this.tagInput)) {
@@ -126,13 +126,13 @@ export default {
       const index = this.tags.indexOf(tag);
       if (index !== -1) {
         this.tags.splice(index, 1);
-        if(this.subscriptionBox){
+        if (this.subscriptionBox) {
           this.unsubscribe(tag)
         }
       }
     },
     /**
-     * makes the current user subscribe to a specific tag
+     * Subscribes the current user to a specified tag
      * @param tag
      */
     async subscribe(tag) {
@@ -141,16 +141,16 @@ export default {
       })
     },
     /**
-     * makes the current user unsubscribe to a specific tag
+     * Unsubscribe the current user from a specified tag
      * @param tag
      */
-    async unsubscribe(tag){
+    async unsubscribe(tag) {
       await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
       })
     },
     /**
-     * shows all subscriptions of a User
+     * Get all subscriptions of a user and store them in the current tag filter
      */
     getSubscriptions() {
       if (this.currentUser.subscribedTags) {
@@ -158,7 +158,7 @@ export default {
       }
     },
     /**
-     * Subscribe Button was clicked, all currend Tags for filtering
+     * Handler for subscribe button, all current filter tags are subscribed
      */
     async subscribeButton() {
       this.subscribing = true

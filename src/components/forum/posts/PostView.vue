@@ -189,7 +189,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef', 'spotifyAuth']),
     // Display the Time since this post was created
     timeSincePostCreated() {
       return getTimeSincePostText(this.date, this.now)
@@ -212,7 +212,7 @@ export default {
       }
     },
     isSpotifyLinked() {
-      return this.currentUser && this.currentUser.spotifyAccessToken
+      return this.spotifyAuth
     },
   },
   watch: {

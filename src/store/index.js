@@ -4,7 +4,8 @@ import { vuexfireMutations } from 'vuexfire'
 
 import auth from './auth'
 import user from './user'
-import spotify from './spotify'
+import cache from './cache'
+
 
 Vue.use(Vuex)
 
@@ -23,7 +24,7 @@ export default function (/* { ssrContext } */) {
     modules: {
       auth,
       user,
-      spotify
+      cache,
     },
 
     mutations: {
