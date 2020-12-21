@@ -10,7 +10,6 @@
       :all-comments="allComments"
       :post="post"
       :parent-comment="comment.parentComment"
-      :all-user-data="userData"
       :initial-score="comment.score"
       :initial-rating="ratingData[comment.id]"
       :all-rating-data="ratingData"
@@ -23,6 +22,7 @@
 import {commentCollection, commentRatingCollection, postRef} from "src/services/firebase/db";
 import {firestore} from "firebase/app";
 import {mapGetters} from "vuex";
+import DataFetchMixin from "src/mixins/DataFetchMixin";
 
 export default {
   name: "CommentList",
@@ -33,7 +33,6 @@ export default {
     post: String,
     commentId: String,
     inheritedComments: Array,
-    allUserData: Array,
     allRatingData: Array
   },
 
@@ -42,18 +41,19 @@ export default {
       comments: [],
       commentsQuery: Function,
       allComments: [],
-      userData: [],
       ratingData: [],
     }
   },
   computed: {
     ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('cache', ['userData', 'spotifyData'])
   },
+  mixins: [DataFetchMixin],
   methods: {
     /**
      * fetches the up/down-votings of comments from the Post, of the current user
      */
-    fetchCurrentUserRatings(commentRefs){
+    fetchCurrentUserRatings(commentRefs) {
       while (commentRefs.length > 0) {
         const commentRefsPart = commentRefs.splice(0, 10)
         commentRatingCollection().where('user', "==", this.currentUserRef)
@@ -115,15 +115,16 @@ export default {
      */
     onSnapshot(snapshot) {
       let comments = []
-      const userRefs = []
+      const userIDs = []
       const commentRefs = []
       snapshot.forEach((doc) => {
         let comment = doc.data({serverTimestamps: 'estimate'});
         comment.id = doc.id
+        // Populate userIDs with all new users that have not been loaded yet //
         if (comment.user instanceof firestore.DocumentReference) {
-          if ((userRefs.findIndex(user => user.id === comment.user.id) === -1) &&
-            (this.userData.findIndex(user => user.uid === comment.user.id) === -1)) {
-            userRefs.push(comment.user)
+          if (userIDs.indexOf(comment.user.id) === -1 &&
+            !this.userData[comment.user.id]) {
+            userIDs.push(comment.user.id)
           }
         }
         // Populate commentRefs array for fetching ratings //
@@ -131,15 +132,12 @@ export default {
         // Populate comments array //
         comments.push(comment)
       })
-      // Load all user information into userData object //
-      userRefs.forEach(userRef => {
-        userRef.get().then(doc => {
-          this.$set(this.userData, userRef.id, doc.data())
-        })
-      })
+
+      // Load all user information into userData cache object //
+      this.fetchUserData(userIDs)
 
       // Get current user ratings for all posts from database //
-      if(this.$store.state.auth.isAuthenticated) {
+      if (this.$store.state.auth.isAuthenticated) {
         this.fetchCurrentUserRatings(commentRefs)
       }
       this.allComments = comments;
@@ -181,7 +179,6 @@ export default {
       this.createQuery()
     } else {
       // Is nested list
-      this.userData = this.allUserData
       this.ratingData = this.allRatingData
       this.loadSubComments()
     }
