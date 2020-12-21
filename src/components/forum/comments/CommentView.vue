@@ -97,7 +97,6 @@
           :post="post"
           :comment-id="id"
           :inherited-comments="allComments"
-          :all-user-data="allUserData"
           :all-rating-data="allRatingData"/>
       </q-card-section>
     </div>
@@ -130,7 +129,6 @@ export default {
     allComments: Array,
     post: String,
     parentComment: Object,
-    allUserData: Array,
     initialScore: {
       type: Number,
       default: 0

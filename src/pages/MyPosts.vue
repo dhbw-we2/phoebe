@@ -7,10 +7,11 @@
       icon="eva-funnel-outline"
       class="q-pb-md">
     </tag-creator-bar>
-    <PostList ref="postList"
-              :tags="tags"
-              :user-filter="currentUserRef"
-              @tags-changed="tags = $event"/>
+    <PostList
+      ref="postList"
+      :tags="tags"
+      :user-filter="currentUserRef"
+      @tag-clicked="tags = [$event]"/>
   </q-page>
 </template>
 
@@ -25,7 +26,7 @@ export default {
 
   data() {
     return {
-      tags:[],
+      tags: [],
     }
   },
   computed: {
