@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="!loadingSkeleton && posts.length">
-      <transition-group leave-active-class="zoom-leave-active" >
+      <transition-group leave-active-class="zoom-leave-active">
         <post-view v-for="post in posts"
                    :key="post.id"
                    :id="post.id"
@@ -46,7 +46,7 @@ import PostView from "components/forum/posts/PostView";
 import TagCreatorBar from "components/forum/TagCreatorBar";
 import {postCollection, postRatingCollection, userCollection} from "src/services/firebase/db";
 import {firestore} from "firebase/app"
-import {mapGetters} from "vuex";
+import {mapGetters, mapMutations} from "vuex";
 
 export default {
   name: 'PostList',
@@ -60,9 +60,7 @@ export default {
       queryListener: Function,
       newPostsNotify: Function,
       newestSnapshot: Function,
-      userData: [],
       ratingData: [],
-      spotifyData: [],
       lastDocVisible: null,
       pageSize: 10,
       lastPage: false,
@@ -87,8 +85,10 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['currentUser', 'currentUserRef', 'spotifyAuth']),
+    ...mapGetters('cache', ['userData', 'spotifyData'])
   },
   methods: {
+    ...mapMutations('cache', ['setUserDataCache', 'setSpotifyDataCache']),
     onLoadMoreInView(e) {
       if (e.type === 'enter' && !this.loadingNextPage) {
         this.loadMorePosts()
@@ -237,7 +237,7 @@ export default {
         const trackIDsPart = trackIDs.splice(0, 50)
         this.$spotify.getTracks(trackIDsPart).then(trackItems => {
           trackItems.forEach(trackItem => {
-            this.$set(this.spotifyData, `track_${trackItem.id}`, trackItem)
+            this.setSpotifyDataCache({index: `track_${trackItem.id}`, item: trackItem})
           })
         })
       }
@@ -245,7 +245,7 @@ export default {
         const albumIDsPart = albumIDs.splice(0, 50)
         this.$spotify.getAlbums(albumIDsPart).then(albumItems => {
           albumItems.forEach(albumItem => {
-            this.$set(this.spotifyData, `album_${albumItem.id}`, albumItem)
+            this.setSpotifyDataCache({index: `album_${albumItem.id}`, item: albumItem})
           })
         })
       }
@@ -268,12 +268,12 @@ export default {
         })
       }
     },
-    fetchUserData(userIDs){
+    fetchUserData(userIDs) {
       while (userIDs.length > 0) {
         const userIDsPart = userIDs.splice(0, 10)
         userCollection().where(firestore.FieldPath.documentId(), "in", userIDsPart).get().then(snapshot => {
           snapshot.forEach(doc => {
-            this.$set(this.userData, doc.id, doc.data())
+            this.setUserDataCache({index: doc.id, item: doc.data()})
           })
         })
       }
