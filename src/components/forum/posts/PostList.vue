@@ -86,7 +86,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser', 'currentUserRef']),
+    ...mapGetters('user', ['currentUser', 'currentUserRef', 'spotifyAuth']),
   },
   methods: {
     onLoadMoreInView(e) {
@@ -211,7 +211,7 @@ export default {
       if (this.$store.state.auth.isAuthenticated) {
         // Get current user ratings for all posts from database //
         this.fetchCurrentUserRating(postRefs)
-        if (this.currentUser.spotifyAccessToken) {
+        if (this.spotifyAuth) {
           // Load all spotify item data //
           this.fetchSpotifyData(spotifyItems)
         }

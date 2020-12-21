@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 import querystring from "querystring";
 
 export default {
@@ -12,6 +12,9 @@ export default {
     return {
       result: 'Loading...'
     }
+  },
+  computed: {
+    ...mapGetters('user', ['currentUserRef'])
   },
   methods: {
     ...mapActions('user', ['updateUserData']),
@@ -29,8 +32,15 @@ export default {
           client_id: process.env.SPOTIFY_CONFIG.CLIENT_ID,
           code_verifier: window.opener.pkce_challenge_verifier
         }),
-      }).then(response => {
-        this.saveToken(response.data)
+      }).then(async response =>  {
+        try {
+          await this.$spotify.saveSpotifyAuthData(response.data)
+          this.result = 'Success! You can close this window now.'
+          window.close()
+        } catch (err) {
+          console.error(err);
+          this.result = err
+        }
       }).catch(err => {
         console.error(err.response);
         this.result = 'Something went wrong.'
@@ -39,22 +49,6 @@ export default {
         delete (window.opener.pkce_challenge_verifier)
       })
     },
-    async saveToken(data) {
-      const userData = {
-        uid: this.$store.state.auth.uid,
-        spotifyAccessToken: data.access_token,
-        spotifyRefreshToken: data.refresh_token
-      }
-      try {
-        this.$spotify.setAccessToken(data.access_token)
-        await this.updateUserData(userData)
-        await this.$store.commit('spotify/setTokenReady', true)
-        this.result = 'Success! You can close this window now.'
-        window.close()
-      } catch (err) {
-        this.result = err
-      }
-    }
   },
   created() {
     if (this.$route.query.code) {

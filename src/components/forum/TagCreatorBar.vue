@@ -25,18 +25,18 @@
         />
       </template>
     </q-input>
-        <transition-group tag="div" name="zoom" class=" q-pt-md q-gutter-sm" v-show="tags.length > 0">
-          <q-btn
-            color='positive'
-            unelevated rounded
-            icon-right="eva-close-outline"
-            ref="container"
-            v-for="tag in tags"
-            :key="tag"
-            v-on:click="removeTag(tag)">
-            {{ tag }}
-          </q-btn>
-        </transition-group>
+    <transition-group tag="div" name="zoom" class=" q-pt-md q-gutter-sm" v-show="tags.length > 0">
+      <q-btn
+        color='positive'
+        unelevated rounded
+        icon-right="eva-close-outline"
+        ref="container"
+        v-for="tag in tags"
+        :key="tag"
+        v-on:click="removeTag(tag)">
+        {{ tag }}
+      </q-btn>
+    </transition-group>
     <q-card-actions align="right" v-if="allowSubscribe && tags.length > 0">
       <q-btn
         color='negative'
@@ -115,7 +115,7 @@ export default {
       const index = this.tags.indexOf(tag);
       if (index !== -1) {
         this.tags.splice(index, 1);
-        if(this.subscriptionBox){
+        if (this.subscriptionBox) {
           this.unsubscribe(tag)
         }
       }
@@ -125,7 +125,7 @@ export default {
         subscribedTags: firebase.firestore.FieldValue.arrayUnion(...tag)
       })
     },
-    async unsubscribe(tag){
+    async unsubscribe(tag) {
       await this.currentUserRef.update({
         subscribedTags: firebase.firestore.FieldValue.arrayRemove(tag)
       })

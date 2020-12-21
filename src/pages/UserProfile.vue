@@ -42,7 +42,7 @@
                     <q-item-label overline>SPOTIFY ACCOUNT</q-item-label>
                     <q-btn @click="linkSpotifyAccount" icon="eva-link-outline" class="q-ma-sm" color="primary"
                            style="max-width: 15rem" label="Link Spotify"
-                           v-if="!currentUser.spotifyAccessToken">
+                           v-if="!spotifyAuth">
                     </q-btn>
                     <template v-else>
                       <q-item-label>{{ spotifyUsername }}</q-item-label>
@@ -85,7 +85,6 @@ import {mapActions, mapGetters} from 'vuex'
 import {QUploaderBase} from 'quasar'
 import {currentUser} from "src/store/user/getters";
 import querystring from "querystring";
-import * as firebase from "firebase/app";
 
 export default {
   name: 'UserProfile',
@@ -101,7 +100,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['currentUser']),
+    ...mapGetters('user', ['currentUser', 'spotifyAuth']),
     meta() {
       return {
         uid: this.currentUser.uid,
@@ -114,33 +113,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['updateUserData']),
+    ...mapActions('user', ['updateUserData', 'unlinkSpotify']),
     getUserData(attr) {
       return (this.currentUser[attr]) ? this.currentUser[attr] : '((EMPTY))'
     },
     resetPhotoType() {
       this.photoType = ''
-    },
-    async saveUserData() {
-      const {currentUser, username} = this
-
-      this.$q.loading.show({
-        message: 'Updating your data, please stand by...',
-      })
-
-      try {
-        await this.updateUserData({
-          uid: this.currentUser.uid,
-          username,
-        })
-      } catch (err) {
-        this.$q.notify({
-          message: `Looks like a problem updating your profile: ${err}`,
-          color: 'negative'
-        })
-      } finally {
-        this.$q.loading.hide()
-      }
     },
     showDefaultPhoto() {
       return this.currentUser.profilePicture === '' ||
@@ -154,8 +132,8 @@ export default {
     uploadComplete() {
       this.photoUpload = false
       this.$q.notify({
-        message: 'Successfully uploaded your profile picture',
-        color: 'positive'
+        type: 'positive',
+        message: 'Successfully uploaded your profile picture'
       })
     },
     imageRejected(rejectedEntries) {
@@ -176,7 +154,7 @@ export default {
     linkSpotifyAccount() {
       const pkceChallenge = require('pkce-challenge')
       const challenge = pkceChallenge(128)
-      const scope = 'user-read-private user-read-email';
+      const scope = 'user-read-private';
 
       const authURL = 'https://accounts.spotify.com/authorize?' +
         querystring.stringify({
@@ -202,31 +180,24 @@ export default {
           clearInterval(timer);
           //Clear temporary global variable
           delete (window.pkce_challenge_verifier)
-          await this.$store.commit('spotify/setTokenReady', true)
-          this.$spotify.setAccessToken(this.currentUser.spotifyAccessToken)
           this.updateSpotifyUsername()
         }
       }, 300);
     },
     async unlinkSpotifyAccount() {
       try {
-        await this.updateUserData({
-          uid: this.currentUser.uid,
-          spotifyAccessToken: firebase.firestore.FieldValue.delete(),
-          spotifyRefreshToken: firebase.firestore.FieldValue.delete(),
-        })
+        await this.unlinkSpotify()
+        this.spotifyUsername = ''
       } catch (err) {
         console.error(err)
         this.$q.notify({
           message: `Failed to unlink your Spotify account!`,
           color: 'negative'
         })
-      } finally {
-        this.spotifyUsername = ''
       }
     },
     updateSpotifyUsername() {
-      if (this.currentUser.spotifyAccessToken) {
+      if (this.spotifyAuth) {
         this.$spotify.getMe().then((data) => {
           this.spotifyUsername = data.body.display_name
         })

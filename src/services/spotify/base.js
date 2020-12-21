@@ -1,64 +1,67 @@
-import spotifyService from "src/services/spotify/index";
-import firebaseServices from "src/services/firebase";
+import {firestore} from "firebase/app";
 import {Notify} from "quasar";
+import {store} from "src/store"
+import {refreshAccessToken} from "src/services/spotify/api";
 
-const {ensureAuthIsInitialized, ensureUserDataIsInitialized, isAuthenticated} = firebaseServices
 let refreshInterval
 
-/**
- *
- * @param store
- * @returns {Promise<boolean>}
- */
-export const ensureTokenIsRefreshed = (store) => {
-  if (store.state.spotify.tokenReady) return true
-  // Create the observer only once on init
-  return new Promise((resolve, reject) => {
-    let unwatch = store.watch((state) => {
-      return state.spotify.tokenReady
-    }, (tokenReady) => {
-      if (tokenReady) {
-        resolve()
-        unwatch()
-      }
-    })
-    setTimeout(() => {
-      reject("Spotify Timeout")
-    }, 5000)
-  })
-}
-
-export const handleOnAuthStateChanged = async (store, currentUser) => {
-  if(currentUser) {
-    const notif = Notify.create({
+export const ensureAccessCodeIsValid = (store) => {
+  const now = new Date()
+  const in5Minutes = now.setMinutes(now.getMinutes() + 5)
+  if (store.state.user.spotifyAuth.expires.toDate() < in5Minutes) {
+    const removeNotify = Notify.create({
       spinner: true,
       message: 'Refreshing Spotify Access'
     })
     refreshAndSaveAccessToken(store).then(() => {
-      notif()
+      removeNotify()
     })
-    refreshInterval = setInterval(() => {
-      refreshAndSaveAccessToken(store)
-    }, 3300000)
-  } else {
+
+    // Create the observer only once on init
+    return new Promise((resolve, reject) => {
+      let unwatch = store.watch((state) => {
+        return state.user.spotifyAuth.expires
+      }, (expires) => {
+        if (expires.toDate() > new Date()) {
+          resolve()
+          unwatch()
+        }
+      })
+      setTimeout(() => {
+        reject("Spotify Request Timeout")
+      }, 5000)
+    })
+  }
+}
+
+export const handleOnAuthStateChanged = (currentUser) => {
+  if (!currentUser) {
     clearInterval(refreshInterval)
   }
 }
 
-const refreshAndSaveAccessToken = async (store) => {
-  await ensureAuthIsInitialized(store)
-  if (isAuthenticated(store)) {
-    await ensureUserDataIsInitialized(store)
-    if (store.state.user.currentUser.spotifyAccessToken) {
-      const res = await spotifyService.refreshAccessToken(store.state.user.currentUser.spotifyRefreshToken)
-      if (res) {
-        await store.dispatch('user/updateUserData', {
-          uid: store.state.user.currentUser.uid,
-          spotifyAccessToken: res.access_token,
-          spotifyRefreshToken: res.refresh_token,
-        })
-        await store.commit('spotify/setTokenReady', true)
-      }
-    }
+export const saveSpotifyAuthData = async (data) => {
+  const expires = new Date();
+  expires.setSeconds(new Date().getSeconds() + data.expires_in)
+  await store.dispatch('user/setSpotifyAuth',{
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expires: firestore.Timestamp.fromDate(expires)
+  })
+}
+
+export const refreshAndSaveAccessToken = async (store) => {
+  try {
+    const data = await refreshAccessToken(store.state.user.spotifyAuth.refreshToken)
+    refreshInterval = setInterval(() => {
+      refreshAndSaveAccessToken(store)
+    }, 3300000)
+    await saveSpotifyAuthData(data)
+  } catch (e) {
+    Notify.create({
+      type: 'negative',
+      message: `Failed to refresh Spotify access token! Please re-link your account in your profile`,
+      timeout: 10000
+    })
   }
 }

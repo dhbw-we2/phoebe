@@ -48,6 +48,10 @@ export const commentRatingRef = (id) => {
   return commentRatingCollection().doc(id)
 }
 
+export const spotifyAuthRef = (id) => {
+  return firestore().collection('spotify-auth').doc(id)
+}
+
 /**
  * @param  {String} storageLocation - Location on Firebase Storage
  */

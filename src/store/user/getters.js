@@ -17,3 +17,7 @@ export const currentUser = ({currentUser}) => {
 export const currentUserRef = ({currentUser}) => {
   return userRef(currentUser.uid)
 }
+
+export const spotifyAuth = ({spotifyAuth}) => {
+  return spotifyAuth
+}
